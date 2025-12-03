@@ -1,100 +1,113 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ArrowRight, Check, ShieldCheck, Zap, Shirt } from "lucide-react";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Sparkles, ArrowRight, Check, Zap, User, Layers } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const features = [
-    { icon: Zap, text: "AI가 30초 만에 완성" },
-    { icon: ShieldCheck, text: "원본 얼굴 그대로 유지" },
-    { icon: Shirt, text: "상의 + 하의 조합 가능" },
+    { icon: Zap, text: t("feature.speed") },
+    { icon: User, text: t("feature.face") },
+    { icon: Layers, text: t("feature.combo") },
   ];
 
   const benefits = [
-    "온라인 쇼핑 전 가상 피팅",
-    "쇼핑몰 상품 사진 제작",
-    "SNS용 패션 콘텐츠 생성",
-    "의류 브랜드 룩북 제작",
+    t("benefits.1"),
+    t("benefits.2"),
+    t("benefits.3"),
+    t("benefits.4"),
   ];
 
   return (
     <main className="min-h-screen bg-background overflow-hidden">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="font-display font-bold text-xl gradient-text">
+            FitVision
+          </div>
+          <LanguageSwitch />
+        </div>
+      </header>
+
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-4 py-20">
-        {/* Background Effects */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "-3s" }} />
+      <section className="relative min-h-screen flex items-center justify-center px-4 pt-20 pb-16">
+        {/* Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-32 right-[10%] w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-32 left-[10%] w-96 h-96 bg-accent rounded-full blur-3xl animate-float" style={{ animationDelay: "-2.5s" }} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border mb-8 animate-fade-up">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm text-muted-foreground">AI Virtual Try-On</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-accent-foreground mb-8 animate-fade-up">
+            <Sparkles className="w-4 h-4" />
+            <span className="text-sm font-semibold">{t("hero.badge")}</span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-semibold mb-6 animate-fade-up" style={{ animationDelay: "0.1s" }}>
-            <span className="text-foreground">옷을 입어보지 않아도</span>
+          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4 animate-fade-up tracking-tight leading-tight" style={{ animationDelay: "0.1s" }}>
+            {t("hero.title1")}
             <br />
-            <span className="gradient-gold-text">내 모습을 확인하세요</span>
+            <span className="gradient-text">{t("hero.title2")}</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 animate-fade-up font-body" style={{ animationDelay: "0.2s" }}>
-            전신 사진 한 장과 원하는 옷만 있으면,<br className="hidden sm:block" />
-            AI가 당신이 그 옷을 입은 모습을 보여드립니다.
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-fade-up leading-relaxed" style={{ animationDelay: "0.2s" }}>
+            {t("hero.subtitle")}
           </p>
 
           {/* CTA Button */}
           <div className="animate-fade-up" style={{ animationDelay: "0.3s" }}>
             <Button 
-              variant="hero" 
+              variant="gradient" 
               size="xl"
               onClick={() => navigate("/upload")}
               className="group"
             >
-              지금 시작하기
+              {t("hero.cta")}
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Button>
           </div>
 
           {/* Features */}
-          <div className="flex flex-wrap justify-center gap-6 mt-16 animate-fade-up" style={{ animationDelay: "0.4s" }}>
+          <div className="flex flex-wrap justify-center gap-6 mt-14 animate-fade-up" style={{ animationDelay: "0.4s" }}>
             {features.map((feature, index) => (
-              <div key={index} className="flex items-center gap-2 text-muted-foreground">
+              <div key={index} className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-card border border-border">
                 <feature.icon className="w-4 h-4 text-primary" />
-                <span className="text-sm">{feature.text}</span>
+                <span className="text-sm font-medium text-foreground">{feature.text}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Who is this for Section */}
-      <section className="relative py-24 px-4">
+      {/* Benefits Section */}
+      <section className="relative py-24 px-4 bg-gradient-to-b from-background to-accent/30">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-semibold mb-4">
-              이런 분들을 위해 만들었어요
+          <div className="text-center mb-14">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 tracking-tight">
+              {t("benefits.title")}
             </h2>
-            <p className="text-muted-foreground">
-              가상 피팅으로 더 스마트한 패션 라이프를 경험하세요
+            <p className="text-muted-foreground text-lg">
+              {t("benefits.subtitle")}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-4">
             {benefits.map((benefit, index) => (
               <div 
                 key={index}
-                className="flex items-center gap-4 p-6 rounded-2xl bg-card border border-border hover:border-primary/30 transition-all duration-300 group"
+                className="flex items-center gap-4 p-5 rounded-2xl bg-card border border-border hover:border-primary/30 hover:shadow-md transition-all duration-300 group"
               >
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-accent flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                  <Check className="w-5 h-5 text-primary" />
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
+                  <Check className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-lg">{benefit}</span>
+                <span className="text-lg font-medium text-foreground">{benefit}</span>
               </div>
             ))}
           </div>
@@ -102,29 +115,29 @@ const Landing = () => {
       </section>
 
       {/* How it works */}
-      <section className="py-24 px-4 bg-card/50">
+      <section className="py-24 px-4">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-semibold mb-4">
-              어떻게 작동하나요?
+          <div className="text-center mb-14">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 tracking-tight">
+              {t("howto.title")}
             </h2>
-            <p className="text-muted-foreground">
-              단 3단계로 가상 피팅을 완성하세요
+            <p className="text-muted-foreground text-lg">
+              {t("howto.subtitle")}
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { step: "01", title: "전신 사진 업로드", desc: "정면을 바라보는 전신 사진을 올려주세요" },
-              { step: "02", title: "옷 사진 선택", desc: "입어보고 싶은 상의, 하의 이미지를 추가하세요" },
-              { step: "03", title: "AI 합성 결과 확인", desc: "AI가 자연스럽게 옷을 입힌 결과를 받아보세요" },
+              { step: "01", title: t("howto.step1.title"), desc: t("howto.step1.desc") },
+              { step: "02", title: t("howto.step2.title"), desc: t("howto.step2.desc") },
+              { step: "03", title: t("howto.step3.title"), desc: t("howto.step3.desc") },
             ].map((item, index) => (
               <div key={index} className="text-center group">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center border border-primary/20 group-hover:border-primary/40 transition-colors">
-                  <span className="font-display text-2xl font-semibold gradient-gold-text">{item.step}</span>
+                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl gradient-primary flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                  <span className="font-display text-2xl font-bold text-white">{item.step}</span>
                 </div>
-                <h3 className="font-display text-xl font-semibold mb-2">{item.title}</h3>
-                <p className="text-muted-foreground text-sm">{item.desc}</p>
+                <h3 className="font-display text-xl font-bold text-foreground mb-2">{item.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -132,21 +145,21 @@ const Landing = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="py-24 px-4">
+      <section className="py-24 px-4 bg-gradient-to-t from-accent/50 to-background">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl font-semibold mb-6">
-            지금 바로 체험해보세요
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
+            {t("cta.title")}
           </h2>
-          <p className="text-muted-foreground mb-10">
-            복잡한 회원가입 없이 바로 시작할 수 있습니다
+          <p className="text-muted-foreground text-lg mb-10">
+            {t("cta.subtitle")}
           </p>
           <Button 
-            variant="hero" 
+            variant="gradient" 
             size="xl"
             onClick={() => navigate("/upload")}
             className="group"
           >
-            가상 피팅 시작하기
+            {t("cta.button")}
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
           </Button>
         </div>
@@ -155,7 +168,7 @@ const Landing = () => {
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-border">
         <div className="max-w-5xl mx-auto text-center text-sm text-muted-foreground">
-          <p>© 2024 AI Virtual Try-On. Powered by AILabTools.</p>
+          <p>{t("footer.copyright")}</p>
         </div>
       </footer>
     </main>
