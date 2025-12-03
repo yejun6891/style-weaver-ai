@@ -1,13 +1,24 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LanguageSwitch from "@/components/LanguageSwitch";
+import StyleAnalysisReport from "@/components/StyleAnalysisReport";
+import { StyleProfile } from "@/components/StyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowLeft, Download, RefreshCw, Sparkles, Share2 } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText } from "lucide-react";
 
 const BACKEND_BASE_URL = "https://tyron-backend-8yaa.onrender.com";
 
 type Status = "loading" | "success" | "error";
+
+const defaultStyleProfile: StyleProfile = {
+  height: "",
+  bodyTypes: [],
+  occasions: [],
+  styles: [],
+  concerns: "",
+};
 
 const Result = () => {
   const { taskId } = useParams<{ taskId: string }>();
@@ -17,6 +28,19 @@ const Result = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [statusText, setStatusText] = useState("");
   const [progress, setProgress] = useState(0);
+  const [styleProfile, setStyleProfile] = useState<StyleProfile>(defaultStyleProfile);
+
+  useEffect(() => {
+    // Load style profile from sessionStorage
+    const stored = sessionStorage.getItem("styleProfile");
+    if (stored) {
+      try {
+        setStyleProfile(JSON.parse(stored));
+      } catch (e) {
+        console.error("Failed to parse style profile:", e);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     setStatusText(t("result.processing"));
@@ -128,6 +152,11 @@ const Result = () => {
     }
   };
 
+  const hasStyleProfile = styleProfile.bodyTypes.length > 0 || 
+    styleProfile.occasions.length > 0 || 
+    styleProfile.styles.length > 0 || 
+    styleProfile.concerns;
+
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
@@ -207,36 +236,91 @@ const Result = () => {
               </p>
             </div>
 
-            {/* Result Image */}
-            <div className="rounded-2xl overflow-hidden bg-card border border-border shadow-lg mb-8">
-              <img
-                src={imageUrl}
-                alt="Virtual Try-On Result"
-                className="w-full h-auto"
-              />
-            </div>
+            {/* Tabs for Image and Report */}
+            {hasStyleProfile ? (
+              <Tabs defaultValue="image" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="image" className="gap-2">
+                    <Image className="w-4 h-4" />
+                    {t("result.imageTab")}
+                  </TabsTrigger>
+                  <TabsTrigger value="report" className="gap-2">
+                    <FileText className="w-4 h-4" />
+                    {t("result.reportTab")}
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="image">
+                  {/* Result Image */}
+                  <div className="rounded-2xl overflow-hidden bg-card border border-border shadow-lg mb-8">
+                    <img
+                      src={imageUrl}
+                      alt="Virtual Try-On Result"
+                      className="w-full h-auto"
+                    />
+                  </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-4">
-              <Button
-                variant="gradient"
-                size="lg"
-                className="flex-1"
-                onClick={handleDownload}
-              >
-                <Download className="w-5 h-5" />
-                {t("result.download")}
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="flex-1"
-                onClick={handleShare}
-              >
-                <Share2 className="w-5 h-5" />
-                {t("result.share")}
-              </Button>
-            </div>
+                  {/* Action Buttons */}
+                  <div className="flex gap-4">
+                    <Button
+                      variant="gradient"
+                      size="lg"
+                      className="flex-1"
+                      onClick={handleDownload}
+                    >
+                      <Download className="w-5 h-5" />
+                      {t("result.download")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="flex-1"
+                      onClick={handleShare}
+                    >
+                      <Share2 className="w-5 h-5" />
+                      {t("result.share")}
+                    </Button>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="report">
+                  <StyleAnalysisReport profile={styleProfile} />
+                </TabsContent>
+              </Tabs>
+            ) : (
+              <>
+                {/* Result Image (No tabs if no profile) */}
+                <div className="rounded-2xl overflow-hidden bg-card border border-border shadow-lg mb-8">
+                  <img
+                    src={imageUrl}
+                    alt="Virtual Try-On Result"
+                    className="w-full h-auto"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-4">
+                  <Button
+                    variant="gradient"
+                    size="lg"
+                    className="flex-1"
+                    onClick={handleDownload}
+                  >
+                    <Download className="w-5 h-5" />
+                    {t("result.download")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="flex-1"
+                    onClick={handleShare}
+                  >
+                    <Share2 className="w-5 h-5" />
+                    {t("result.share")}
+                  </Button>
+                </div>
+              </>
+            )}
 
             {/* Try Again */}
             <div className="text-center mt-8">

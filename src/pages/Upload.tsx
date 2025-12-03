@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ImageUploadZone from "@/components/ImageUploadZone";
+import StyleProfileForm, { StyleProfile } from "@/components/StyleProfileForm";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
@@ -15,6 +16,14 @@ const Upload = () => {
   const [topFile, setTopFile] = useState<File | null>(null);
   const [bottomFile, setBottomFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [styleProfile, setStyleProfile] = useState<StyleProfile>({
+    height: "",
+    bodyTypes: [],
+    occasions: [],
+    styles: [],
+    concerns: "",
+  });
 
   const handleSubmit = async () => {
     if (!personFile || !topFile) {
@@ -45,6 +54,9 @@ const Upload = () => {
         setIsSubmitting(false);
         return;
       }
+
+      // Store style profile in sessionStorage for the result page
+      sessionStorage.setItem("styleProfile", JSON.stringify(styleProfile));
 
       navigate(`/result/${data.taskId}`);
     } catch (err) {
@@ -123,6 +135,24 @@ const Upload = () => {
             file={bottomFile}
             onFileChange={setBottomFile}
             optional
+          />
+
+          {/* Divider */}
+          <div className="relative py-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-background px-4 text-sm text-muted-foreground">
+                {t("profile.title")}
+              </span>
+            </div>
+          </div>
+
+          {/* Style Profile Form */}
+          <StyleProfileForm
+            value={styleProfile}
+            onChange={setStyleProfile}
           />
         </div>
       </div>
