@@ -8,8 +8,11 @@ import { Ruler, User, Calendar, Shirt, Target } from "lucide-react";
 export interface StyleProfile {
   height: string;
   bodyTypes: string[];
+  bodyTypeOther: string;
   occasions: string[];
+  occasionOther: string;
   styles: string[];
+  styleOther: string;
   concerns: string;
 }
 
@@ -129,6 +132,15 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
             </ChipButton>
           ))}
         </div>
+        {value.bodyTypes.includes("other") && (
+          <Input
+            type="text"
+            placeholder={t("profile.otherPlaceholder")}
+            value={value.bodyTypeOther}
+            onChange={(e) => onChange({ ...value, bodyTypeOther: e.target.value })}
+            className="bg-card mt-2"
+          />
+        )}
       </div>
 
       {/* Occasion (TPO) */}
@@ -149,6 +161,15 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
             </ChipButton>
           ))}
         </div>
+        {value.occasions.includes("other") && (
+          <Input
+            type="text"
+            placeholder={t("profile.otherPlaceholder")}
+            value={value.occasionOther}
+            onChange={(e) => onChange({ ...value, occasionOther: e.target.value })}
+            className="bg-card mt-2"
+          />
+        )}
       </div>
 
       {/* Preferred Style */}
@@ -169,6 +190,15 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
             </ChipButton>
           ))}
         </div>
+        {value.styles.includes("other") && (
+          <Input
+            type="text"
+            placeholder={t("profile.otherPlaceholder")}
+            value={value.styleOther}
+            onChange={(e) => onChange({ ...value, styleOther: e.target.value })}
+            className="bg-card mt-2"
+          />
+        )}
       </div>
 
       {/* Fashion Concerns / Goals */}
