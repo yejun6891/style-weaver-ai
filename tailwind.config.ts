@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['Playfair Display', 'serif'],
-        body: ['Inter', 'sans-serif'],
+        display: ['Cormorant Garamond', 'serif'],
+        body: ['DM Sans', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -82,10 +82,10 @@ export default {
         },
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-20px)" },
+          "50%": { transform: "translateY(-10px)" },
         },
         "fade-up": {
-          from: { opacity: "0", transform: "translateY(30px)" },
+          from: { opacity: "0", transform: "translateY(20px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
         "fade-in": {
@@ -93,11 +93,11 @@ export default {
           to: { opacity: "1" },
         },
         "scale-in": {
-          from: { opacity: "0", transform: "scale(0.9)" },
+          from: { opacity: "0", transform: "scale(0.95)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
         "slide-up": {
-          from: { opacity: "0", transform: "translateY(20px)" },
+          from: { opacity: "0", transform: "translateY(15px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
         "spin-slow": {
@@ -109,11 +109,11 @@ export default {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         shimmer: "shimmer 2s ease-in-out infinite",
-        float: "float 6s ease-in-out infinite",
-        "fade-up": "fade-up 0.8s ease-out forwards",
-        "fade-in": "fade-in 0.6s ease-out forwards",
-        "scale-in": "scale-in 0.5s ease-out forwards",
-        "slide-up": "slide-up 0.6s ease-out forwards",
+        float: "float 5s ease-in-out infinite",
+        "fade-up": "fade-up 0.6s ease-out forwards",
+        "fade-in": "fade-in 0.5s ease-out forwards",
+        "scale-in": "scale-in 0.4s ease-out forwards",
+        "slide-up": "slide-up 0.5s ease-out forwards",
         "spin-slow": "spin-slow 3s linear infinite",
       },
     },
