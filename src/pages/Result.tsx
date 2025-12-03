@@ -15,8 +15,11 @@ type Status = "loading" | "success" | "error";
 const defaultStyleProfile: StyleProfile = {
   height: "",
   bodyTypes: [],
+  bodyTypeOther: "",
   occasions: [],
+  occasionOther: "",
   styles: [],
+  styleOther: "",
   concerns: "",
 };
 

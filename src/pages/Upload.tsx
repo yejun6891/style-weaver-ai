@@ -20,8 +20,11 @@ const Upload = () => {
   const [styleProfile, setStyleProfile] = useState<StyleProfile>({
     height: "",
     bodyTypes: [],
+    bodyTypeOther: "",
     occasions: [],
+    occasionOther: "",
     styles: [],
+    styleOther: "",
     concerns: "",
   });
 
