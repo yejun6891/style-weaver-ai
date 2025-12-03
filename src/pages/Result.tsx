@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowLeft, Download, RefreshCw, Sparkles, Share2 } from "lucide-react";
 
 const BACKEND_BASE_URL = "https://tyron-backend-8yaa.onrender.com";
@@ -10,10 +12,15 @@ type Status = "loading" | "success" | "error";
 const Result = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [status, setStatus] = useState<Status>("loading");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [statusText, setStatusText] = useState("AI가 옷을 입히는 중...");
+  const [statusText, setStatusText] = useState("");
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    setStatusText(t("result.processing"));
+  }, [t]);
 
   useEffect(() => {
     if (!taskId) {
@@ -24,7 +31,6 @@ const Result = () => {
     let isCancelled = false;
     let progressInterval: NodeJS.Timeout;
 
-    // Simulated progress for UX
     progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 90) return prev;
@@ -33,7 +39,7 @@ const Result = () => {
     }, 500);
 
     const pollResult = async () => {
-      const intervalMs = 5000; // API recommends 5 seconds
+      const intervalMs = 5000;
 
       const check = async () => {
         if (isCancelled) return;
@@ -52,26 +58,22 @@ const Result = () => {
             setProgress(100);
             setImageUrl(data.imageUrl);
             setStatus("success");
-            setStatusText("완료!");
             clearInterval(progressInterval);
             return;
-          } else if (taskStatus === 0) {
-            setStatusText("대기열에서 처리 중...");
-            setTimeout(check, intervalMs);
-          } else if (taskStatus === 1) {
-            setStatusText("AI가 열심히 작업 중...");
+          } else if (taskStatus === 0 || taskStatus === 1) {
+            setStatusText(t("result.processing"));
             setTimeout(check, intervalMs);
           } else {
             console.error("Unexpected status:", data);
             setStatus("error");
-            setStatusText("처리 중 오류가 발생했습니다.");
+            setStatusText(t("result.error"));
             clearInterval(progressInterval);
           }
         } catch (err) {
           console.error(err);
           if (!isCancelled) {
             setStatus("error");
-            setStatusText("결과를 불러오는 중 오류가 발생했습니다.");
+            setStatusText(t("result.error"));
             clearInterval(progressInterval);
           }
         }
@@ -86,7 +88,7 @@ const Result = () => {
       isCancelled = true;
       clearInterval(progressInterval);
     };
-  }, [taskId, navigate]);
+  }, [taskId, navigate, t]);
 
   const handleDownload = async () => {
     if (!imageUrl) return;
@@ -97,14 +99,13 @@ const Result = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `virtual-tryon-${taskId}.jpg`;
+      a.download = `fitvision-${taskId}.jpg`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Download failed:", err);
-      // Fallback: open in new tab
       window.open(imageUrl, "_blank");
     }
   };
@@ -115,31 +116,29 @@ const Result = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "AI Virtual Try-On 결과",
-          text: "AI로 가상 피팅한 결과를 확인해보세요!",
+          title: "FitVision - AI Virtual Try-On",
+          text: "Check out my virtual try-on result!",
           url: window.location.href,
         });
       } catch (err) {
         console.log("Share cancelled or failed");
       }
     } else {
-      // Fallback: copy URL to clipboard
       navigator.clipboard.writeText(window.location.href);
-      alert("링크가 복사되었습니다!");
     }
   };
 
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border">
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/90 border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/upload" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm">다시 시도</span>
+            <span className="text-sm font-medium">{t("result.retry")}</span>
           </Link>
-          <h1 className="font-display text-lg font-semibold gradient-gold-text">Virtual Try-On</h1>
-          <div className="w-20" />
+          <div className="font-display font-bold text-lg gradient-text">FitVision</div>
+          <LanguageSwitch />
         </div>
       </header>
 
@@ -149,49 +148,49 @@ const Result = () => {
           <div className="text-center py-20 animate-fade-in">
             {/* Loading Animation */}
             <div className="relative w-32 h-32 mx-auto mb-8">
-              {/* Outer ring */}
               <div className="absolute inset-0 rounded-full border-4 border-border" />
-              {/* Progress ring */}
               <svg className="absolute inset-0 w-full h-full -rotate-90">
                 <circle
                   cx="64"
                   cy="64"
                   r="60"
                   fill="none"
-                  stroke="hsl(var(--primary))"
+                  stroke="url(#gradient)"
                   strokeWidth="4"
                   strokeLinecap="round"
                   strokeDasharray={377}
                   strokeDashoffset={377 - (377 * progress) / 100}
                   className="transition-all duration-500"
                 />
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="hsl(252, 100%, 60%)" />
+                    <stop offset="100%" stopColor="hsl(320, 100%, 60%)" />
+                  </linearGradient>
+                </defs>
               </svg>
-              {/* Center icon */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <Sparkles className="w-10 h-10 text-primary animate-pulse" />
               </div>
             </div>
 
-            <h2 className="font-display text-2xl font-semibold mb-2">
+            <h2 className="font-display text-2xl font-bold mb-2">
               {statusText}
             </h2>
             <p className="text-muted-foreground mb-4">
-              잠시만 기다려주세요. 보통 30초~1분 정도 소요됩니다.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Task ID: {taskId}
+              {t("result.wait")}
             </p>
 
             {/* Progress bar */}
             <div className="mt-8 max-w-xs mx-auto">
-              <div className="h-1 bg-border rounded-full overflow-hidden">
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div 
-                  className="h-full gradient-gold rounded-full transition-all duration-500"
+                  className="h-full gradient-primary rounded-full transition-all duration-500"
                   style={{ width: `${progress}%` }}
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {Math.round(progress)}% 완료
+                {Math.round(progress)}%
               </p>
             </div>
           </div>
@@ -200,16 +199,16 @@ const Result = () => {
         {status === "success" && imageUrl && (
           <div className="animate-scale-in">
             <div className="text-center mb-8">
-              <h2 className="font-display text-2xl md:text-3xl font-semibold mb-2">
-                🎉 피팅 완료!
+              <h2 className="font-display text-2xl md:text-3xl font-bold mb-2">
+                {t("result.complete")} 🎉
               </h2>
               <p className="text-muted-foreground">
-                AI가 생성한 가상 피팅 결과입니다
+                {t("result.title")}
               </p>
             </div>
 
             {/* Result Image */}
-            <div className="rounded-2xl overflow-hidden bg-card border border-border shadow-2xl mb-8">
+            <div className="rounded-2xl overflow-hidden bg-card border border-border shadow-lg mb-8">
               <img
                 src={imageUrl}
                 alt="Virtual Try-On Result"
@@ -220,22 +219,22 @@ const Result = () => {
             {/* Action Buttons */}
             <div className="flex gap-4">
               <Button
-                variant="hero"
+                variant="gradient"
                 size="lg"
                 className="flex-1"
                 onClick={handleDownload}
               >
                 <Download className="w-5 h-5" />
-                다운로드
+                {t("result.download")}
               </Button>
               <Button
-                variant="elegant"
+                variant="outline"
                 size="lg"
                 className="flex-1"
                 onClick={handleShare}
               >
                 <Share2 className="w-5 h-5" />
-                공유하기
+                {t("result.share")}
               </Button>
             </div>
 
@@ -247,36 +246,31 @@ const Result = () => {
                 className="gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
-                다른 옷 입어보기
+                {t("result.new")}
               </Button>
             </div>
-
-            {/* Notice */}
-            <p className="text-xs text-center text-muted-foreground mt-8">
-              * 생성된 이미지는 24시간 후 삭제됩니다. 필요한 이미지는 다운로드해주세요.
-            </p>
           </div>
         )}
 
         {status === "error" && (
           <div className="text-center py-20 animate-fade-in">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-destructive/10 flex items-center justify-center">
               <span className="text-4xl">😢</span>
             </div>
-            <h2 className="font-display text-2xl font-semibold mb-2">
-              처리 실패
+            <h2 className="font-display text-2xl font-bold mb-2">
+              {t("result.error")}
             </h2>
             <p className="text-muted-foreground mb-8">
               {statusText}
             </p>
             <Button
-              variant="hero"
+              variant="gradient"
               size="lg"
               onClick={() => navigate("/upload")}
               className="gap-2"
             >
               <RefreshCw className="w-5 h-5" />
-              다시 시도하기
+              {t("result.retry")}
             </Button>
           </div>
         )}
