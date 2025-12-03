@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Sparkles, ArrowRight, Check, Zap, User, Layers } from "lucide-react";
+import { Sparkles, ArrowRight, Check, Zap, User, FileText } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ const Landing = () => {
   const features = [
     { icon: Zap, text: t("feature.speed") },
     { icon: User, text: t("feature.face") },
-    { icon: Layers, text: t("feature.combo") },
+    { icon: FileText, text: t("feature.report") },
   ];
 
   const benefits = [
@@ -126,18 +126,19 @@ const Landing = () => {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-4 gap-6">
             {[
               { step: "01", title: t("howto.step1.title"), desc: t("howto.step1.desc") },
               { step: "02", title: t("howto.step2.title"), desc: t("howto.step2.desc") },
               { step: "03", title: t("howto.step3.title"), desc: t("howto.step3.desc") },
+              { step: "04", title: t("howto.step4.title"), desc: t("howto.step4.desc") },
             ].map((item, index) => (
               <div key={index} className="text-center group">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl gradient-primary flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
-                  <span className="font-display text-2xl font-bold text-white">{item.step}</span>
+                <div className="w-16 h-16 mx-auto mb-5 rounded-2xl gradient-primary flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                  <span className="font-display text-xl font-bold text-white">{item.step}</span>
                 </div>
-                <h3 className="font-display text-xl font-bold text-foreground mb-2">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                <h3 className="font-display text-lg font-bold text-foreground mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
