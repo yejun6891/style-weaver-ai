@@ -16,31 +16,6 @@ interface StyleAnalysisReportProps {
 const StyleAnalysisReport = ({ profile }: StyleAnalysisReportProps) => {
   const { t } = useLanguage();
 
-  // Mock scores - in production, these would come from AI analysis
-  const scores = {
-    fit: Math.floor(Math.random() * 20) + 80,
-    color: Math.floor(Math.random() * 20) + 75,
-    balance: Math.floor(Math.random() * 20) + 78,
-    occasion: Math.floor(Math.random() * 20) + 82,
-    overall: 0,
-  };
-  scores.overall = Math.floor((scores.fit + scores.color + scores.balance + scores.occasion) / 4);
-
-  const ScoreBar = ({ score, label }: { score: number; label: string }) => (
-    <div className="space-y-1">
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-semibold text-foreground">{score}%</span>
-      </div>
-      <div className="h-2 bg-muted rounded-full overflow-hidden">
-        <div 
-          className="h-full gradient-primary rounded-full transition-all duration-1000"
-          style={{ width: `${score}%` }}
-        />
-      </div>
-    </div>
-  );
-
   const styleTags = profile.styles.filter(s => s !== "other").map(s => `#${t(`profile.style.${s}`)}`);
   if (profile.occasions.length > 0) {
     const mainOccasion = profile.occasions.find(o => o !== "other");
@@ -56,26 +31,6 @@ const StyleAnalysisReport = ({ profile }: StyleAnalysisReportProps) => {
         <p className="text-sm text-muted-foreground">
           {t("report.subtitle")}
         </p>
-      </div>
-
-      {/* Overall Score */}
-      <div className="bg-gradient-to-br from-primary/10 to-accent/30 rounded-2xl p-6 text-center">
-        <div className="text-5xl font-display font-bold gradient-text mb-2">
-          {scores.overall}
-        </div>
-        <p className="text-sm text-muted-foreground">{t("report.overallScore")}</p>
-      </div>
-
-      {/* Detailed Scores */}
-      <div className="bg-card rounded-2xl border border-border p-6 space-y-4">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-primary" />
-          <h4 className="font-semibold">{t("report.scores")}</h4>
-        </div>
-        <ScoreBar score={scores.fit} label={t("report.fitScore")} />
-        <ScoreBar score={scores.color} label={t("report.colorScore")} />
-        <ScoreBar score={scores.balance} label={t("report.balanceScore")} />
-        <ScoreBar score={scores.occasion} label={t("report.occasionScore")} />
       </div>
 
       {/* Fit Analysis */}
