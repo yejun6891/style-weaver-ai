@@ -69,6 +69,16 @@ const translations = {
     "upload.submit": "피팅 + 분석 시작하기",
     "upload.submitting": "처리 중...",
     "upload.required": "전신 사진과 상의는 필수입니다",
+    "upload.confirm.title": "업로드 현황 확인",
+    "upload.confirm.person": "전신 사진",
+    "upload.confirm.top": "상의",
+    "upload.confirm.bottom": "하의",
+    "upload.confirm.profile": "스타일 프로필",
+    "upload.confirm.ready": "준비 완료",
+    "upload.confirm.notReady": "미입력",
+    "upload.confirm.optional": "선택사항",
+    "upload.confirm.start": "최종 시작하기",
+    "upload.confirm.cancel": "취소",
     
     // Style Profile
     "profile.title": "스타일 프로필",
@@ -197,6 +207,16 @@ const translations = {
     "upload.submit": "Generate Try-On + Analysis",
     "upload.submitting": "Processing...",
     "upload.required": "Photo and top are required",
+    "upload.confirm.title": "Upload Summary",
+    "upload.confirm.person": "Full Body Photo",
+    "upload.confirm.top": "Top",
+    "upload.confirm.bottom": "Bottom",
+    "upload.confirm.profile": "Style Profile",
+    "upload.confirm.ready": "Ready",
+    "upload.confirm.notReady": "Not provided",
+    "upload.confirm.optional": "Optional",
+    "upload.confirm.start": "Start Now",
+    "upload.confirm.cancel": "Cancel",
     
     // Style Profile
     "profile.title": "Style Profile",
