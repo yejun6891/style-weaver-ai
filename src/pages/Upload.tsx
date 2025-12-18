@@ -5,7 +5,14 @@ import ImageUploadZone from "@/components/ImageUploadZone";
 import StyleProfileForm, { StyleProfile } from "@/components/StyleProfileForm";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Check, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const BACKEND_BASE_URL = "https://tyron-backend-8yaa.onrender.com";
 
@@ -16,6 +23,7 @@ const Upload = () => {
   const [topFile, setTopFile] = useState<File | null>(null);
   const [bottomFile, setBottomFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
   const [styleProfile, setStyleProfile] = useState<StyleProfile>({
     height: "",
@@ -70,6 +78,45 @@ const Upload = () => {
   };
 
   const canSubmit = personFile && topFile && !isSubmitting;
+
+  const isProfileFilled = 
+    styleProfile.height.trim() !== "" ||
+    styleProfile.bodyTypes.length > 0 ||
+    styleProfile.occasions.length > 0 ||
+    styleProfile.styles.length > 0 ||
+    styleProfile.concerns.trim() !== "";
+
+  const handleOpenConfirm = () => {
+    if (canSubmit) {
+      setShowConfirmDialog(true);
+    }
+  };
+
+  const handleConfirmSubmit = () => {
+    setShowConfirmDialog(false);
+    handleSubmit();
+  };
+
+  const CheckItem = ({ label, isReady, isOptional = false }: { label: string; isReady: boolean; isOptional?: boolean }) => (
+    <div className="flex items-center justify-between py-3 border-b border-border last:border-b-0">
+      <span className="font-medium text-foreground">{label}</span>
+      <div className="flex items-center gap-2">
+        {isReady ? (
+          <>
+            <Check className="w-4 h-4 text-green-500" />
+            <span className="text-sm text-green-500">{t("upload.confirm.ready")}</span>
+          </>
+        ) : (
+          <>
+            <X className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+              {isOptional ? t("upload.confirm.optional") : t("upload.confirm.notReady")}
+            </span>
+          </>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <main className="min-h-screen bg-background">
@@ -168,7 +215,7 @@ const Upload = () => {
             size="lg"
             className="w-full group"
             disabled={!canSubmit}
-            onClick={handleSubmit}
+            onClick={handleOpenConfirm}
           >
             {isSubmitting ? (
               <>
@@ -189,6 +236,30 @@ const Upload = () => {
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("upload.confirm.title")}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <CheckItem label={t("upload.confirm.person")} isReady={!!personFile} />
+            <CheckItem label={t("upload.confirm.top")} isReady={!!topFile} />
+            <CheckItem label={t("upload.confirm.bottom")} isReady={!!bottomFile} isOptional />
+            <CheckItem label={t("upload.confirm.profile")} isReady={isProfileFilled} isOptional />
+          </div>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
+              {t("upload.confirm.cancel")}
+            </Button>
+            <Button variant="gradient" onClick={handleConfirmSubmit}>
+              {t("upload.confirm.start")}
+              <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 };
