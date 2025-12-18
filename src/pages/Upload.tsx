@@ -247,7 +247,15 @@ const Upload = () => {
             <CheckItem label={t("upload.confirm.person")} isReady={!!personFile} />
             <CheckItem label={t("upload.confirm.top")} isReady={!!topFile} />
             <CheckItem label={t("upload.confirm.bottom")} isReady={!!bottomFile} isOptional />
+            {!bottomFile && (
+              <p className="text-xs text-amber-500 mt-1 mb-2 pl-1">
+                ⚠️ {t("upload.confirm.bottomNotice")}
+              </p>
+            )}
             <CheckItem label={t("upload.confirm.profile")} isReady={isProfileFilled} isOptional />
+          </div>
+          <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground">
+            💡 {t("upload.confirm.qualityNotice")}
           </div>
           <DialogFooter className="flex gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>

@@ -79,6 +79,8 @@ const translations = {
     "upload.confirm.optional": "선택사항",
     "upload.confirm.start": "최종 시작하기",
     "upload.confirm.cancel": "취소",
+    "upload.confirm.bottomNotice": "하의 미입력 시 AI가 자동으로 생성합니다",
+    "upload.confirm.qualityNotice": "결과물은 업로드된 사진의 화질과 조건에 따라 달라질 수 있습니다",
     
     // Style Profile
     "profile.title": "스타일 프로필",
@@ -217,6 +219,8 @@ const translations = {
     "upload.confirm.optional": "Optional",
     "upload.confirm.start": "Start Now",
     "upload.confirm.cancel": "Cancel",
+    "upload.confirm.bottomNotice": "AI will auto-generate bottom if not provided",
+    "upload.confirm.qualityNotice": "Results may vary depending on the quality and conditions of uploaded photos",
     
     // Style Profile
     "profile.title": "Style Profile",
