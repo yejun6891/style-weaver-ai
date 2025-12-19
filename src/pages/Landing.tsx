@@ -29,7 +29,12 @@ const Landing = () => {
           <div className="font-display font-bold text-xl gradient-text">
             FitVision
           </div>
-          <LanguageSwitch />
+          <div className="flex items-center gap-3">
+            <LanguageSwitch />
+            <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
+              {t("nav.login")}
+            </Button>
+          </div>
         </div>
       </header>
 

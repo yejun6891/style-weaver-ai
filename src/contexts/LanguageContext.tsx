@@ -10,6 +10,52 @@ interface LanguageContextType {
 
 const translations = {
   ko: {
+    // Navigation
+    "nav.mypage": "마이페이지",
+    "nav.dashboard": "대시보드",
+    "nav.login": "로그인",
+    
+    // Auth
+    "auth.badge": "스마트한 패션 시작",
+    "auth.title": "FitVision 시작하기",
+    "auth.subtitle": "Google 계정으로 간편하게 로그인하세요",
+    "auth.google": "Google로 계속하기",
+    "auth.benefits.title": "로그인하면 이런 혜택이!",
+    "auth.benefits.1": "무료 이용권 5개 즉시 지급",
+    "auth.benefits.2": "모든 결과물 저장 및 관리",
+    "auth.benefits.3": "맞춤형 스타일 분석 리포트",
+    "auth.terms": "로그인 시 서비스 이용약관에 동의하게 됩니다",
+    
+    // Dashboard
+    "dashboard.welcome": "안녕하세요",
+    "dashboard.subtitle": "오늘도 멋진 스타일을 만들어보세요",
+    "dashboard.credits": "보유 이용권",
+    "dashboard.buyCredits": "이용권 충전",
+    "dashboard.totalUsage": "총 이용 횟수",
+    "dashboard.usageDesc": "지금까지 생성한 피팅 이미지",
+    "dashboard.newTryon": "새로운 피팅",
+    "dashboard.startNow": "지금 바로 시작하세요",
+    "dashboard.createNew": "새로 만들기",
+    "dashboard.history": "이용 내역",
+    "dashboard.noHistory": "아직 이용 내역이 없습니다",
+    "dashboard.createFirst": "첫 피팅 만들기",
+    "dashboard.tryonAction": "가상 피팅",
+    "dashboard.credit": "이용권",
+    "dashboard.view": "보기",
+    
+    // MyPage
+    "mypage.title": "마이페이지",
+    "mypage.subtitle": "프로필 관리 및 이용권 충전",
+    "mypage.profile": "내 프로필",
+    "mypage.currentCredits": "보유 이용권",
+    "mypage.memberSince": "가입일",
+    "mypage.buyCredits": "이용권 충전",
+    "mypage.buyCreditsDesc": "이용권을 충전하여 더 많은 가상 피팅을 즐겨보세요",
+    "mypage.credits": "이용권",
+    "mypage.popular": "인기",
+    "mypage.purchase": "구매하기",
+    "mypage.paymentNote": "결제 기능은 곧 추가됩니다",
+    
     // Landing
     "hero.badge": "AI 가상 피팅 + 스타일 분석",
     "hero.title1": "옷을 입어보지 않아도",
@@ -150,6 +196,52 @@ const translations = {
     "report.styleTags": "스타일 태그",
   },
   en: {
+    // Navigation
+    "nav.mypage": "My Page",
+    "nav.dashboard": "Dashboard",
+    "nav.login": "Login",
+    
+    // Auth
+    "auth.badge": "Smart Fashion Starts Here",
+    "auth.title": "Get Started with FitVision",
+    "auth.subtitle": "Sign in easily with your Google account",
+    "auth.google": "Continue with Google",
+    "auth.benefits.title": "Benefits of signing in",
+    "auth.benefits.1": "5 free credits instantly",
+    "auth.benefits.2": "Save and manage all results",
+    "auth.benefits.3": "Personalized style analysis reports",
+    "auth.terms": "By signing in, you agree to our Terms of Service",
+    
+    // Dashboard
+    "dashboard.welcome": "Hello",
+    "dashboard.subtitle": "Create amazing styles today",
+    "dashboard.credits": "Credits",
+    "dashboard.buyCredits": "Buy Credits",
+    "dashboard.totalUsage": "Total Usage",
+    "dashboard.usageDesc": "Try-on images created so far",
+    "dashboard.newTryon": "New Try-On",
+    "dashboard.startNow": "Start right now",
+    "dashboard.createNew": "Create New",
+    "dashboard.history": "Usage History",
+    "dashboard.noHistory": "No usage history yet",
+    "dashboard.createFirst": "Create your first try-on",
+    "dashboard.tryonAction": "Virtual Try-On",
+    "dashboard.credit": "credit",
+    "dashboard.view": "View",
+    
+    // MyPage
+    "mypage.title": "My Page",
+    "mypage.subtitle": "Manage profile and buy credits",
+    "mypage.profile": "My Profile",
+    "mypage.currentCredits": "Current Credits",
+    "mypage.memberSince": "Member Since",
+    "mypage.buyCredits": "Buy Credits",
+    "mypage.buyCreditsDesc": "Purchase credits to enjoy more virtual try-ons",
+    "mypage.credits": "credits",
+    "mypage.popular": "Popular",
+    "mypage.purchase": "Purchase",
+    "mypage.paymentNote": "Payment feature coming soon",
+    
     // Landing
     "hero.badge": "AI Virtual Try-On + Style Analysis",
     "hero.title1": "See yourself in any outfit",
