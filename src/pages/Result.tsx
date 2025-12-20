@@ -6,9 +6,8 @@ import LanguageSwitch from "@/components/LanguageSwitch";
 import StyleAnalysisReport from "@/components/StyleAnalysisReport";
 import { StyleProfile } from "@/components/StyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText } from "lucide-react";
-
-const BACKEND_BASE_URL = "https://tyron-backend-8yaa.onrender.com";
 
 type Status = "loading" | "success" | "error";
 
@@ -27,6 +26,7 @@ const Result = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { session } = useAuth();
   const [status, setStatus] = useState<Status>("loading");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [statusText, setStatusText] = useState("");
@@ -55,8 +55,13 @@ const Result = () => {
       return;
     }
 
+    if (!session?.access_token) {
+      navigate("/auth");
+      return;
+    }
+
     let isCancelled = false;
-    let progressInterval: NodeJS.Timeout;
+    let progressInterval: ReturnType<typeof setInterval>;
 
     progressInterval = setInterval(() => {
       setProgress((prev) => {
@@ -72,8 +77,15 @@ const Result = () => {
         if (isCancelled) return;
 
         try {
+          // Call the secure edge function proxy with authentication
           const res = await fetch(
-            `${BACKEND_BASE_URL}/api/tryon/result?taskId=${taskId}`
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=result&taskId=${encodeURIComponent(taskId)}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+              },
+            }
           );
           const data = await res.json();
 
@@ -115,7 +127,7 @@ const Result = () => {
       isCancelled = true;
       clearInterval(progressInterval);
     };
-  }, [taskId, navigate, t]);
+  }, [taskId, navigate, t, session]);
 
   const handleDownload = async () => {
     if (!imageUrl) return;
