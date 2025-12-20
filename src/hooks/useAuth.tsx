@@ -33,21 +33,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
+      .from("profiles")
+      .select("*")
+      .eq("user_id", userId)
       .maybeSingle();
 
     if (error) {
-      console.error('Error fetching profile:', error);
+      console.error("Error fetching profile:", error);
       return null;
     }
+
     return data;
+  };
+
+  const ensureProfile = async (currentUser: User) => {
+    const existing = await fetchProfile(currentUser.id);
+    if (existing) return existing;
+
+    const { data: inserted, error: insertError } = await supabase
+      .from("profiles")
+      .insert({
+        user_id: currentUser.id,
+        email: currentUser.email ?? null,
+        display_name: (currentUser.user_metadata as any)?.full_name ?? null,
+        avatar_url: (currentUser.user_metadata as any)?.avatar_url ?? null,
+      })
+      .select("*")
+      .maybeSingle();
+
+    if (insertError) {
+      console.error("Error creating profile:", insertError);
+      return null;
+    }
+
+    return inserted ?? null;
   };
 
   const refreshProfile = async () => {
     if (user) {
-      const profileData = await fetchProfile(user.id);
+      const profileData = await ensureProfile(user);
       setProfile(profileData);
     }
   };
@@ -62,7 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Defer profile fetch with setTimeout to avoid deadlock
         if (session?.user) {
           setTimeout(() => {
-            fetchProfile(session.user.id).then(setProfile);
+            ensureProfile(session.user).then(setProfile);
           }, 0);
         } else {
           setProfile(null);
@@ -78,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchProfile(session.user.id).then(setProfile);
+        ensureProfile(session.user).then(setProfile);
       }
       
       setLoading(false);
