@@ -98,19 +98,13 @@ const Upload = () => {
       }
 
       // SDK 방식으로 Edge Function 호출
-      // IMPORTANT: headers 옵션을 주면 내부 기본 Authorization 헤더가 누락될 수 있어
-      // 여기서 access_token을 명시적으로 포함합니다.
+      // NOTE: headers를 커스텀으로 넘기면 apikey/authorization 기본 헤더가 누락될 수 있어
+      // 여기서는 기본 헤더(세션 토큰 포함)를 그대로 사용합니다.
       console.log("[Upload] Calling tryon-proxy via SDK...");
 
       const { data: responseData, error: invokeError } = await supabase.functions.invoke(
         "tryon-proxy",
-        {
-          body: formData,
-          headers: {
-            Authorization: `Bearer ${freshSession.access_token}`,
-            "x-action": "start",
-          },
-        }
+        { body: formData }
       );
 
       if (invokeError || responseData?.error) {
