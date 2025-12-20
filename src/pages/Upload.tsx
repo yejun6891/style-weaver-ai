@@ -53,29 +53,34 @@ const Upload = () => {
       return;
     }
 
-    if (!session?.access_token) {
-      toast.error("로그인이 필요합니다.");
-      navigate("/auth");
-      return;
-    }
-
     setIsSubmitting(true);
 
-    const formData = new FormData();
-    formData.append("person_image", personFile);
-    formData.append("top_garment", topFile);
-    if (bottomFile) {
-      formData.append("bottom_garment", bottomFile);
-    }
-
     try {
-      // Call the secure edge function proxy with authentication
+      // 제출 직전에 세션을 다시 확인하고 갱신
+      const { data: { session: freshSession }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !freshSession?.access_token) {
+        console.error("[Upload] Session error:", sessionError);
+        toast.error("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
+        setIsSubmitting(false);
+        navigate("/auth");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("person_image", personFile);
+      formData.append("top_garment", topFile);
+      if (bottomFile) {
+        formData.append("bottom_garment", bottomFile);
+      }
+
+      // Call the secure edge function proxy with fresh authentication token
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=start`,
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${session.access_token}`,
+            Authorization: `Bearer ${freshSession.access_token}`,
           },
           body: formData,
         }
