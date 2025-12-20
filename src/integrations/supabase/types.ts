@@ -47,6 +47,24 @@ export type Database = {
         }
         Relationships: []
       }
+      task_ownership: {
+        Row: {
+          created_at: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       usage_history: {
         Row: {
           action_type: string
