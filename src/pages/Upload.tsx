@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 
@@ -61,14 +62,6 @@ const Upload = () => {
 
     try {
       // Call the secure edge function proxy with authentication
-      const { data, error } = await supabase.functions.invoke("tryon-proxy", {
-        body: formData,
-        headers: {
-          // Note: supabase.functions.invoke automatically includes the auth token
-        },
-      });
-
-      // Handle query parameter for action
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=start`,
         {
@@ -265,6 +258,9 @@ const Upload = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{t("upload.confirm.title")}</DialogTitle>
+            <DialogDescription>
+              {t("upload.confirm.description") || "업로드 항목을 확인하세요."}
+            </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <CheckItem label={t("upload.confirm.person")} isReady={!!personFile} />
