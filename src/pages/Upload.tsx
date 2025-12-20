@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ArrowRight, Loader2, Check, X } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -82,8 +83,8 @@ const Upload = () => {
       const responseData = await response.json();
 
       if (!response.ok || responseData.error) {
-        console.error(responseData);
-        alert("Error: " + (responseData.error || "Unknown error"));
+        console.error("[Upload Error]", responseData);
+        toast.error("Unable to process your request. Please try again later.");
         setIsSubmitting(false);
         return;
       }
@@ -93,8 +94,8 @@ const Upload = () => {
 
       navigate(`/result/${responseData.taskId}`);
     } catch (err) {
-      console.error(err);
-      alert("Request failed. Please try again.");
+      console.error("[Upload Error]", err);
+      toast.error("Request failed. Please try again.");
       setIsSubmitting(false);
     }
   };
