@@ -1,15 +1,16 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
-import { Sparkles, ArrowRight, Check, Zap, User, FileText } from "lucide-react";
+import { Sparkles, ArrowRight, Check, Zap, User, FileText, Menu, X, LayoutDashboard, LogOut } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Redirect logged-in users to dashboard
   useEffect(() => {
@@ -17,6 +18,12 @@ const Landing = () => {
       navigate("/dashboard");
     }
   }, [user, loading, navigate]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    setMenuOpen(false);
+  };
+
   const features = [
     { icon: Zap, text: t("feature.speed") },
     { icon: User, text: t("feature.face") },
@@ -33,16 +40,55 @@ const Landing = () => {
   return (
     <main className="min-h-screen bg-background overflow-hidden">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
+      <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4 bg-background/80 backdrop-blur-md">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="font-display font-bold text-xl gradient-text">
             FitVision
           </div>
           <div className="flex items-center gap-3">
             <LanguageSwitch />
-            <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
-              {t("nav.login")}
-            </Button>
+            {user ? (
+              <div className="relative">
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => setMenuOpen(!menuOpen)}
+                >
+                  {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                </Button>
+                
+                {menuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-xl shadow-lg py-2 animate-fade-up">
+                    <button
+                      onClick={() => { navigate("/dashboard"); setMenuOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent transition-colors"
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      <span className="font-medium">{t("nav.dashboard")}</span>
+                    </button>
+                    <button
+                      onClick={() => { navigate("/mypage"); setMenuOpen(false); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      <span className="font-medium">{t("nav.mypage")}</span>
+                    </button>
+                    <div className="border-t border-border my-1" />
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent transition-colors text-muted-foreground"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span className="font-medium">{t("nav.logout")}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
+                {t("nav.login")}
+              </Button>
+            )}
           </div>
         </div>
       </header>
