@@ -26,7 +26,22 @@ const MyPage = () => {
   }
 
   if (!user || !profile) {
-    return null;
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center px-4">
+        <section className="w-full max-w-md bg-card border border-border rounded-3xl p-6 shadow-lg text-center">
+          <h1 className="font-display text-xl font-bold text-foreground">마이페이지 준비 중…</h1>
+          <p className="text-sm text-muted-foreground mt-2">로그인 정보를 불러오는 중이에요. 잠시만 기다려 주세요.</p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Button variant="outline" onClick={() => navigate("/", { replace: true })}>
+              홈으로
+            </Button>
+            <Button variant="default" onClick={() => navigate("/auth", { replace: true })}>
+              다시 로그인
+            </Button>
+          </div>
+        </section>
+      </main>
+    );
   }
 
   const creditPackages = [
