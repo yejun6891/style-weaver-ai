@@ -14,6 +14,7 @@ const AuthCallback = () => {
   const errorDescription = params.get("error_description");
 
   useEffect(() => {
+    // 로그인 완료 후 항상 초기화면(/)으로 이동
     if (!loading && user) {
       navigate("/", { replace: true });
     }
