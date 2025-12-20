@@ -12,12 +12,6 @@ const Landing = () => {
   const { user, loading, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Redirect logged-in users to dashboard
-  useEffect(() => {
-    if (!loading && user) {
-      navigate("/dashboard");
-    }
-  }, [user, loading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
