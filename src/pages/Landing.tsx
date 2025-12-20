@@ -43,25 +43,39 @@ const Landing = () => {
             <LanguageSwitch />
             {user ? (
               <div className="relative">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="icon"
                   onClick={() => setMenuOpen(!menuOpen)}
+                  aria-label={menuOpen ? "메뉴 닫기" : "메뉴 열기"}
                 >
                   {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </Button>
-                
+
                 {menuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-card border border-border rounded-xl shadow-lg py-2 animate-fade-up">
+                  <div className="absolute right-0 top-full mt-2 w-52 bg-card border border-border rounded-xl shadow-lg py-2 animate-fade-up">
+                    <div className="px-4 pt-3 pb-2">
+                      <p className="text-xs text-muted-foreground">로그인됨</p>
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {user.email ?? "Google 사용자"}
+                      </p>
+                    </div>
+                    <div className="border-t border-border my-1" />
                     <button
-                      onClick={() => { navigate("/dashboard"); setMenuOpen(false); }}
+                      onClick={() => {
+                        navigate("/dashboard");
+                        setMenuOpen(false);
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent transition-colors"
                     >
                       <LayoutDashboard className="w-4 h-4" />
                       <span className="font-medium">{t("nav.dashboard")}</span>
                     </button>
                     <button
-                      onClick={() => { navigate("/mypage"); setMenuOpen(false); }}
+                      onClick={() => {
+                        navigate("/mypage");
+                        setMenuOpen(false);
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent transition-colors"
                     >
                       <User className="w-4 h-4" />

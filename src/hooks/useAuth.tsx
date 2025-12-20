@@ -88,15 +88,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signInWithGoogle = async () => {
-    const redirectUrl = `${window.location.origin}/`;
-    
+    // IMPORTANT: Use a real route that exists in our SPA.
+    // This prevents the post-login redirect from landing on a 404.
+    const redirectUrl = `${window.location.origin}/callback`;
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: redirectUrl,
       },
     });
-    
+
     return { error: error as Error | null };
   };
 
