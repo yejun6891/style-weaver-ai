@@ -25,8 +25,13 @@ Deno.serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    // action은 query param 또는 x-action 헤더에서 읽음 (SDK 호출 지원)
-    const action = url.searchParams.get("action") || req.headers.get("x-action"); // "start" or "result"
+
+    // action 우선순위: query -> header -> method 기반 기본값
+    let action = url.searchParams.get("action") || req.headers.get("x-action");
+    if (!action) {
+      if (req.method === "POST") action = "start";
+      else if (req.method === "GET") action = "result";
+    }
 
     // Create Supabase client to verify auth
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
