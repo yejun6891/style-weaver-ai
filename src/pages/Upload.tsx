@@ -5,6 +5,8 @@ import ImageUploadZone from "@/components/ImageUploadZone";
 import StyleProfileForm, { StyleProfile } from "@/components/StyleProfileForm";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ArrowRight, Loader2, Check, X } from "lucide-react";
 import {
   Dialog,
@@ -14,11 +16,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-const BACKEND_BASE_URL = "https://tyron-backend-8yaa.onrender.com";
-
 const Upload = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { session } = useAuth();
   const [personFile, setPersonFile] = useState<File | null>(null);
   const [topFile, setTopFile] = useState<File | null>(null);
   const [bottomFile, setBottomFile] = useState<File | null>(null);
@@ -42,6 +43,12 @@ const Upload = () => {
       return;
     }
 
+    if (!session?.access_token) {
+      alert("Please log in to continue.");
+      navigate("/auth");
+      return;
+    }
+
     setIsSubmitting(true);
 
     const formData = new FormData();
@@ -52,16 +59,31 @@ const Upload = () => {
     }
 
     try {
-      const res = await fetch(`${BACKEND_BASE_URL}/api/tryon/start`, {
-        method: "POST",
+      // Call the secure edge function proxy with authentication
+      const { data, error } = await supabase.functions.invoke("tryon-proxy", {
         body: formData,
+        headers: {
+          // Note: supabase.functions.invoke automatically includes the auth token
+        },
       });
 
-      const data = await res.json();
+      // Handle query parameter for action
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=start`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: formData,
+        }
+      );
 
-      if (!res.ok || data.error) {
-        console.error(data);
-        alert("Error: " + (data.error || "Unknown error"));
+      const responseData = await response.json();
+
+      if (!response.ok || responseData.error) {
+        console.error(responseData);
+        alert("Error: " + (responseData.error || "Unknown error"));
         setIsSubmitting(false);
         return;
       }
@@ -69,7 +91,7 @@ const Upload = () => {
       // Store style profile in sessionStorage for the result page
       sessionStorage.setItem("styleProfile", JSON.stringify(styleProfile));
 
-      navigate(`/result/${data.taskId}`);
+      navigate(`/result/${responseData.taskId}`);
     } catch (err) {
       console.error(err);
       alert("Request failed. Please try again.");
