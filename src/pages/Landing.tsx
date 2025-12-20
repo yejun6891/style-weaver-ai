@@ -1,13 +1,22 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 import { Sparkles, ArrowRight, Check, Zap, User, FileText } from "lucide-react";
 
 const Landing = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { user, loading } = useAuth();
 
+  // Redirect logged-in users to dashboard
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/dashboard");
+    }
+  }, [user, loading, navigate]);
   const features = [
     { icon: Zap, text: t("feature.speed") },
     { icon: User, text: t("feature.face") },
