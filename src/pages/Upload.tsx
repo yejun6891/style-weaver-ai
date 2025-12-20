@@ -97,22 +97,18 @@ const Upload = () => {
         formData.append("bottom_garment", bottomFile);
       }
 
-      // Call the secure edge function proxy with fresh authentication token
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=start`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${freshSession.access_token}`,
-          },
-          body: formData,
-        }
-      );
+      // SDK 방식으로 Edge Function 호출 (자동 토큰 관리)
+      console.log("[Upload] Calling tryon-proxy via SDK...");
+      
+      const { data: responseData, error: invokeError } = await supabase.functions.invoke('tryon-proxy', {
+        body: formData,
+        headers: {
+          'x-action': 'start',
+        },
+      });
 
-      const responseData = await response.json();
-
-      if (!response.ok || responseData.error) {
-        console.error("[Upload Error]", responseData);
+      if (invokeError || responseData?.error) {
+        console.error("[Upload Error]", invokeError || responseData);
         toast.error("Unable to process your request. Please try again later.");
         setIsSubmitting(false);
         return;

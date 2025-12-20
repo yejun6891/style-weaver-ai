@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-action",
 };
 
 const BACKEND_BASE_URL = "https://tyron-backend-8yaa.onrender.com";
@@ -25,7 +25,8 @@ Deno.serve(async (req) => {
 
   try {
     const url = new URL(req.url);
-    const action = url.searchParams.get("action"); // "start" or "result"
+    // action은 query param 또는 x-action 헤더에서 읽음 (SDK 호출 지원)
+    const action = url.searchParams.get("action") || req.headers.get("x-action"); // "start" or "result"
 
     // Create Supabase client to verify auth
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
