@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabaseClient"; // ✅ 프로젝트 경로에 맞게 수정하세요
+import { supabase } from "@/integrations/supabase/client";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
