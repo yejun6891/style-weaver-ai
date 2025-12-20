@@ -74,7 +74,31 @@ Deno.serve(async (req) => {
         );
       }
 
-      console.log(`[tryon-proxy] Polling result for taskId: ${taskId}`);
+      // Verify task ownership - user can only access their own tasks
+      const { data: taskOwnership, error: ownershipError } = await supabase
+        .from("task_ownership")
+        .select("user_id")
+        .eq("task_id", taskId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (ownershipError) {
+        console.error("[tryon-proxy] Ownership check error:", ownershipError.message);
+        return new Response(
+          JSON.stringify({ error: "Failed to verify task ownership" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!taskOwnership) {
+        console.log(`[tryon-proxy] Access denied: User ${user.id} attempted to access task ${taskId}`);
+        return new Response(
+          JSON.stringify({ error: "Task not found or access denied" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log(`[tryon-proxy] Ownership verified, polling result for taskId: ${taskId}`);
 
       const backendRes = await fetch(
         `${BACKEND_BASE_URL}/api/tryon/result?taskId=${encodeURIComponent(taskId)}`
@@ -185,6 +209,20 @@ Deno.serve(async (req) => {
       const responseData = await backendRes.json();
 
       if (backendRes.ok && responseData.taskId) {
+        // Store task ownership for access control
+        const { error: ownershipInsertError } = await supabase
+          .from("task_ownership")
+          .insert({
+            task_id: responseData.taskId,
+            user_id: user.id,
+          });
+
+        if (ownershipInsertError) {
+          console.error("[tryon-proxy] Failed to store task ownership:", ownershipInsertError.message);
+        } else {
+          console.log(`[tryon-proxy] Stored task ownership: ${responseData.taskId} -> ${user.id}`);
+        }
+
         // Deduct credit on successful task creation
         const { error: updateError } = await supabase
           .from("profiles")
