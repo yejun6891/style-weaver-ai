@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ImageUploadZone from "@/components/ImageUploadZone";
@@ -21,7 +21,7 @@ import {
 const Upload = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { session } = useAuth();
+  const { session, loading } = useAuth();
   const [personFile, setPersonFile] = useState<File | null>(null);
   const [topFile, setTopFile] = useState<File | null>(null);
   const [bottomFile, setBottomFile] = useState<File | null>(null);
@@ -39,14 +39,22 @@ const Upload = () => {
     concerns: "",
   });
 
+  // 로그인 상태 확인 - 로그인 안 된 경우 리다이렉트
+  useEffect(() => {
+    if (!loading && !session) {
+      toast.error("로그인이 필요합니다.");
+      navigate("/auth");
+    }
+  }, [loading, session, navigate]);
+
   const handleSubmit = async () => {
     if (!personFile || !topFile) {
-      alert(t("upload.required"));
+      toast.error(t("upload.required"));
       return;
     }
 
     if (!session?.access_token) {
-      alert("Please log in to continue.");
+      toast.error("로그인이 필요합니다.");
       navigate("/auth");
       return;
     }
@@ -93,7 +101,16 @@ const Upload = () => {
     }
   };
 
-  const canSubmit = personFile && topFile && !isSubmitting;
+  const canSubmit = personFile && topFile && !isSubmitting && !!session?.access_token;
+
+  // 로딩 중일 때 로딩 UI 표시
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </main>
+    );
+  }
 
   const isProfileFilled = 
     styleProfile.height.trim() !== "" ||
