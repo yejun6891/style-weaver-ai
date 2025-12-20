@@ -57,8 +57,31 @@ const Upload = () => {
 
     try {
       // 제출 직전에 세션을 다시 확인하고 갱신
+      console.log("[Upload] Checking session before submit...", {
+        currentOrigin: window.location.origin,
+        currentHref: window.location.href,
+      });
+
+      // 먼저 세션 갱신 시도
+      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+      
+      if (refreshError) {
+        console.warn("[Upload] Session refresh failed:", refreshError.message);
+      } else {
+        console.log("[Upload] Session refreshed successfully");
+      }
+
+      // 갱신된 세션 가져오기
       const { data: { session: freshSession }, error: sessionError } = await supabase.auth.getSession();
       
+      console.log("[Upload] Session check result:", {
+        hasSession: !!freshSession,
+        hasToken: !!freshSession?.access_token,
+        userId: freshSession?.user?.id,
+        tokenExpiry: freshSession?.expires_at,
+        error: sessionError?.message,
+      });
+
       if (sessionError || !freshSession?.access_token) {
         console.error("[Upload] Session error:", sessionError);
         toast.error("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
