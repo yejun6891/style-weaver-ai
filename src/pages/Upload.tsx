@@ -107,7 +107,9 @@ const Upload = () => {
         "tryon-proxy",
         {
           body: formData,
-          // headers를 수동으로 넣으면 기본 인증 헤더가 누락될 수 있어 넣지 않습니다.
+          headers: {
+            Authorization: `Bearer ${freshSession.access_token}`,
+          },
         }
       );
 
