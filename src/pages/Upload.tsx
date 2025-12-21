@@ -109,6 +109,10 @@ const Upload = () => {
         "tryon-proxy",
         {
           body: formData,
+          headers: {
+            // Belt + suspenders: ensure gateway receives Authorization
+            Authorization: `Bearer ${freshSession.access_token}`,
+          },
         }
       );
 
