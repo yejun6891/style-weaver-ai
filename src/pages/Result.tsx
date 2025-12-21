@@ -138,7 +138,7 @@ const Result = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = fitvision-${taskId}.jpg;
+      a.download = `fitvision-${taskId}.jpg`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -230,7 +230,7 @@ const Result = () => {
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div 
                   className="h-full gradient-primary rounded-full transition-all duration-500"
-                  style={{ width: ${progress}% }}
+                  style={{ width: `${progress}%` }}
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2">

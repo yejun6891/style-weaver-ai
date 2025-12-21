@@ -128,7 +128,7 @@ const Upload = () => {
       // Store style profile in sessionStorage for the result page
       sessionStorage.setItem("styleProfile", JSON.stringify(styleProfile));
 
-      navigate(/result/${responseData.taskId});
+      navigate(`/result/${responseData.taskId}`);
     } catch (err) {
       console.error("[Upload Error]", err);
       toast.error("Request failed. Please try again.");
