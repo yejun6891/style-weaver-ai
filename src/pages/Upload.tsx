@@ -97,18 +97,37 @@ const Upload = () => {
         formData.append("bottom_garment", bottomFile);
       }
 
-      // SDK 방식으로 Edge Function 호출
-      // NOTE: headers를 커스텀으로 넘기면 apikey/authorization 기본 헤더가 누락될 수 있어
-      // 여기서는 기본 헤더(세션 토큰 포함)를 그대로 사용합니다.
-      console.log("[Upload] Calling tryon-proxy via SDK...");
+      // 직접 fetch로 Edge Function 호출 (SDK가 Authorization 헤더를 제대로 안 보내는 문제 해결)
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const functionUrl = `${supabaseUrl}/functions/v1/tryon-proxy?action=start`;
 
-      const { data: responseData, error: invokeError } = await supabase.functions.invoke(
-        "tryon-proxy",
-        { body: formData }
-      );
+      console.log("[Upload] Calling tryon-proxy via fetch...", {
+        url: functionUrl,
+        hasAccessToken: !!freshSession.access_token,
+      });
 
-      if (invokeError || responseData?.error) {
-        console.error("[Upload Error]", invokeError || responseData);
+      const response = await fetch(functionUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${freshSession.access_token}`,
+          apikey: supabaseAnonKey,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("[Upload Error] HTTP", response.status, errorText);
+        toast.error("Unable to process your request. Please try again later.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      const responseData = await response.json();
+
+      if (responseData?.error) {
+        console.error("[Upload Error]", responseData);
         toast.error("Unable to process your request. Please try again later.");
         setIsSubmitting(false);
         return;
