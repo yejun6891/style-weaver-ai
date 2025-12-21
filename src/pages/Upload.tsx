@@ -22,12 +22,13 @@ const Upload = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { session, loading } = useAuth();
+
   const [personFile, setPersonFile] = useState<File | null>(null);
   const [topFile, setTopFile] = useState<File | null>(null);
   const [bottomFile, setBottomFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  
+
   const [styleProfile, setStyleProfile] = useState<StyleProfile>({
     height: "",
     bodyTypes: [],
@@ -39,7 +40,7 @@ const Upload = () => {
     concerns: "",
   });
 
-  // 로그인 상태 확인 - 로그인 안 된 경우 리다이렉트
+  // 로그인 체크
   useEffect(() => {
     if (!loading && !session) {
       toast.error("로그인이 필요합니다.");
@@ -53,289 +54,161 @@ const Upload = () => {
       return;
     }
 
+    if (!session?.access_token) {
+      toast.error("로그인이 필요합니다.");
+      navigate("/auth");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
-      // 제출 직전에 세션을 다시 확인하고 갱신
-      console.log("[Upload] Checking session before submit...", {
-        currentOrigin: window.location.origin,
-        currentHref: window.location.href,
-      });
-
-      // 먼저 세션 갱신 시도
-      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-      
-      if (refreshError) {
-        console.warn("[Upload] Session refresh failed:", refreshError.message);
-      } else {
-        console.log("[Upload] Session refreshed successfully");
-      }
-
-      // 갱신된 세션 가져오기
-      const { data: { session: freshSession }, error: sessionError } = await supabase.auth.getSession();
-      
-      console.log("[Upload] Session check result:", {
-        hasSession: !!freshSession,
-        hasToken: !!freshSession?.access_token,
-        userId: freshSession?.user?.id,
-        tokenExpiry: freshSession?.expires_at,
-        error: sessionError?.message,
-      });
-
-      if (sessionError || !freshSession?.access_token) {
-        console.error("[Upload] Session error:", sessionError);
-        toast.error("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
-        setIsSubmitting(false);
-        navigate("/auth");
-        return;
-      }
-
       const formData = new FormData();
       formData.append("person_image", personFile);
       formData.append("top_garment", topFile);
-      if (bottomFile) {
-        formData.append("bottom_garment", bottomFile);
-      }
+      if (bottomFile) formData.append("bottom_garment", bottomFile);
 
-      // Supabase SDK로 함수 호출 (SDK가 apikey/Authorization을 자동으로 포함)
-      // FormData는 그대로 body로 넘기면 브라우저가 multipart boundary를 처리합니다.
-      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke...", {
-        hasAccessToken: !!freshSession.access_token,
-      });
-
-      const { data: responseData, error: invokeError } = await supabase.functions.invoke(
-        "tryon-proxy",
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=start`,
         {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
           body: formData,
-          // headers를 수동으로 넣으면 기본 인증 헤더가 누락될 수 있어 넣지 않습니다.
         }
       );
 
-      if (invokeError) {
-        console.error("[Upload Error]", invokeError);
-        toast.error("Unable to process your request. Please try again later.");
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        console.error("[Upload Error]", data);
+        toast.error(data.error || "요청 처리에 실패했습니다.");
         setIsSubmitting(false);
         return;
       }
 
-      if ((responseData as any)?.error) {
-        console.error("[Upload Error]", responseData);
-        toast.error("Unable to process your request. Please try again later.");
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Store style profile in sessionStorage for the result page
       sessionStorage.setItem("styleProfile", JSON.stringify(styleProfile));
-
-      navigate(`/result/${responseData.taskId}`);
+      navigate(`/result/${data.taskId}`);
     } catch (err) {
       console.error("[Upload Error]", err);
-      toast.error("Request failed. Please try again.");
+      toast.error("업로드 중 오류가 발생했습니다.");
+    } finally {
       setIsSubmitting(false);
     }
   };
 
-  const canSubmit = personFile && topFile && !isSubmitting && !!session?.access_token;
+  const canSubmit =
+    !!personFile && !!topFile && !isSubmitting && !!session?.access_token;
 
-  // 로딩 중일 때 로딩 UI 표시
   if (loading) {
     return (
-      <main className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <main className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin" />
       </main>
     );
   }
 
-  const isProfileFilled = 
-    styleProfile.height.trim() !== "" ||
-    styleProfile.bodyTypes.length > 0 ||
-    styleProfile.occasions.length > 0 ||
-    styleProfile.styles.length > 0 ||
-    styleProfile.concerns.trim() !== "";
+  const isProfileFilled =
+    styleProfile.height.trim() ||
+    styleProfile.bodyTypes.length ||
+    styleProfile.occasions.length ||
+    styleProfile.styles.length ||
+    styleProfile.concerns.trim();
 
-  const handleOpenConfirm = () => {
-    if (canSubmit) {
-      setShowConfirmDialog(true);
-    }
-  };
-
-  const handleConfirmSubmit = () => {
-    setShowConfirmDialog(false);
-    handleSubmit();
-  };
-
-  const CheckItem = ({ label, isReady, isOptional = false }: { label: string; isReady: boolean; isOptional?: boolean }) => (
-    <div className="flex items-center justify-between py-3 border-b border-border last:border-b-0">
-      <span className="font-medium text-foreground">{label}</span>
-      <div className="flex items-center gap-2">
-        {isReady ? (
-          <>
-            <Check className="w-4 h-4 text-green-500" />
-            <span className="text-sm text-green-500">{t("upload.confirm.ready")}</span>
-          </>
-        ) : (
-          <>
-            <X className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {isOptional ? t("upload.confirm.optional") : t("upload.confirm.notReady")}
-            </span>
-          </>
-        )}
-      </div>
+  const CheckItem = ({
+    label,
+    isReady,
+    isOptional = false,
+  }: {
+    label: string;
+    isReady: boolean;
+    isOptional?: boolean;
+  }) => (
+    <div className="flex justify-between py-2 border-b">
+      <span>{label}</span>
+      {isReady ? (
+        <Check className="text-green-500 w-4 h-4" />
+      ) : (
+        <X className="text-muted-foreground w-4 h-4" />
+      )}
     </div>
   );
 
   return (
     <main className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/90 border-b border-border">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+      <header className="sticky top-0 z-50 bg-background/90 border-b">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between">
+          <Link to="/" className="flex items-center gap-2">
             <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">{t("upload.back")}</span>
+            {t("upload.back")}
           </Link>
-          <div className="font-display font-bold text-lg gradient-text">FitVision</div>
+          <div className="font-bold">FitVision</div>
           <LanguageSwitch />
         </div>
       </header>
 
-      {/* Content */}
-      <div className="max-w-2xl mx-auto px-4 py-8 pb-36">
-        <div className="text-center mb-10">
-          <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2 tracking-tight">
-            {t("upload.title")}
-          </h2>
-          <p className="text-muted-foreground">
-            {t("upload.subtitle")}
-          </p>
-        </div>
+      <div className="max-w-2xl mx-auto px-4 py-8 pb-32 space-y-8">
+        <ImageUploadZone
+          label={t("upload.person.label")}
+          description={t("upload.person.desc")}
+          file={personFile}
+          onFileChange={setPersonFile}
+        />
+        <ImageUploadZone
+          label={t("upload.top.label")}
+          description={t("upload.top.desc")}
+          file={topFile}
+          onFileChange={setTopFile}
+        />
+        <ImageUploadZone
+          label={t("upload.bottom.label")}
+          description={t("upload.bottom.desc")}
+          file={bottomFile}
+          onFileChange={setBottomFile}
+          optional
+        />
 
-        <div className="space-y-8">
-          {/* Person Image */}
-          <ImageUploadZone
-            label={t("upload.person.label")}
-            description={t("upload.person.desc")}
-            requirements={[
-              t("upload.person.req1"),
-              t("upload.person.req2"),
-              t("upload.person.req3"),
-              t("upload.person.req4"),
-              t("upload.person.req5"),
-            ]}
-            file={personFile}
-            onFileChange={setPersonFile}
-          />
-
-          {/* Top Garment */}
-          <ImageUploadZone
-            label={t("upload.top.label")}
-            description={t("upload.top.desc")}
-            requirements={[
-              t("upload.top.req1"),
-              t("upload.top.req2"),
-              t("upload.top.req3"),
-              t("upload.top.req4"),
-              t("upload.top.req5"),
-            ]}
-            file={topFile}
-            onFileChange={setTopFile}
-          />
-
-          {/* Bottom Garment (Optional) */}
-          <ImageUploadZone
-            label={t("upload.bottom.label")}
-            description={t("upload.bottom.desc")}
-            requirements={[
-              t("upload.bottom.req1"),
-              t("upload.bottom.req2"),
-            ]}
-            file={bottomFile}
-            onFileChange={setBottomFile}
-            optional
-          />
-
-          {/* Divider */}
-          <div className="relative py-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-background px-4 text-sm text-muted-foreground">
-                {t("profile.title")}
-              </span>
-            </div>
-          </div>
-
-          {/* Style Profile Form */}
-          <StyleProfileForm
-            value={styleProfile}
-            onChange={setStyleProfile}
-          />
-        </div>
+        <StyleProfileForm value={styleProfile} onChange={setStyleProfile} />
       </div>
 
-      {/* Fixed Bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/90 backdrop-blur-xl border-t border-border">
-        <div className="max-w-2xl mx-auto">
-          <Button
-            variant="gradient"
-            size="lg"
-            className="w-full group"
-            disabled={!canSubmit}
-            onClick={handleOpenConfirm}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                {t("upload.submitting")}
-              </>
-            ) : (
-              <>
-                {t("upload.submit")}
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </>
-            )}
-          </Button>
-          {!canSubmit && !isSubmitting && (
-            <p className="text-center text-xs text-muted-foreground mt-2">
-              {t("upload.required")}
-            </p>
+      <div className="fixed bottom-0 inset-x-0 p-4 bg-background border-t">
+        <Button
+          className="w-full"
+          disabled={!canSubmit}
+          onClick={() => setShowConfirmDialog(true)}
+        >
+          {isSubmitting ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <>
+              {t("upload.submit")}
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </>
           )}
-        </div>
+        </Button>
       </div>
 
-      {/* Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>{t("upload.confirm.title")}</DialogTitle>
             <DialogDescription>
-              {t("upload.confirm.description") || "업로드 항목을 확인하세요."}
+              {t("upload.confirm.description")}
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
-            <CheckItem label={t("upload.confirm.person")} isReady={!!personFile} />
-            <CheckItem label={t("upload.confirm.top")} isReady={!!topFile} />
-            <CheckItem label={t("upload.confirm.bottom")} isReady={!!bottomFile} isOptional />
-            {!bottomFile && (
-              <p className="text-xs text-amber-500 mt-1 mb-2 pl-1">
-                ⚠️ {t("upload.confirm.bottomNotice")}
-              </p>
-            )}
-            <CheckItem label={t("upload.confirm.profile")} isReady={isProfileFilled} isOptional />
-          </div>
-          <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground">
-            💡 {t("upload.confirm.qualityNotice")}
-          </div>
-          <DialogFooter className="flex gap-2 sm:gap-0">
+
+          <CheckItem label="인물 사진" isReady={!!personFile} />
+          <CheckItem label="상의" isReady={!!topFile} />
+          <CheckItem label="하의" isReady={!!bottomFile} isOptional />
+          <CheckItem label="스타일 프로필" isReady={!!isProfileFilled} isOptional />
+
+          <DialogFooter>
             <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
-              {t("upload.confirm.cancel")}
+              취소
             </Button>
-            <Button variant="gradient" onClick={handleConfirmSubmit}>
-              {t("upload.confirm.start")}
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
+            <Button onClick={handleSubmit}>시작</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
