@@ -97,8 +97,10 @@ const Upload = () => {
         formData.append("bottom_garment", bottomFile);
       }
 
-      // Supabase SDK로 함수 호출 (SDK가 apikey/Authorization을 자동으로 포함)
-      // FormData는 그대로 body로 넘기면 브라우저가 multipart boundary를 처리합니다.
+      // Supabase Functions 호출 전, FunctionsClient에 JWT를 명시적으로 주입
+      // (일부 환경에서 invoke 옵션 headers로 전달해도 게이트웨이에 Authorization이 누락되는 케이스를 방지)
+      supabase.functions.setAuth(freshSession.access_token);
+
       console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke...", {
         hasAccessToken: !!freshSession.access_token,
       });
@@ -107,16 +109,31 @@ const Upload = () => {
         "tryon-proxy",
         {
           body: formData,
-          headers: {
-            Authorization: `Bearer ${freshSession.access_token}`,
-          },
         }
       );
 
       if (invokeError) {
-        console.error("[Upload Error]", invokeError);
-        toast.error("Unable to process your request. Please try again later.");
+        const status = (invokeError as any)?.context?.status;
+        let serverMessage: string | undefined;
+        try {
+          serverMessage = await (invokeError as any)?.context?.text?.();
+        } catch {
+          // ignore
+        }
+
+        console.error("[Upload Error] invoke failed", {
+          status,
+          serverMessage,
+          invokeError,
+        });
+
+        toast.error(
+          status === 401
+            ? "로그인이 필요하거나 세션이 만료되었습니다. 다시 로그인해주세요."
+            : "요청 처리에 실패했습니다. 잠시 후 다시 시도해주세요."
+        );
         setIsSubmitting(false);
+        if (status === 401) navigate("/auth");
         return;
       }
 
