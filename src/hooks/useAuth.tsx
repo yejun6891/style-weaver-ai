@@ -82,6 +82,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+
+        // Keep Functions client auth token in sync (prevents "Missing access token" on invoke)
+        if (session?.access_token) {
+          supabase.functions.setAuth(session.access_token);
+        } else {
+          supabase.functions.setAuth("");
+        }
         
         // Defer profile fetch with setTimeout to avoid deadlock
         if (session?.user) {
@@ -100,6 +107,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
+
+      if (session?.access_token) {
+        supabase.functions.setAuth(session.access_token);
+      } else {
+        supabase.functions.setAuth("");
+      }
       
       if (session?.user) {
         ensureProfile(session.user).then(setProfile);
