@@ -96,35 +96,41 @@ const Upload = () => {
         formData.append("bottom_garment", bottomFile);
       }
 
-      // supabase.functions.invoke() 사용 - SDK가 자동으로 Authorization 헤더 관리
-      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...");
+      // 직접 fetch() 사용 - Authorization 헤더 명시적으로 전송
+      console.log("[Upload] Calling tryon-proxy via direct fetch()...");
       
-      const { data: responseData, error: invokeError } = await supabase.functions.invoke(
-        "tryon-proxy",
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy`,
         {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${freshSession.access_token}`,
+            "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            // Content-Type은 FormData일 때 브라우저가 자동 설정 (boundary 포함)
+          },
           body: formData,
         }
       );
 
-      console.log("[Upload] invoke result:", { responseData, invokeError });
+      console.log("[Upload] fetch response status:", response.status);
 
-      if (invokeError) {
-        console.error("[Upload Error] invoke failed:", invokeError);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("[Upload Error] fetch failed:", response.status, errorData);
         
-        const errorMessage = invokeError.message || "";
-        const is401 = errorMessage.includes("401") || 
-                      errorMessage.toLowerCase().includes("unauthorized") ||
-                      errorMessage.toLowerCase().includes("missing");
+        const is401 = response.status === 401;
         
         toast.error(
           is401
             ? "로그인이 필요하거나 세션이 만료되었습니다. 다시 로그인해주세요."
-            : "요청 처리에 실패했습니다. 잠시 후 다시 시도해주세요."
+            : errorData.error || "요청 처리에 실패했습니다. 잠시 후 다시 시도해주세요."
         );
         setIsSubmitting(false);
         if (is401) navigate("/auth");
         return;
       }
+
+      const responseData = await response.json();
 
       if (responseData?.error) {
         console.error("[Upload Error]", responseData);
