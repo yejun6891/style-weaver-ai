@@ -98,7 +98,8 @@ const Upload = () => {
       }
 
       // Edge Function URL - 직접 fetch 호출 (invoke가 Authorization 헤더를 제대로 전달하지 못하는 문제 우회)
-      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy/start`;
+      // tryon-proxy는 action 쿼리스트링으로 라우팅합니다.
+      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=start`;
       
       console.log("[Upload] Calling tryon-proxy via direct fetch...", {
         functionUrl,
