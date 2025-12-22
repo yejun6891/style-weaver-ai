@@ -1,3 +1,4 @@
+// Redeployed: 2025-12-23 - Force config.toml apply
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
