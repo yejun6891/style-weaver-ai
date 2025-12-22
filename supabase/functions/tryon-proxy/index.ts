@@ -25,9 +25,22 @@ Deno.serve(async (req) => {
 
   try {
     const url = new URL(req.url);
+    const contentType = req.headers.get("content-type") || "";
 
-    // action 우선순위: query -> header -> method 기반 기본값
+    // action 결정: query param -> header -> JSON body -> method 기반 기본값
     let action = url.searchParams.get("action") || req.headers.get("x-action");
+    let jsonBody: { action?: string; taskId?: string } | null = null;
+
+    // JSON body에서 action 읽기 (multipart가 아닌 경우)
+    if (!action && contentType.includes("application/json")) {
+      try {
+        jsonBody = await req.clone().json();
+        action = jsonBody?.action || null;
+      } catch {
+        // JSON 파싱 실패 시 무시
+      }
+    }
+
     if (!action) {
       if (req.method === "POST") action = "start";
       else if (req.method === "GET") action = "result";
@@ -64,7 +77,12 @@ Deno.serve(async (req) => {
 
     // Handle "result" action - poll for results
     if (action === "result") {
-      const taskId = url.searchParams.get("taskId");
+      // taskId: query param 우선, 없으면 JSON body에서
+      let taskId = url.searchParams.get("taskId");
+      if (!taskId && jsonBody?.taskId) {
+        taskId = jsonBody.taskId;
+      }
+
       if (!taskId) {
         return new Response(
           JSON.stringify({ error: "Missing taskId parameter" }),
