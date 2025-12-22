@@ -77,14 +77,18 @@ const Result = () => {
         if (isCancelled) return;
 
         try {
+          // 환경변수 폴백 설정
+          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://kkgabtngvypaerswmpvi.supabase.co";
+          const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZ2FidG5ndnlwYWVyc3dtcHZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwOTg5MzIsImV4cCI6MjA4MTY3NDkzMn0.0in81TnbGo09Qv7U6IWrUeer3twCPLYBXulsCE3_Ljg";
+
           // Call the secure edge function proxy with authentication
           const res = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=result&taskId=${encodeURIComponent(taskId)}`,
+            `${SUPABASE_URL}/functions/v1/tryon-proxy?action=result&taskId=${encodeURIComponent(taskId)}`,
             {
               method: "GET",
               headers: {
                 Authorization: `Bearer ${session.access_token}`,
-                apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                apikey: SUPABASE_KEY,
               },
             }
           );
