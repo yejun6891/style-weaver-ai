@@ -104,11 +104,9 @@ const Upload = () => {
         {
           method: "POST",
           headers: {
-            // Authorization은 "공개 키(anon)"를 넣어 upstream 미들웨어를 통과시키고,
-            // 실제 유저 토큰은 x-user-token으로 전달합니다.
-            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            // 사용자 세션 토큰으로 인증 (Edge Function 내부/플랫폼 인증 모두 일관되게 처리)
+            "Authorization": `Bearer ${freshSession.access_token}`,
             "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            "x-user-token": freshSession.access_token,
             // Content-Type은 FormData일 때 브라우저가 자동 설정 (boundary 포함)
           },
           body: formData,
