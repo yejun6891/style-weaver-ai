@@ -84,8 +84,9 @@ const Result = () => {
             {
               method: "GET",
               headers: {
-                "Authorization": `Bearer ${session.access_token}`,
+                "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
                 "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+                "x-user-token": session.access_token,
               },
             }
           );

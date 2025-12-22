@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-action",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-action, x-user-token",
 };
 
 const BACKEND_BASE_URL = "https://tyron-backend-8yaa.onrender.com";
@@ -51,17 +51,28 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     
+    // NOTE:
+    // - Platform-level JWT verification can be inconsistent across environments.
+    // - To keep this endpoint working reliably, we support passing the user's access token via `x-user-token`.
+    //   In that case, the standard `Authorization` header may contain the public key (anon) just to satisfy upstream middleware.
+
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      console.error("[tryon-proxy] Missing Authorization header");
-      return new Response(
-        JSON.stringify({ error: "Authorization required" }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const userTokenHeader = req.headers.get("x-user-token");
+
+    const userBearer = userTokenHeader
+      ? `Bearer ${userTokenHeader.replace(/^Bearer\s+/i, "")}`
+      : authHeader;
+
+    if (!userBearer) {
+      console.error("[tryon-proxy] Missing auth token (Authorization or x-user-token)");
+      return new Response(JSON.stringify({ error: "Authorization required" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } },
+      global: { headers: { Authorization: userBearer } },
     });
 
     // Verify the user
