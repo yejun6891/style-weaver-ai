@@ -56,39 +56,38 @@ const Upload = () => {
     setIsSubmitting(true);
 
     try {
-      // 제출 직전에 세션을 다시 확인하고 갱신
-      console.log("[Upload] Checking session before submit...", {
+      // 제출 직전에 세션을 강제로 갱신하여 최신 access_token 확보
+      console.log("[Upload] Refreshing session before submit...", {
         currentOrigin: window.location.origin,
-        currentHref: window.location.href,
       });
 
-      // 먼저 세션 갱신 시도
-      const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+      // 세션 강제 갱신
+      const { data: { session: freshSession }, error: refreshError } = 
+        await supabase.auth.refreshSession();
       
       if (refreshError) {
-        console.warn("[Upload] Session refresh failed:", refreshError.message);
-      } else {
-        console.log("[Upload] Session refreshed successfully");
-      }
-
-      // 갱신된 세션 가져오기
-      const { data: { session: freshSession }, error: sessionError } = await supabase.auth.getSession();
-      
-      console.log("[Upload] Session check result:", {
-        hasSession: !!freshSession,
-        hasToken: !!freshSession?.access_token,
-        userId: freshSession?.user?.id,
-        tokenExpiry: freshSession?.expires_at,
-        error: sessionError?.message,
-      });
-
-      if (sessionError || !freshSession?.access_token) {
-        console.error("[Upload] Session error:", sessionError);
+        console.error("[Upload] Session refresh failed:", refreshError.message);
         toast.error("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
         setIsSubmitting(false);
         navigate("/auth");
         return;
       }
+
+      if (!freshSession?.access_token) {
+        console.error("[Upload] No access token after refresh");
+        toast.error("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
+        setIsSubmitting(false);
+        navigate("/auth");
+        return;
+      }
+
+      // 디버그: 토큰 상태 확인
+      console.log("[Upload] Token check:", {
+        hasToken: !!freshSession.access_token,
+        tokenLength: freshSession.access_token?.length,
+        expiresAt: freshSession.expires_at,
+        userId: freshSession.user?.id,
+      });
 
       const formData = new FormData();
       formData.append("person_image", personFile);
@@ -97,47 +96,36 @@ const Upload = () => {
         formData.append("bottom_garment", bottomFile);
       }
 
-      // Edge Function URL - 직접 fetch 호출 (invoke가 Authorization 헤더를 제대로 전달하지 못하는 문제 우회)
-      // tryon-proxy는 action 쿼리스트링으로 라우팅합니다.
-      const functionUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=start`;
+      // supabase.functions.invoke() 사용 - SDK가 자동으로 Authorization 헤더 관리
+      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...");
       
-      console.log("[Upload] Calling tryon-proxy via direct fetch...", {
-        functionUrl,
-        hasAccessToken: !!freshSession.access_token,
-        tokenPreview: freshSession.access_token?.substring(0, 20) + "...",
-      });
+      const { data: responseData, error: invokeError } = await supabase.functions.invoke(
+        "tryon-proxy",
+        {
+          body: formData,
+        }
+      );
 
-      const response = await fetch(functionUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${freshSession.access_token}`,
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        },
-        body: formData,
-      });
+      console.log("[Upload] invoke result:", { responseData, invokeError });
 
-      console.log("[Upload] Response status:", response.status);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("[Upload Error] fetch failed", {
-          status: response.status,
-          errorText,
-        });
-
+      if (invokeError) {
+        console.error("[Upload Error] invoke failed:", invokeError);
+        
+        const is401 = invokeError.message?.includes("401") || 
+                      invokeError.message?.toLowerCase().includes("unauthorized") ||
+                      invokeError.message?.toLowerCase().includes("missing");
+        
         toast.error(
-          response.status === 401
+          is401
             ? "로그인이 필요하거나 세션이 만료되었습니다. 다시 로그인해주세요."
             : "요청 처리에 실패했습니다. 잠시 후 다시 시도해주세요."
         );
         setIsSubmitting(false);
-        if (response.status === 401) navigate("/auth");
+        if (is401) navigate("/auth");
         return;
       }
 
-      const responseData = await response.json();
-
-      if ((responseData as any)?.error) {
+      if (responseData?.error) {
         console.error("[Upload Error]", responseData);
         toast.error("Unable to process your request. Please try again later.");
         setIsSubmitting(false);
