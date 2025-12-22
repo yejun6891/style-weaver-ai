@@ -7,6 +7,7 @@ import StyleAnalysisReport from "@/components/StyleAnalysisReport";
 import { StyleProfile } from "@/components/StyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText } from "lucide-react";
 
 type Status = "loading" | "success" | "error";
@@ -77,22 +78,18 @@ const Result = () => {
         if (isCancelled) return;
 
         try {
-          // 환경변수 폴백 설정
-          const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://kkgabtngvypaerswmpvi.supabase.co";
-          const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZ2FidG5ndnlwYWVyc3dtcHZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwOTg5MzIsImV4cCI6MjA4MTY3NDkzMn0.0in81TnbGo09Qv7U6IWrUeer3twCPLYBXulsCE3_Ljg";
-
-          // Call the secure edge function proxy with authentication
-          const res = await fetch(
-            `${SUPABASE_URL}/functions/v1/tryon-proxy?action=result&taskId=${encodeURIComponent(taskId)}`,
+          // supabase.functions.invoke() 사용 - SDK가 자동으로 Authorization 헤더 관리
+          const { data, error: invokeError } = await supabase.functions.invoke(
+            "tryon-proxy",
             {
-              method: "GET",
-              headers: {
-                Authorization: `Bearer ${session.access_token}`,
-                apikey: SUPABASE_KEY,
-              },
+              body: { action: "result", taskId },
             }
           );
-          const data = await res.json();
+
+          if (invokeError) {
+            console.error("[Result] invoke error:", invokeError);
+            throw invokeError;
+          }
 
           if (isCancelled) return;
 

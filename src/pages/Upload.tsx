@@ -96,42 +96,26 @@ const Upload = () => {
         formData.append("bottom_garment", bottomFile);
       }
 
-      // 환경변수 폴백 설정
-      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://kkgabtngvypaerswmpvi.supabase.co";
-      const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtrZ2FidG5ndnlwYWVyc3dtcHZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYwOTg5MzIsImV4cCI6MjA4MTY3NDkzMn0.0in81TnbGo09Qv7U6IWrUeer3twCPLYBXulsCE3_Ljg";
-
-      // 디버그 로그
-      console.log("[Upload] Environment check:", {
-        envUrl: import.meta.env.VITE_SUPABASE_URL,
-        envKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ? "exists" : "missing",
-        usingUrl: SUPABASE_URL,
-        usingKeyPrefix: SUPABASE_KEY.substring(0, 20) + "...",
-      });
-
-      // 직접 fetch 사용
-      const apiUrl = `${SUPABASE_URL}/functions/v1/tryon-proxy`;
-      console.log("[Upload] Calling tryon-proxy via direct fetch:", apiUrl);
+      // supabase.functions.invoke() 사용 - SDK가 자동으로 Authorization 헤더 관리
+      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...");
       
-      const response = await fetch(apiUrl, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${freshSession.access_token}`,
-          apikey: SUPABASE_KEY,
-        },
-        body: formData,
-      });
+      const { data: responseData, error: invokeError } = await supabase.functions.invoke(
+        "tryon-proxy",
+        {
+          body: formData,
+        }
+      );
 
-      console.log("[Upload] Response status:", response.status);
+      console.log("[Upload] invoke result:", { responseData, invokeError });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("[Upload Error] Response not OK:", {
-          status: response.status,
-          statusText: response.statusText,
-          body: errorText,
-        });
+      if (invokeError) {
+        console.error("[Upload Error] invoke failed:", invokeError);
         
-        const is401 = response.status === 401;
+        const errorMessage = invokeError.message || "";
+        const is401 = errorMessage.includes("401") || 
+                      errorMessage.toLowerCase().includes("unauthorized") ||
+                      errorMessage.toLowerCase().includes("missing");
+        
         toast.error(
           is401
             ? "로그인이 필요하거나 세션이 만료되었습니다. 다시 로그인해주세요."
@@ -141,9 +125,6 @@ const Upload = () => {
         if (is401) navigate("/auth");
         return;
       }
-
-      const responseData = await response.json();
-      console.log("[Upload] Response data:", responseData);
 
       if (responseData?.error) {
         console.error("[Upload Error]", responseData);
