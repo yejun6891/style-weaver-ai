@@ -78,18 +78,25 @@ const Result = () => {
         if (isCancelled) return;
 
         try {
-          // supabase.functions.invoke() 사용 - SDK가 자동으로 Authorization 헤더 관리
-          const { data, error: invokeError } = await supabase.functions.invoke(
-            "tryon-proxy",
+          // 직접 fetch() 사용 - Authorization 헤더 명시적으로 전송
+          const response = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=result&taskId=${taskId}`,
             {
-              body: { action: "result", taskId },
+              method: "GET",
+              headers: {
+                "Authorization": `Bearer ${session.access_token}`,
+                "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              },
             }
           );
 
-          if (invokeError) {
-            console.error("[Result] invoke error:", invokeError);
-            throw invokeError;
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error("[Result] fetch error:", response.status, errorData);
+            throw new Error(errorData.error || `HTTP ${response.status}`);
           }
+
+          const data = await response.json();
 
           if (isCancelled) return;
 
