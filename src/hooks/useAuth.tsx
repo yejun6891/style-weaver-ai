@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useState, useEffect, useRef, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const isInitializedRef = useRef(false);
 
   const fetchProfile = async (userId: string) => {
     const { data, error } = await supabase
@@ -77,33 +78,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+    // IMPORTANT:
+    // 초기 마운트 시에는 getSession()이 완료되기 전까지는 loading을 false로 만들지 않습니다.
+    // 그렇지 않으면 일부 환경에서 잠깐 session=null 상태가 되어 보호 페이지가 "로그인 필요"로 오인할 수 있습니다.
 
-        // Keep Functions client auth token in sync (prevents "Missing access token" on invoke)
-        if (session?.access_token) {
-          supabase.functions.setAuth(session.access_token);
-        } else {
-          supabase.functions.setAuth("");
-        }
-        
-        // Defer profile fetch with setTimeout to avoid deadlock
-        if (session?.user) {
-          setTimeout(() => {
-            ensureProfile(session.user).then(setProfile);
-          }, 0);
-        } else {
-          setProfile(null);
-        }
-        
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      // Keep Functions client auth token in sync
+      if (session?.access_token) {
+        supabase.functions.setAuth(session.access_token);
+      } else {
+        supabase.functions.setAuth("");
+      }
+
+      // Defer profile fetch with setTimeout to avoid deadlock
+      if (session?.user) {
+        setTimeout(() => {
+          ensureProfile(session.user).then(setProfile);
+        }, 0);
+      } else {
+        setProfile(null);
+      }
+
+      if (isInitializedRef.current) {
         setLoading(false);
       }
-    );
+    });
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -113,11 +116,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         supabase.functions.setAuth("");
       }
-      
+
       if (session?.user) {
         ensureProfile(session.user).then(setProfile);
       }
-      
+
+      isInitializedRef.current = true;
       setLoading(false);
     });
 
@@ -125,8 +129,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const signInWithGoogle = async () => {
-    // IMPORTANT: Use a real route that exists in our SPA.
-    // This prevents the post-login redirect from landing on a 404.
     const redirectUrl = `${window.location.origin}/callback`;
 
     const { error } = await supabase.auth.signInWithOAuth({
@@ -147,14 +149,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      session, 
-      profile, 
-      loading, 
-      signInWithGoogle, 
+    <AuthContext.Provider value={{
+      user,
+      session,
+      profile,
+      loading,
+      signInWithGoogle,
       signOut,
-      refreshProfile 
+      refreshProfile,
     }}>
       {children}
     </AuthContext.Provider>
