@@ -104,8 +104,11 @@ const Upload = () => {
         {
           method: "POST",
           headers: {
-            "Authorization": `Bearer ${freshSession.access_token}`,
+            // Authorization은 "공개 키(anon)"를 넣어 upstream 미들웨어를 통과시키고,
+            // 실제 유저 토큰은 x-user-token으로 전달합니다.
+            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
             "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            "x-user-token": freshSession.access_token,
             // Content-Type은 FormData일 때 브라우저가 자동 설정 (boundary 포함)
           },
           body: formData,
@@ -117,9 +120,16 @@ const Upload = () => {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         console.error("[Upload Error] fetch failed:", response.status, errorData);
-        
+
+        if (response.status === 402) {
+          toast.error("이용권이 부족합니다. 이용권을 구매해주세요.");
+          setIsSubmitting(false);
+          navigate("/mypage", { replace: true });
+          return;
+        }
+
         const is401 = response.status === 401;
-        
+
         toast.error(
           is401
             ? "로그인이 필요하거나 세션이 만료되었습니다. 다시 로그인해주세요."
