@@ -156,28 +156,28 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Check user credits
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("credits")
-        .eq("user_id", user.id)
-        .single();
+      // Atomically deduct credit BEFORE processing to prevent race conditions
+      // This uses a database function that only deducts if credits >= 1
+      const { data: creditDeducted, error: creditError } = await supabase
+        .rpc("try_deduct_credit", { p_user_id: user.id });
 
-      if (profileError || !profile) {
-        console.error("[tryon-proxy] Profile error:", profileError?.message);
+      if (creditError) {
+        console.error("[tryon-proxy] Credit deduction error:", creditError.message);
         return new Response(
-          JSON.stringify({ error: "User profile not found" }),
-          { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "Failed to process credits" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      if (profile.credits < 1) {
-        console.log(`[tryon-proxy] User ${user.id} has insufficient credits: ${profile.credits}`);
+      if (!creditDeducted) {
+        console.log(`[tryon-proxy] User ${user.id} has insufficient credits (atomic check failed)`);
         return new Response(
           JSON.stringify({ error: "Insufficient credits" }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+
+      console.log(`[tryon-proxy] Atomically deducted 1 credit from user ${user.id}`);
 
       // Parse the incoming form data
       const formData = await req.formData();
@@ -259,17 +259,9 @@ Deno.serve(async (req) => {
           console.log(`[tryon-proxy] Stored task ownership: ${responseData.taskId} -> ${user.id}`);
         }
 
-        // Deduct credit on successful task creation
-        const { error: updateError } = await supabase
-          .from("profiles")
-          .update({ credits: profile.credits - 1 })
-          .eq("user_id", user.id);
-
-        if (updateError) {
-          console.error("[tryon-proxy] Failed to deduct credit:", updateError.message);
-        } else {
-          console.log(`[tryon-proxy] Deducted 1 credit from user ${user.id}, remaining: ${profile.credits - 1}`);
-        }
+        // Credit was already atomically deducted at the start of this request
+        // Just log the successful task creation
+        console.log(`[tryon-proxy] Task ${responseData.taskId} created successfully for user ${user.id}`);
 
         // Log usage history
         await supabase.from("usage_history").insert({
