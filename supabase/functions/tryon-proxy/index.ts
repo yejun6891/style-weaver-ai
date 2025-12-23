@@ -189,28 +189,32 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Atomically deduct credit BEFORE processing to prevent race conditions
-      // This uses a database function that only deducts if credits >= 1
-      const { data: creditDeducted, error: creditError } = await supabase
-        .rpc("try_deduct_credit", { p_user_id: user.id });
+      // Check credit BEFORE starting the upstream job (do not deduct yet).
+      // We only deduct AFTER the upstream returns a taskId to avoid charging users for timeouts/errors.
+      const { data: profileRow, error: profileError } = await supabase
+        .from("profiles")
+        .select("credits")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-      if (creditError) {
-        console.error("[tryon-proxy] Credit deduction error:", creditError.message);
+      if (profileError) {
+        console.error("[tryon-proxy] Credit pre-check failed:", profileError.message);
         return new Response(
-          JSON.stringify({ error: "Failed to process credits" }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "Failed to verify credits" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
 
-      if (!creditDeducted) {
-        console.log(`[tryon-proxy] User ${user.id} has insufficient credits (atomic check failed)`);
+      const currentCredits = profileRow?.credits ?? 0;
+      if (currentCredits < 1) {
+        console.log(`[tryon-proxy] User ${user.id} has insufficient credits (pre-check)`);
         return new Response(
           JSON.stringify({ error: "Insufficient credits" }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
 
-      console.log(`[tryon-proxy] Atomically deducted 1 credit from user ${user.id}`);
+      console.log(`[tryon-proxy] Credit pre-check OK (credits=${currentCredits}) for user ${user.id}`);
 
       // Parse the incoming form data
       const formData = await req.formData();
@@ -278,6 +282,28 @@ Deno.serve(async (req) => {
         );
 
         if (backendRes.ok && responseData.taskId) {
+          // Deduct 1 credit AFTER we have a taskId (so users are not charged on upstream timeout/error).
+          const { data: creditDeducted, error: creditError } = await supabase
+            .rpc("try_deduct_credit", { p_user_id: user.id });
+
+          if (creditError) {
+            console.error("[tryon-proxy] Credit deduction error:", creditError.message);
+            return new Response(
+              JSON.stringify({ error: "Failed to process credits" }),
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+            );
+          }
+
+          if (!creditDeducted) {
+            console.log(`[tryon-proxy] User ${user.id} has insufficient credits (post-check)`);
+            return new Response(
+              JSON.stringify({ error: "Insufficient credits" }),
+              { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+            );
+          }
+
+          console.log(`[tryon-proxy] Deducted 1 credit from user ${user.id} for task ${responseData.taskId}`);
+
           // Store task ownership for access control
           const { error: ownershipInsertError } = await supabase
             .from("task_ownership")
@@ -292,7 +318,6 @@ Deno.serve(async (req) => {
             console.log(`[tryon-proxy] Stored task ownership: ${responseData.taskId} -> ${user.id}`);
           }
 
-          // Credit was already atomically deducted at the start of this request
           console.log(`[tryon-proxy] Task ${responseData.taskId} created successfully for user ${user.id}`);
 
           // Log usage history
