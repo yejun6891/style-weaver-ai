@@ -162,7 +162,11 @@ Deno.serve(async (req) => {
       try {
         const { res: backendRes, json: resultData } = await fetchJsonWithTimeout(
           `${BACKEND_BASE_URL}/api/tryon/result?taskId=${encodeURIComponent(taskId)}`,
-          undefined,
+          {
+            headers: {
+              "Authorization": userBearer,
+            },
+          },
           15000,
         );
 
@@ -277,7 +281,13 @@ Deno.serve(async (req) => {
         // Forward to the actual backend (keep this fast to avoid gateway 504)
         const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
           `${BACKEND_BASE_URL}/api/tryon/start`,
-          { method: "POST", body: validatedFormData },
+          { 
+            method: "POST", 
+            body: validatedFormData,
+            headers: {
+              "Authorization": userBearer,
+            },
+          },
           25000,
         );
 
