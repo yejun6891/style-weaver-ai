@@ -12,6 +12,7 @@ interface UsageHistory {
   action_type: string;
   credits_used: number;
   result_url: string | null;
+  task_id: string | null;
   created_at: string;
 }
 
@@ -215,21 +216,23 @@ const Dashboard = () => {
                 {usageHistory.map((item) => (
                   <div 
                     key={item.id}
-                    className="flex items-center gap-4 p-4 rounded-xl bg-background border border-border hover:border-primary/30 transition-colors cursor-pointer"
-                    onClick={() => item.result_url && navigate(`/result/${item.id}`)}
+                    className={`flex items-center gap-4 p-4 rounded-xl bg-background border border-border transition-colors ${
+                      item.task_id ? 'hover:border-primary/30 cursor-pointer' : 'opacity-60'
+                    }`}
+                    onClick={() => item.task_id && navigate(`/result/${item.task_id}`)}
                   >
                     <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center flex-shrink-0">
                       <Image className="w-6 h-6 text-accent-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground truncate">
-                        {item.action_type === 'try_on' ? t("dashboard.tryonAction") : item.action_type}
+                        {item.action_type === 'virtual_tryon' ? t("dashboard.tryonAction") : item.action_type}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {new Date(item.created_at).toLocaleDateString()} • -{item.credits_used} {t("dashboard.credit")}
                       </p>
                     </div>
-                    {item.result_url && (
+                    {item.task_id && (
                       <Button variant="outline" size="sm">
                         {t("dashboard.view")}
                       </Button>
