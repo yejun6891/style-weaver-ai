@@ -125,10 +125,10 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
 
             // Mark promo code as used if applied
             if (selectedPromo) {
-              await supabase
-                .from('user_promo_codes')
+              await (supabase
+                .from('user_promo_codes' as any)
                 .update({ used: true, used_at: new Date().toISOString() })
-                .eq('id', selectedPromo.id);
+                .eq('id', selectedPromo.id) as any);
             }
 
             // Record purchase in usage history

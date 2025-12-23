@@ -34,8 +34,8 @@ export const usePromoCodes = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
-        .from('user_promo_codes')
+      const { data, error } = await (supabase
+        .from('user_promo_codes' as any)
         .select(`
           id,
           used,
@@ -57,12 +57,12 @@ export const usePromoCodes = () => {
           )
         `)
         .eq('user_id', user.id)
-        .order('claimed_at', { ascending: false });
+        .order('claimed_at', { ascending: false }) as any);
 
       if (error) {
         console.error('Error fetching user promo codes:', error);
       } else {
-        setUserPromoCodes((data as any) || []);
+        setUserPromoCodes((data as UserPromoCode[]) || []);
       }
     } catch (err) {
       console.error('Error fetching user promo codes:', err);
@@ -81,12 +81,12 @@ export const usePromoCodes = () => {
 
   const searchPromoCode = async (code: string): Promise<PromoCode | null> => {
     try {
-      const { data, error } = await supabase
-        .from('promo_codes')
+      const { data, error } = await (supabase
+        .from('promo_codes' as any)
         .select('*')
         .eq('code', code.toUpperCase())
         .eq('is_active', true)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (error) {
         console.error('Error searching promo code:', error);
@@ -115,24 +115,24 @@ export const usePromoCodes = () => {
 
     try {
       // Check if already claimed
-      const { data: existingClaim } = await supabase
-        .from('user_promo_codes')
+      const { data: existingClaim } = await (supabase
+        .from('user_promo_codes' as any)
         .select('id')
         .eq('user_id', user.id)
         .eq('promo_code_id', promoCodeId)
-        .maybeSingle();
+        .maybeSingle() as any);
 
       if (existingClaim) {
         return { success: false, message: '이미 받은 프로모션 코드입니다' };
       }
 
       // Claim the promo code
-      const { error } = await supabase
-        .from('user_promo_codes')
+      const { error } = await (supabase
+        .from('user_promo_codes' as any)
         .insert({
           user_id: user.id,
           promo_code_id: promoCodeId,
-        });
+        }) as any);
 
       if (error) {
         console.error('Error claiming promo code:', error);
@@ -152,30 +152,25 @@ export const usePromoCodes = () => {
 
     try {
       // Mark promo code as used
-      const { error: updateError } = await supabase
-        .from('user_promo_codes')
+      const { error: updateError } = await (supabase
+        .from('user_promo_codes' as any)
         .update({ used: true, used_at: new Date().toISOString() })
-        .eq('id', userPromoCodeId);
+        .eq('id', userPromoCodeId) as any);
 
       if (updateError) {
         console.error('Error updating promo code usage:', updateError);
         return { success: false, message: '프로모션 코드 사용에 실패했습니다' };
       }
 
-      // Add credits to user profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({ credits: supabase.rpc ? undefined : creditsToAdd })
-        .eq('user_id', user.id);
-
-      // Use raw update for credits addition
-      const { error: creditsError } = await supabase.rpc('add_credits', {
+      // Add credits using RPC function
+      const { error: creditsError } = await (supabase.rpc as any)('add_credits', {
         p_user_id: user.id,
         p_credits: creditsToAdd
       });
 
-      // If RPC doesn't exist, try direct update
       if (creditsError) {
+        console.error('Error adding credits:', creditsError);
+        // Fallback: try direct update
         const { data: currentProfile } = await supabase
           .from('profiles')
           .select('credits')
@@ -191,7 +186,7 @@ export const usePromoCodes = () => {
       }
 
       // Update promo code usage count
-      await supabase.rpc('increment_promo_usage', { p_promo_id: promoCodeId });
+      await (supabase.rpc as any)('increment_promo_usage', { p_promo_id: promoCodeId });
 
       await fetchUserPromoCodes();
       return { success: true, message: `${creditsToAdd}개의 이용권이 추가되었습니다!` };

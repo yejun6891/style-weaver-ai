@@ -7,7 +7,7 @@ import LanguageSwitch from "@/components/LanguageSwitch";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, ArrowRight, Loader2, Check, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -17,16 +17,26 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Upload = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const { session, loading } = useAuth();
+  const { session, profile, loading, refreshProfile } = useAuth();
   const [personFile, setPersonFile] = useState<File | null>(null);
   const [topFile, setTopFile] = useState<File | null>(null);
   const [bottomFile, setBottomFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showNoCreditsDialog, setShowNoCreditsDialog] = useState(false);
   
   const [styleProfile, setStyleProfile] = useState<StyleProfile>({
     height: "",
@@ -117,9 +127,8 @@ const Upload = () => {
         console.error("[Upload Error] invoke failed:", status, error);
 
         if (status === 402) {
-          toast.error("이용권이 부족합니다. 이용권을 구매해주세요.");
           setIsSubmitting(false);
-          navigate("/mypage", { replace: true });
+          setShowNoCreditsDialog(true);
           return;
         }
 
@@ -152,6 +161,20 @@ const Upload = () => {
     }
   };
 
+  // Check credits before showing confirm dialog
+  const handleOpenConfirm = async () => {
+    if (!canSubmit) return;
+    
+    // Refresh profile to get latest credits
+    await refreshProfile();
+    
+    if (profile && profile.credits <= 0) {
+      setShowNoCreditsDialog(true);
+    } else {
+      setShowConfirmDialog(true);
+    }
+  };
+
   const canSubmit = personFile && topFile && !isSubmitting && !!session?.access_token;
 
   // 로딩 중일 때 로딩 UI 표시
@@ -169,12 +192,6 @@ const Upload = () => {
     styleProfile.occasions.length > 0 ||
     styleProfile.styles.length > 0 ||
     styleProfile.concerns.trim() !== "";
-
-  const handleOpenConfirm = () => {
-    if (canSubmit) {
-      setShowConfirmDialog(true);
-    }
-  };
 
   const handleConfirmSubmit = () => {
     setShowConfirmDialog(false);
@@ -355,6 +372,31 @@ const Upload = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* No Credits Alert Dialog */}
+      <AlertDialog open={showNoCreditsDialog} onOpenChange={setShowNoCreditsDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-destructive" />
+              {t("upload.noCredits.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("upload.noCredits.description")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setShowNoCreditsDialog(false)}>
+              {t("upload.noCredits.cancel")}
+            </Button>
+            <AlertDialogAction asChild>
+              <Button variant="gradient" onClick={() => navigate("/mypage")}>
+                {t("upload.noCredits.purchase")}
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 };
