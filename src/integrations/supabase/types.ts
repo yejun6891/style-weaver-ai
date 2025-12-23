@@ -47,6 +47,51 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_purchase: number | null
+          per_user_limit: number
+          uses_count: number
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          discount_type: string
+          discount_value: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_purchase?: number | null
+          per_user_limit?: number
+          uses_count?: number
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_purchase?: number | null
+          per_user_limit?: number
+          uses_count?: number
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       task_ownership: {
         Row: {
           created_at: string
@@ -95,11 +140,54 @@ export type Database = {
         }
         Relationships: []
       }
+      user_promo_codes: {
+        Row: {
+          claimed_at: string
+          id: string
+          promo_code_id: string
+          used: boolean
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          promo_code_id: string
+          used?: boolean
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          promo_code_id?: string
+          used?: boolean
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_promo_codes_promo_code_id_fkey"
+            columns: ["promo_code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      add_credits: {
+        Args: { p_credits: number; p_user_id: string }
+        Returns: undefined
+      }
+      increment_promo_usage: {
+        Args: { p_promo_id: string }
+        Returns: undefined
+      }
       try_deduct_credit: { Args: { p_user_id: string }; Returns: boolean }
     }
     Enums: {

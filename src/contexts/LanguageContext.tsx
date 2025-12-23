@@ -40,6 +40,7 @@ const translations = {
     "dashboard.noHistory": "아직 이용 내역이 없습니다",
     "dashboard.createFirst": "첫 피팅 만들기",
     "dashboard.tryonAction": "가상 피팅",
+    "dashboard.purchaseAction": "이용권 구매",
     "dashboard.credit": "이용권",
     "dashboard.view": "보기",
     
@@ -54,7 +55,43 @@ const translations = {
     "mypage.credits": "이용권",
     "mypage.popular": "인기",
     "mypage.purchase": "구매하기",
-    "mypage.paymentNote": "결제 기능은 곧 추가됩니다",
+    "mypage.paymentNote": "PayPal로 안전하게 결제됩니다",
+    
+    // Promo Codes
+    "promo.title": "프로모션 코드",
+    "promo.searchPlaceholder": "프로모션 코드 입력",
+    "promo.searchLabel": "프로모션 코드 검색",
+    "promo.notFound": "유효하지 않은 프로모션 코드입니다",
+    "promo.claim": "받기",
+    "promo.use": "사용하기",
+    "promo.applied": "적용됨",
+    "promo.discount": "할인",
+    "promo.creditsBonus": "이용권 추가",
+    "promo.myPromoCodes": "보유 프로모션",
+    "promo.noPromoCodes": "보유한 프로모션이 없습니다",
+    "promo.searchHint": "프로모션 코드를 검색해보세요",
+    "promo.selectDiscount": "할인 쿠폰 선택",
+    
+    // Purchase Flow
+    "purchase.promoStep": "프로모션 선택",
+    "purchase.packageStep": "이용권 선택",
+    "purchase.paymentStep": "결제",
+    "purchase.skip": "다음",
+    "purchase.next": "다음",
+    "purchase.back": "이전",
+    "purchase.summary": "주문 내역",
+    "purchase.total": "결제 금액",
+    "purchase.loadingPaypal": "PayPal 로딩 중",
+    "purchase.processing": "결제 처리 중",
+    "purchase.success": "결제가 완료되었습니다!",
+    "purchase.error": "결제 처리에 실패했습니다",
+    "purchase.paypalError": "PayPal 오류가 발생했습니다",
+    
+    // Upload - No Credits
+    "upload.noCredits.title": "이용권이 없습니다",
+    "upload.noCredits.description": "피팅 분석을 시작하려면 이용권이 필요합니다. 이용권을 구매해주세요.",
+    "upload.noCredits.cancel": "취소",
+    "upload.noCredits.purchase": "이용권 구매하기",
     
     // Landing
     "hero.badge": "AI 가상 피팅 + 스타일 분석",
@@ -226,6 +263,7 @@ const translations = {
     "dashboard.noHistory": "No usage history yet",
     "dashboard.createFirst": "Create your first try-on",
     "dashboard.tryonAction": "Virtual Try-On",
+    "dashboard.purchaseAction": "Credit Purchase",
     "dashboard.credit": "credit",
     "dashboard.view": "View",
     
@@ -240,7 +278,43 @@ const translations = {
     "mypage.credits": "credits",
     "mypage.popular": "Popular",
     "mypage.purchase": "Purchase",
-    "mypage.paymentNote": "Payment feature coming soon",
+    "mypage.paymentNote": "Secure payment via PayPal",
+    
+    // Promo Codes
+    "promo.title": "Promo Codes",
+    "promo.searchPlaceholder": "Enter promo code",
+    "promo.searchLabel": "Search promo code",
+    "promo.notFound": "Invalid promo code",
+    "promo.claim": "Claim",
+    "promo.use": "Use",
+    "promo.applied": "applied",
+    "promo.discount": "off",
+    "promo.creditsBonus": "credits bonus",
+    "promo.myPromoCodes": "My Promo Codes",
+    "promo.noPromoCodes": "No promo codes yet",
+    "promo.searchHint": "Search for promo codes",
+    "promo.selectDiscount": "Select discount coupon",
+    
+    // Purchase Flow
+    "purchase.promoStep": "Select Promo",
+    "purchase.packageStep": "Select Package",
+    "purchase.paymentStep": "Payment",
+    "purchase.skip": "Skip",
+    "purchase.next": "Next",
+    "purchase.back": "Back",
+    "purchase.summary": "Order Summary",
+    "purchase.total": "Total",
+    "purchase.loadingPaypal": "Loading PayPal",
+    "purchase.processing": "Processing payment",
+    "purchase.success": "Payment completed!",
+    "purchase.error": "Payment failed",
+    "purchase.paypalError": "PayPal error occurred",
+    
+    // Upload - No Credits
+    "upload.noCredits.title": "No Credits Available",
+    "upload.noCredits.description": "You need credits to start a try-on analysis. Please purchase credits.",
+    "upload.noCredits.cancel": "Cancel",
+    "upload.noCredits.purchase": "Buy Credits",
     
     // Landing
     "hero.badge": "AI Virtual Try-On + Style Analysis",

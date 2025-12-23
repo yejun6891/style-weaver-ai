@@ -1,21 +1,36 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import LanguageSwitch from "@/components/LanguageSwitch";
+import PurchaseFlow from "@/components/PurchaseFlow";
 import { ArrowLeft, CreditCard, User, Mail, Calendar, Sparkles } from "lucide-react";
+import { UserPromoCode } from "@/hooks/usePromoCodes";
 
 const MyPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useLanguage();
   const { user, profile, loading } = useAuth();
+  const [purchaseOpen, setPurchaseOpen] = useState(false);
+  const [initialPromo, setInitialPromo] = useState<UserPromoCode | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
       navigate("/auth");
     }
   }, [user, loading, navigate]);
+
+  // Check if navigated with a selected promo
+  useEffect(() => {
+    if (location.state?.selectedPromo) {
+      setInitialPromo(location.state.selectedPromo);
+      setPurchaseOpen(true);
+      // Clear the state
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   if (loading) {
     return (
@@ -45,9 +60,10 @@ const MyPage = () => {
   }
 
   const creditPackages = [
-    { credits: 5, price: "$4.99", popular: false },
-    { credits: 15, price: "$9.99", popular: true, discount: "33% OFF" },
-    { credits: 30, price: "$14.99", popular: false, discount: "50% OFF" },
+    { credits: 5, price: "$9.99" },
+    { credits: 10, price: "$14.99", popular: true, discount: "25% OFF" },
+    { credits: 15, price: "$19.99", discount: "33% OFF" },
+    { credits: 25, price: "$29.99", discount: "40% OFF" },
   ];
 
   return (
@@ -146,15 +162,16 @@ const MyPage = () => {
               {t("mypage.buyCreditsDesc")}
             </p>
 
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {creditPackages.map((pkg, index) => (
                 <div 
                   key={index}
-                  className={`relative rounded-2xl p-6 border-2 transition-all hover:shadow-lg ${
+                  className={`relative rounded-2xl p-6 border-2 transition-all hover:shadow-lg cursor-pointer ${
                     pkg.popular 
                       ? "border-primary bg-gradient-to-b from-primary/10 to-transparent" 
-                      : "border-border bg-background"
+                      : "border-border bg-background hover:border-primary/30"
                   }`}
+                  onClick={() => setPurchaseOpen(true)}
                 >
                   {pkg.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full gradient-primary text-xs font-bold text-white">
@@ -166,18 +183,22 @@ const MyPage = () => {
                       {pkg.discount}
                     </div>
                   )}
-                  <div className="text-center mb-6">
-                    <p className="font-display text-4xl font-bold text-foreground mb-1">
+                  <div className="text-center mb-4">
+                    <p className="font-display text-3xl font-bold text-foreground mb-1">
                       {pkg.credits}
                     </p>
-                    <p className="text-muted-foreground">{t("mypage.credits")}</p>
+                    <p className="text-muted-foreground text-sm">{t("mypage.credits")}</p>
                   </div>
-                  <p className="text-center font-display text-2xl font-bold text-foreground mb-6">
+                  <p className="text-center font-display text-xl font-bold text-foreground mb-4">
                     {pkg.price}
                   </p>
                   <Button 
                     variant={pkg.popular ? "gradient" : "outline"}
                     className="w-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setPurchaseOpen(true);
+                    }}
                   >
                     {t("mypage.purchase")}
                   </Button>
@@ -191,6 +212,16 @@ const MyPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Purchase Flow Dialog */}
+      <PurchaseFlow 
+        open={purchaseOpen} 
+        onClose={() => {
+          setPurchaseOpen(false);
+          setInitialPromo(null);
+        }}
+        initialPromo={initialPromo}
+      />
     </main>
   );
 };

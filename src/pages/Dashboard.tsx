@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import LanguageSwitch from "@/components/LanguageSwitch";
+import PromoCodeSection from "@/components/PromoCodeSection";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Image, Plus, User, LogOut, CreditCard } from "lucide-react";
 
@@ -191,6 +192,11 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {/* Promo Code Section */}
+          <div className="mb-10">
+            <PromoCodeSection />
+          </div>
+
           {/* Usage History */}
           <div className="bg-card border border-border rounded-2xl p-6">
             <h2 className="font-display text-xl font-bold text-foreground mb-6">
@@ -226,10 +232,13 @@ const Dashboard = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-foreground truncate">
-                        {item.action_type === 'virtual_tryon' ? t("dashboard.tryonAction") : item.action_type}
+                        {item.action_type === 'virtual_tryon' ? t("dashboard.tryonAction") : 
+                         item.action_type === 'credit_purchase' ? t("dashboard.purchaseAction") : 
+                         item.action_type}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {new Date(item.created_at).toLocaleDateString()} • -{item.credits_used} {t("dashboard.credit")}
+                        {new Date(item.created_at).toLocaleDateString()} • 
+                        {item.credits_used < 0 ? ` +${Math.abs(item.credits_used)}` : ` -${item.credits_used}`} {t("dashboard.credit")}
                       </p>
                     </div>
                     {item.task_id && (
