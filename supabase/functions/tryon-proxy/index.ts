@@ -1,4 +1,4 @@
-// Redeployed: 2025-12-23 - Force config.toml apply
+// Redeployed: 2025-12-23T11:50 - Force verify_jwt=false apply
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
