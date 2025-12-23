@@ -4,7 +4,30 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-action, x-user-token",
+  "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
 };
+
+function withTimeout(ms: number) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), ms);
+  return { controller, cancel: () => clearTimeout(id) };
+}
+
+async function fetchJsonWithTimeout(input: RequestInfo | URL, init: RequestInit | undefined, timeoutMs: number) {
+  const { controller, cancel } = withTimeout(timeoutMs);
+  try {
+    const res = await fetch(input, { ...(init || {}), signal: controller.signal });
+    let json: any = null;
+    try {
+      json = await res.json();
+    } catch {
+      json = { error: "Upstream returned a non-JSON response" };
+    }
+    return { res, json };
+  } finally {
+    cancel();
+  }
+}
 
 const BACKEND_BASE_URL = "https://tyron-backend-8yaa.onrender.com";
 
@@ -136,15 +159,25 @@ Deno.serve(async (req) => {
 
       console.log(`[tryon-proxy] Ownership verified, polling result for taskId: ${taskId}`);
 
-      const backendRes = await fetch(
-        `${BACKEND_BASE_URL}/api/tryon/result?taskId=${encodeURIComponent(taskId)}`
-      );
-      const resultData = await backendRes.json();
+      try {
+        const { res: backendRes, json: resultData } = await fetchJsonWithTimeout(
+          `${BACKEND_BASE_URL}/api/tryon/result?taskId=${encodeURIComponent(taskId)}`,
+          undefined,
+          15000,
+        );
 
-      return new Response(JSON.stringify(resultData), {
-        status: backendRes.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+        return new Response(JSON.stringify(resultData), {
+          status: backendRes.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (e) {
+        const isTimeout = (e as any)?.name === "AbortError";
+        console.error("[tryon-proxy] Backend result fetch failed:", e);
+        return new Response(
+          JSON.stringify({ error: isTimeout ? "Upstream timeout" : "Upstream request failed" }),
+          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
     }
 
     // Handle "start" action - initiate try-on
@@ -236,45 +269,52 @@ Deno.serve(async (req) => {
 
       console.log(`[tryon-proxy] Forwarding validated request to backend for user ${user.id}`);
 
-      // Forward to the actual backend
-      const backendRes = await fetch(`${BACKEND_BASE_URL}/api/tryon/start`, {
-        method: "POST",
-        body: validatedFormData,
-      });
+      try {
+        // Forward to the actual backend (keep this fast to avoid gateway 504)
+        const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
+          `${BACKEND_BASE_URL}/api/tryon/start`,
+          { method: "POST", body: validatedFormData },
+          25000,
+        );
 
-      const responseData = await backendRes.json();
+        if (backendRes.ok && responseData.taskId) {
+          // Store task ownership for access control
+          const { error: ownershipInsertError } = await supabase
+            .from("task_ownership")
+            .insert({
+              task_id: responseData.taskId,
+              user_id: user.id,
+            });
 
-      if (backendRes.ok && responseData.taskId) {
-        // Store task ownership for access control
-        const { error: ownershipInsertError } = await supabase
-          .from("task_ownership")
-          .insert({
-            task_id: responseData.taskId,
+          if (ownershipInsertError) {
+            console.error("[tryon-proxy] Failed to store task ownership:", ownershipInsertError.message);
+          } else {
+            console.log(`[tryon-proxy] Stored task ownership: ${responseData.taskId} -> ${user.id}`);
+          }
+
+          // Credit was already atomically deducted at the start of this request
+          console.log(`[tryon-proxy] Task ${responseData.taskId} created successfully for user ${user.id}`);
+
+          // Log usage history
+          await supabase.from("usage_history").insert({
             user_id: user.id,
+            action_type: "virtual_tryon",
+            credits_used: 1,
           });
-
-        if (ownershipInsertError) {
-          console.error("[tryon-proxy] Failed to store task ownership:", ownershipInsertError.message);
-        } else {
-          console.log(`[tryon-proxy] Stored task ownership: ${responseData.taskId} -> ${user.id}`);
         }
 
-        // Credit was already atomically deducted at the start of this request
-        // Just log the successful task creation
-        console.log(`[tryon-proxy] Task ${responseData.taskId} created successfully for user ${user.id}`);
-
-        // Log usage history
-        await supabase.from("usage_history").insert({
-          user_id: user.id,
-          action_type: "virtual_tryon",
-          credits_used: 1,
+        return new Response(JSON.stringify(responseData), {
+          status: backendRes.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
+      } catch (e) {
+        const isTimeout = (e as any)?.name === "AbortError";
+        console.error("[tryon-proxy] Backend start fetch failed:", e);
+        return new Response(
+          JSON.stringify({ error: isTimeout ? "Upstream timeout" : "Upstream request failed" }),
+          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
       }
-
-      return new Response(JSON.stringify(responseData), {
-        status: backendRes.status,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
     }
 
     return new Response(
