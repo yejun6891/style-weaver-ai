@@ -125,8 +125,8 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Validate taskId format (basic alphanumeric check)
-      if (!/^[a-zA-Z0-9_-]+$/.test(taskId)) {
+      // Validate taskId format (allows alphanumeric, dots, underscores, hyphens)
+      if (!/^[a-zA-Z0-9._-]+$/.test(taskId)) {
         return new Response(
           JSON.stringify({ error: "Invalid taskId format" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
