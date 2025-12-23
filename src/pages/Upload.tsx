@@ -96,11 +96,17 @@ const Upload = () => {
         formData.append("bottom_garment", bottomFile);
       }
 
-      // ✅ 공식 SDK 호출 사용 (토큰/키 헤더를 자동으로 포함)
+      // ✅ 공식 SDK 호출 사용
+      // - invoke()는 내부 세션 토큰을 자동 첨부하지만, 프로덕션에서 갱신 직후 토큰 반영 타이밍 이슈가 날 수 있어
+      //   여기서는 freshSession.access_token을 명시적으로 헤더에 넣어 확실히 보냅니다.
       console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...");
 
       const { data, error } = await supabase.functions.invoke("tryon-proxy", {
         body: formData,
+        headers: {
+          Authorization: `Bearer ${freshSession.access_token}`,
+          "x-user-token": freshSession.access_token,
+        },
         // FormData일 경우 Content-Type을 설정하지 않음 (브라우저가 boundary 포함 자동 설정)
       });
 
