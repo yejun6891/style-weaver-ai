@@ -330,11 +330,32 @@ Deno.serve(async (req) => {
 
           console.log(`[tryon-proxy] Task ${responseData.taskId} created successfully for user ${user.id}`);
 
-          // Log usage history
+          // Log usage history with task_id for result re-viewing
+          // First, check if user already has 3 saved results - delete oldest if so
+          const { data: existingHistory } = await supabase
+            .from("usage_history")
+            .select("id, created_at")
+            .eq("user_id", user.id)
+            .not("task_id", "is", null)
+            .order("created_at", { ascending: false });
+
+          if (existingHistory && existingHistory.length >= 3) {
+            // Delete the oldest entries beyond the limit (keep only 2, new one will be 3rd)
+            const idsToDelete = existingHistory.slice(2).map(h => h.id);
+            if (idsToDelete.length > 0) {
+              await supabase
+                .from("usage_history")
+                .delete()
+                .in("id", idsToDelete);
+              console.log(`[tryon-proxy] Deleted ${idsToDelete.length} old usage history entries for user ${user.id}`);
+            }
+          }
+
           await supabase.from("usage_history").insert({
             user_id: user.id,
             action_type: "virtual_tryon",
             credits_used: 1,
+            task_id: responseData.taskId,
           });
         }
 
