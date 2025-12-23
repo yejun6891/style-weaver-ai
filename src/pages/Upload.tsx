@@ -96,52 +96,38 @@ const Upload = () => {
         formData.append("bottom_garment", bottomFile);
       }
 
-      // 직접 fetch() 사용 - Authorization 헤더 명시적으로 전송
-      console.log("[Upload] Calling tryon-proxy via direct fetch()...");
-      
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy`,
-        {
-          method: "POST",
-          headers: {
-            // 사용자 세션 토큰으로 인증 (Edge Function 내부/플랫폼 인증 모두 일관되게 처리)
-            "Authorization": `Bearer ${freshSession.access_token}`,
-            "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            // Content-Type은 FormData일 때 브라우저가 자동 설정 (boundary 포함)
-          },
-          body: formData,
-        }
-      );
+      // ✅ 공식 SDK 호출 사용 (토큰/키 헤더를 자동으로 포함)
+      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...");
 
-      console.log("[Upload] fetch response status:", response.status);
+      const { data, error } = await supabase.functions.invoke("tryon-proxy", {
+        body: formData,
+        // FormData일 경우 Content-Type을 설정하지 않음 (브라우저가 boundary 포함 자동 설정)
+      });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("[Upload Error] fetch failed:", response.status, errorData);
+      if (error) {
+        const status = (error as any)?.context?.status as number | undefined;
+        console.error("[Upload Error] invoke failed:", status, error);
 
-        if (response.status === 402) {
+        if (status === 402) {
           toast.error("이용권이 부족합니다. 이용권을 구매해주세요.");
           setIsSubmitting(false);
           navigate("/mypage", { replace: true });
           return;
         }
 
-        const is401 = response.status === 401;
-
+        const is401 = status === 401;
         toast.error(
           is401
             ? "로그인이 필요하거나 세션이 만료되었습니다. 다시 로그인해주세요."
-            : errorData.error || "요청 처리에 실패했습니다. 잠시 후 다시 시도해주세요."
+            : (error as any)?.message || "요청 처리에 실패했습니다. 잠시 후 다시 시도해주세요."
         );
         setIsSubmitting(false);
         if (is401) navigate("/auth");
         return;
       }
 
-      const responseData = await response.json();
-
-      if (responseData?.error) {
-        console.error("[Upload Error]", responseData);
+      if ((data as any)?.error) {
+        console.error("[Upload Error]", data);
         toast.error("Unable to process your request. Please try again later.");
         setIsSubmitting(false);
         return;
@@ -150,7 +136,7 @@ const Upload = () => {
       // Store style profile in sessionStorage for the result page
       sessionStorage.setItem("styleProfile", JSON.stringify(styleProfile));
 
-      navigate(`/result/${responseData.taskId}`);
+      navigate(`/result/${(data as any).taskId}`);
     } catch (err) {
       console.error("[Upload Error]", err);
       toast.error("Request failed. Please try again.");
