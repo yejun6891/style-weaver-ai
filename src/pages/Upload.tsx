@@ -97,17 +97,14 @@ const Upload = () => {
       }
 
       // ✅ 공식 SDK 호출 사용
-      // - invoke()는 내부 세션 토큰을 자동 첨부하지만, 프로덕션에서 갱신 직후 토큰 반영 타이밍 이슈가 날 수 있어
-      //   여기서는 freshSession.access_token을 명시적으로 헤더에 넣어 확실히 보냅니다.
+      // - headers를 직접 덮어쓰면(특히 배포 환경에서 env 누락 시) apikey가 빠져 401이 날 수 있습니다.
+      // - 따라서 Functions 클라이언트에 최신 토큰만 동기화하고, invoke()는 기본 헤더를 사용합니다.
       console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...");
+
+      supabase.functions.setAuth(freshSession.access_token);
 
       const { data, error } = await supabase.functions.invoke("tryon-proxy", {
         body: formData,
-        headers: {
-          // NOTE: supabase-js가 제공하는 기본 헤더(apikey 등)를 덮어쓰지 않도록 apikey도 함께 명시합니다.
-          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-          Authorization: `Bearer ${freshSession.access_token}`,
-        },
         // FormData일 경우 Content-Type을 설정하지 않음 (브라우저가 boundary 포함 자동 설정)
       });
 
