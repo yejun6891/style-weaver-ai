@@ -104,8 +104,9 @@ const Upload = () => {
       const { data, error } = await supabase.functions.invoke("tryon-proxy", {
         body: formData,
         headers: {
+          // NOTE: supabase-js가 제공하는 기본 헤더(apikey 등)를 덮어쓰지 않도록 apikey도 함께 명시합니다.
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           Authorization: `Bearer ${freshSession.access_token}`,
-          "x-user-token": freshSession.access_token,
         },
         // FormData일 경우 Content-Type을 설정하지 않음 (브라우저가 boundary 포함 자동 설정)
       });
