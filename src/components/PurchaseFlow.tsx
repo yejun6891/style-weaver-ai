@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -61,7 +62,11 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
 
   useEffect(() => {
     if (step === 'payment' && selectedPackage) {
-      loadPayPalScript();
+      // Wait for DOM to be ready before loading PayPal
+      const timer = setTimeout(() => {
+        loadPayPalScript();
+      }, 100);
+      return () => clearTimeout(timer);
     }
   }, [step, selectedPackage]);
 
@@ -84,77 +89,80 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
   };
 
   const renderPayPalButtons = () => {
-    const container = document.getElementById('paypal-button-container');
-    if (!container || !window.paypal || !selectedPackage) return;
+    // Use setTimeout to ensure DOM is ready
+    setTimeout(() => {
+      const container = document.getElementById('paypal-button-container');
+      if (!container || !window.paypal || !selectedPackage) return;
 
-    container.innerHTML = '';
+      container.innerHTML = '';
 
-    const finalPrice = calculateFinalPrice();
+      const finalPrice = calculateFinalPrice();
 
-    window.paypal.Buttons({
-      createOrder: (data: any, actions: any) => {
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: finalPrice.toFixed(2),
-            },
-            description: `FitVision ${selectedPackage.credits} Credits`,
-          }],
-        });
-      },
-      onApprove: async (data: any, actions: any) => {
-        setProcessing(true);
-        try {
-          const order = await actions.order.capture();
-          console.log('Payment successful:', order);
+      window.paypal.Buttons({
+        createOrder: (data: any, actions: any) => {
+          return actions.order.create({
+            purchase_units: [{
+              amount: {
+                value: finalPrice.toFixed(2),
+              },
+              description: `FitVision ${selectedPackage.credits} Credits`,
+            }],
+          });
+        },
+        onApprove: async (data: any, actions: any) => {
+          setProcessing(true);
+          try {
+            const order = await actions.order.capture();
+            console.log('Payment successful:', order);
 
-          // Add credits to user
-          if (user) {
-            const { data: currentProfile } = await supabase
-              .from('profiles')
-              .select('credits')
-              .eq('user_id', user.id)
-              .single();
-
-            if (currentProfile) {
-              await supabase
+            // Add credits to user
+            if (user) {
+              const { data: currentProfile } = await supabase
                 .from('profiles')
-                .update({ credits: currentProfile.credits + selectedPackage.credits })
-                .eq('user_id', user.id);
+                .select('credits')
+                .eq('user_id', user.id)
+                .single();
+
+              if (currentProfile) {
+                await supabase
+                  .from('profiles')
+                  .update({ credits: currentProfile.credits + selectedPackage.credits })
+                  .eq('user_id', user.id);
+              }
+
+              // Mark promo code as used if applied
+              if (selectedPromo) {
+                await (supabase
+                  .from('user_promo_codes' as any)
+                  .update({ used: true, used_at: new Date().toISOString() })
+                  .eq('id', selectedPromo.id) as any);
+              }
+
+              // Record purchase in usage history
+              await supabase.from('usage_history').insert({
+                user_id: user.id,
+                action_type: 'credit_purchase',
+                credits_used: -selectedPackage.credits, // Negative means credits added
+              });
+
+              await refreshProfile();
             }
 
-            // Mark promo code as used if applied
-            if (selectedPromo) {
-              await (supabase
-                .from('user_promo_codes' as any)
-                .update({ used: true, used_at: new Date().toISOString() })
-                .eq('id', selectedPromo.id) as any);
-            }
-
-            // Record purchase in usage history
-            await supabase.from('usage_history').insert({
-              user_id: user.id,
-              action_type: 'credit_purchase',
-              credits_used: -selectedPackage.credits, // Negative means credits added
-            });
-
-            await refreshProfile();
+            toast.success(t('purchase.success'));
+            onClose();
+          } catch (error) {
+            console.error('Payment error:', error);
+            toast.error(t('purchase.error'));
+          } finally {
+            setProcessing(false);
           }
-
-          toast.success(t('purchase.success'));
-          onClose();
-        } catch (error) {
-          console.error('Payment error:', error);
-          toast.error(t('purchase.error'));
-        } finally {
-          setProcessing(false);
-        }
-      },
-      onError: (err: any) => {
-        console.error('PayPal error:', err);
-        toast.error(t('purchase.paypalError'));
-      },
-    }).render('#paypal-button-container');
+        },
+        onError: (err: any) => {
+          console.error('PayPal error:', err);
+          toast.error(t('purchase.paypalError'));
+        },
+      }).render('#paypal-button-container');
+    }, 50);
   };
 
   const handleSearch = async () => {
@@ -252,6 +260,9 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
               </>
             )}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {t('purchase.dialogDescription') || '프로모션 코드 및 이용권 구매'}
+          </DialogDescription>
         </DialogHeader>
 
         {/* Step: Promo Code */}
