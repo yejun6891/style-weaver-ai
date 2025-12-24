@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import LanguageSwitch from "@/components/LanguageSwitch";
+import HeaderMenu from "@/components/HeaderMenu";
 import PurchaseFlow from "@/components/PurchaseFlow";
-import { ArrowLeft, CreditCard, User, Mail, Calendar, Sparkles } from "lucide-react";
+import { CreditCard, User, Mail, Calendar, Sparkles } from "lucide-react";
 import { UserPromoCode } from "@/hooks/usePromoCodes";
 
 const MyPage = () => {
@@ -71,19 +72,16 @@ const MyPage = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => navigate("/dashboard")}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <span className="font-display font-bold text-xl gradient-text">
-              FitVision
-            </span>
+          <button 
+            onClick={() => navigate("/")}
+            className="font-display font-bold text-xl gradient-text"
+          >
+            FitVision
+          </button>
+          <div className="flex items-center gap-3">
+            <LanguageSwitch />
+            <HeaderMenu />
           </div>
-          <LanguageSwitch />
         </div>
       </header>
 
