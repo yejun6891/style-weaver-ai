@@ -38,7 +38,7 @@ interface PurchaseFlowProps {
 }
 
 const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, refreshProfile } = useAuth();
   const { userPromoCodes, searchPromoCode, claimPromoCode } = usePromoCodes();
   const [step, setStep] = useState<'promo' | 'package' | 'payment'>('promo');
@@ -68,22 +68,36 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [step, selectedPackage]);
+  }, [step, selectedPackage, language]);
 
   const loadPayPalScript = () => {
-    if (document.getElementById('paypal-script')) {
-      setPaypalLoaded(true);
-      renderPayPalButtons();
-      return;
+    const desiredLocale = language === 'ko' ? 'ko_KR' : 'en_US';
+    const desiredSrc = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=capture&components=buttons&locale=${desiredLocale}`;
+
+    const existing = document.getElementById('paypal-script') as HTMLScriptElement | null;
+    if (existing) {
+      // If language changed, reload PayPal SDK so the UI language matches.
+      if (existing.src !== desiredSrc) {
+        existing.remove();
+        setPaypalLoaded(false);
+      } else {
+        setPaypalLoaded(true);
+        renderPayPalButtons();
+        return;
+      }
     }
 
     const script = document.createElement('script');
     script.id = 'paypal-script';
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD`;
+    script.src = desiredSrc;
     script.async = true;
     script.onload = () => {
       setPaypalLoaded(true);
       renderPayPalButtons();
+    };
+    script.onerror = () => {
+      console.error('Failed to load PayPal SDK');
+      toast.error(t('purchase.paypalError'));
     };
     document.body.appendChild(script);
   };
