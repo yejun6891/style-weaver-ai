@@ -122,27 +122,49 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
         return;
       }
 
+      console.log('🟡 PayPal Buttons rendering with:', {
+        finalPrice: finalPrice.toFixed(2),
+        credits: selectedPackage.credits,
+        clientId: PAYPAL_CLIENT_ID.substring(0, 10) + '...',
+      });
+
       window.paypal.Buttons({
         createOrder: (data: any, actions: any) => {
+          console.log('🔵 PayPal createOrder called', { data });
           try {
-            return actions.order.create({
+            const orderPromise = actions.order.create({
               purchase_units: [{
                 amount: {
                   value: finalPrice.toFixed(2),
+                  currency_code: 'USD',
                 },
                 description: `FitVision ${selectedPackage.credits} Credits`,
               }],
+              application_context: {
+                brand_name: 'FitVision',
+                shipping_preference: 'NO_SHIPPING',
+                user_action: 'PAY_NOW',
+              },
             });
+            
+            orderPromise.then((orderId: string) => {
+              console.log('🟢 PayPal order created successfully:', orderId);
+            }).catch((err: any) => {
+              console.error('🔴 PayPal order creation failed:', err);
+            });
+            
+            return orderPromise;
           } catch (e) {
-            console.error('PayPal createOrder error:', e);
+            console.error('🔴 PayPal createOrder sync error:', e);
             throw e;
           }
         },
         onApprove: async (data: any, actions: any) => {
+          console.log('🔵 PayPal onApprove called', { data });
           setProcessing(true);
           try {
             const order = await actions.order.capture();
-            console.log('Payment successful:', order);
+            console.log('🟢 Payment captured successfully:', order);
 
             // Add credits to user
             if (user) {
@@ -179,18 +201,36 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
 
             toast.success(t('purchase.success'));
             onClose();
-          } catch (error) {
-            console.error('Payment error:', error, { data });
+          } catch (error: any) {
+            console.error('🔴 Payment/capture error:', error, { 
+              data, 
+              name: error?.name,
+              message: error?.message,
+              details: error?.details,
+            });
             toast.error(t('purchase.error'));
           } finally {
             setProcessing(false);
           }
         },
-        onError: (err: any) => {
-          console.error('PayPal error:', err);
-          toast.error(err?.message ? `${t('purchase.paypalError')}: ${err.message}` : t('purchase.paypalError'));
+        onCancel: (data: any) => {
+          console.log('🟠 PayPal payment cancelled by user:', data);
         },
-      }).render('#paypal-button-container');
+        onError: (err: any) => {
+          console.error('🔴 PayPal onError:', err, {
+            name: err?.name,
+            message: err?.message,
+            details: err?.details,
+            debug_id: err?.debug_id,
+          });
+          
+          // Try to extract more useful error info
+          const errorMessage = err?.message || err?.details?.[0]?.description || t('purchase.paypalError');
+          toast.error(errorMessage);
+        },
+      }).render('#paypal-button-container').catch((renderErr: any) => {
+        console.error('🔴 PayPal button render failed:', renderErr);
+      });
     }, 50);
   };
 
