@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import LanguageSwitch from "@/components/LanguageSwitch";
+import HeaderMenu from "@/components/HeaderMenu";
 import PromoCodeSection from "@/components/PromoCodeSection";
 import { supabase } from "@/integrations/supabase/client";
-import { Sparkles, Image, Plus, User, LogOut, CreditCard } from "lucide-react";
+import { Sparkles, Image, Plus, CreditCard } from "lucide-react";
 
 interface UsageHistory {
   id: string;
@@ -98,25 +99,9 @@ const Dashboard = () => {
           >
             FitVision
           </button>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <LanguageSwitch />
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate("/mypage")}
-              className="flex items-center gap-2"
-            >
-              <User className="w-4 h-4" />
-              <span className="hidden sm:inline">{t("nav.mypage")}</span>
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={handleSignOut}
-              className="flex items-center gap-2 text-muted-foreground"
-            >
-              <LogOut className="w-4 h-4" />
-            </Button>
+            <HeaderMenu />
           </div>
         </div>
       </header>

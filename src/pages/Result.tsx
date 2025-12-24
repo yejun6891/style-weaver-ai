@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LanguageSwitch from "@/components/LanguageSwitch";
+import HeaderMenu from "@/components/HeaderMenu";
 import StyleAnalysisReport from "@/components/StyleAnalysisReport";
 import { StyleProfile } from "@/components/StyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -191,7 +192,10 @@ const Result = () => {
             <span className="text-sm font-medium">{t("result.retry")}</span>
           </Link>
           <div className="font-display font-bold text-lg gradient-text">FitVision</div>
-          <LanguageSwitch />
+          <div className="flex items-center gap-3">
+            <LanguageSwitch />
+            <HeaderMenu />
+          </div>
         </div>
       </header>
 
