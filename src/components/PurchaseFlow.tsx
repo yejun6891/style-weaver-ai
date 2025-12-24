@@ -112,16 +112,31 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
 
       const finalPrice = calculateFinalPrice();
 
+      // PayPal does not allow $0.00 orders. This can happen if a fixed discount exceeds the package price.
+      if (finalPrice <= 0) {
+        console.error('Invalid PayPal amount (<= 0). finalPrice=', finalPrice, {
+          selectedPackage,
+          selectedPromo,
+        });
+        toast.error(t('purchase.error'));
+        return;
+      }
+
       window.paypal.Buttons({
         createOrder: (data: any, actions: any) => {
-          return actions.order.create({
-            purchase_units: [{
-              amount: {
-                value: finalPrice.toFixed(2),
-              },
-              description: `FitVision ${selectedPackage.credits} Credits`,
-            }],
-          });
+          try {
+            return actions.order.create({
+              purchase_units: [{
+                amount: {
+                  value: finalPrice.toFixed(2),
+                },
+                description: `FitVision ${selectedPackage.credits} Credits`,
+              }],
+            });
+          } catch (e) {
+            console.error('PayPal createOrder error:', e);
+            throw e;
+          }
         },
         onApprove: async (data: any, actions: any) => {
           setProcessing(true);
@@ -165,7 +180,7 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
             toast.success(t('purchase.success'));
             onClose();
           } catch (error) {
-            console.error('Payment error:', error);
+            console.error('Payment error:', error, { data });
             toast.error(t('purchase.error'));
           } finally {
             setProcessing(false);
@@ -173,7 +188,7 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
         },
         onError: (err: any) => {
           console.error('PayPal error:', err);
-          toast.error(t('purchase.paypalError'));
+          toast.error(err?.message ? `${t('purchase.paypalError')}: ${err.message}` : t('purchase.paypalError'));
         },
       }).render('#paypal-button-container');
     }, 50);
