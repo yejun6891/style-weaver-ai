@@ -5,6 +5,12 @@ import HeaderMenu from "@/components/HeaderMenu";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Sparkles, ArrowRight, Check, Zap, User, FileText } from "lucide-react";
 
+// Before/After images
+import beforeMale from "@/assets/before-male.png";
+import afterMale from "@/assets/after-male.jpg";
+import beforeFemale from "@/assets/before-female.png";
+import afterFemale from "@/assets/after-female.jpg";
+
 const Landing = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
@@ -86,6 +92,84 @@ const Landing = () => {
                 <span className="text-sm font-medium text-foreground">{feature.text}</span>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Before/After Section */}
+      <section className="relative py-20 px-4 bg-gradient-to-b from-accent/20 to-background overflow-hidden">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 tracking-tight">
+              {t("beforeAfter.title") || "AI 가상 피팅 체험"}
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              {t("beforeAfter.subtitle") || "원하는 옷을 입어보세요"}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
+            {/* Male Before/After */}
+            <div className="group">
+              <div className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-500">
+                <div className="grid grid-cols-2">
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <img 
+                      src={beforeMale} 
+                      alt="Before - Male" 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-sm text-xs font-semibold text-foreground">
+                      BEFORE
+                    </div>
+                  </div>
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <img 
+                      src={afterMale} 
+                      alt="After - Male" 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full gradient-primary text-xs font-semibold text-white">
+                      AFTER
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full gradient-primary flex items-center justify-center shadow-lg z-10">
+                  <ArrowRight className="w-5 h-5 text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* Female Before/After */}
+            <div className="group">
+              <div className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-500">
+                <div className="grid grid-cols-2">
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <img 
+                      src={beforeFemale} 
+                      alt="Before - Female" 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-sm text-xs font-semibold text-foreground">
+                      BEFORE
+                    </div>
+                  </div>
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <img 
+                      src={afterFemale} 
+                      alt="After - Female" 
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full gradient-primary text-xs font-semibold text-white">
+                      AFTER
+                    </div>
+                  </div>
+                </div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full gradient-primary flex items-center justify-center shadow-lg z-10">
+                  <ArrowRight className="w-5 h-5 text-white" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
