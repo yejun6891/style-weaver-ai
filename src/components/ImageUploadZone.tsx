@@ -11,6 +11,9 @@ interface ImageUploadZoneProps {
   file: File | null;
   onFileChange: (file: File | null) => void;
   optional?: boolean;
+  exampleImage?: string;
+  exampleLabel?: string;
+  isGarment?: boolean;
 }
 
 const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
@@ -20,6 +23,9 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
   file,
   onFileChange,
   optional = false,
+  exampleImage,
+  exampleLabel,
+  isGarment = false,
 }) => {
   const { t, language } = useLanguage();
   const [isDragActive, setIsDragActive] = useState(false);
@@ -87,67 +93,97 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
         <p className="text-sm text-muted-foreground">{description}</p>
       )}
 
-      {preview ? (
-        <div className="relative rounded-2xl overflow-hidden bg-card border border-border group">
-          <img 
-            src={preview} 
-            alt="Preview" 
-            className="w-full h-64 object-contain bg-muted/30"
-          />
-          <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleRemove}
-              className="gap-2"
-            >
-              <X className="w-4 h-4" />
-              {language === "ko" ? "삭제" : "Remove"}
-            </Button>
-          </div>
-          <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-card/90 backdrop-blur-sm text-xs text-foreground font-medium border border-border">
-            {file?.name}
-          </div>
-        </div>
-      ) : (
-        <div
-          className={cn(
-            "upload-zone cursor-pointer p-8 text-center",
-            isDragActive && "active"
-          )}
-          onDragOver={(e) => { e.preventDefault(); setIsDragActive(true); }}
-          onDragLeave={() => setIsDragActive(false)}
-          onDrop={handleDrop}
-          onClick={() => inputRef.current?.click()}
-        >
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleChange}
-            className="hidden"
-          />
-          
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center shadow-md">
-              {isDragActive ? (
-                <ImageIcon className="w-8 h-8 text-white" />
-              ) : (
-                <Upload className="w-8 h-8 text-white" />
-              )}
-            </div>
-            
-            <div>
-              <p className="text-sm font-semibold text-foreground mb-1">
-                {t("upload.dropzone")}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {t("upload.format")}
-              </p>
-            </div>
-          </div>
+      {/* Garment Notice */}
+      {isGarment && (
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
+          <span className="text-xs">💡</span>
+          <p className="text-xs text-foreground font-medium">
+            {language === "ko" 
+              ? "온라인 쇼핑몰에서 옷만 있는 상품 이미지를 사용해주세요" 
+              : "Use product images from online stores showing only the garment"}
+          </p>
         </div>
       )}
+
+      {/* Main Content: Upload Zone + Example Image */}
+      <div className={cn("grid gap-4", exampleImage ? "grid-cols-2" : "grid-cols-1")}>
+        {/* Upload Zone */}
+        {preview ? (
+          <div className="relative rounded-2xl overflow-hidden bg-card border border-border group">
+            <img 
+              src={preview} 
+              alt="Preview" 
+              className="w-full h-48 md:h-56 object-contain bg-muted/30"
+            />
+            <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleRemove}
+                className="gap-2"
+              >
+                <X className="w-4 h-4" />
+                {language === "ko" ? "삭제" : "Remove"}
+              </Button>
+            </div>
+            <div className="absolute bottom-2 left-2 right-2 px-2 py-1 rounded-lg bg-card/90 backdrop-blur-sm text-xs text-foreground font-medium border border-border truncate">
+              {file?.name}
+            </div>
+          </div>
+        ) : (
+          <div
+            className={cn(
+              "upload-zone cursor-pointer p-6 text-center",
+              isDragActive && "active"
+            )}
+            onDragOver={(e) => { e.preventDefault(); setIsDragActive(true); }}
+            onDragLeave={() => setIsDragActive(false)}
+            onDrop={handleDrop}
+            onClick={() => inputRef.current?.click()}
+          >
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleChange}
+              className="hidden"
+            />
+            
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center shadow-md">
+                {isDragActive ? (
+                  <ImageIcon className="w-6 h-6 text-white" />
+                ) : (
+                  <Upload className="w-6 h-6 text-white" />
+                )}
+              </div>
+              
+              <div>
+                <p className="text-sm font-semibold text-foreground mb-1">
+                  {t("upload.dropzone")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("upload.format")}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Example Image */}
+        {exampleImage && (
+          <div className="relative rounded-2xl overflow-hidden bg-muted/30 border border-border/50">
+            <img 
+              src={exampleImage} 
+              alt={exampleLabel || "Example"} 
+              className="w-full h-48 md:h-56 object-contain"
+            />
+            <div className="absolute bottom-2 left-2 px-2 py-1 rounded-lg bg-card/90 backdrop-blur-sm text-xs text-muted-foreground font-medium border border-border">
+              {exampleLabel || (language === "ko" ? "예시" : "Example")}
+            </div>
+          </div>
+        )}
+      </div>
 
       {requirements && requirements.length > 0 && (
         <div className="p-4 rounded-2xl bg-accent/50 border border-border">
