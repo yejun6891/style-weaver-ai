@@ -234,7 +234,7 @@ const Upload = () => {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">{t("upload.back")}</span>
           </Link>
-          <div className="font-display font-bold text-lg gradient-text">FitVision</div>
+          <Link to="/" className="font-display font-bold text-lg gradient-text hover:opacity-80 transition-opacity">FitVision</Link>
           <div className="flex items-center gap-3">
             <LanguageSwitch />
             <HeaderMenu />
