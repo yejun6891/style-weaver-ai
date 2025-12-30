@@ -10,6 +10,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+
+// Example images
+import examplePerson from "@/assets/example-person.png";
+import exampleTop from "@/assets/example-top.png";
+import exampleBottom from "@/assets/example-bottom.png";
 import {
   Dialog,
   DialogContent,
@@ -262,6 +267,8 @@ const Upload = () => {
             ]}
             file={personFile}
             onFileChange={setPersonFile}
+            exampleImage={examplePerson}
+            exampleLabel={t("upload.example") || "예시"}
           />
 
           {/* Top Garment */}
@@ -277,6 +284,9 @@ const Upload = () => {
             ]}
             file={topFile}
             onFileChange={setTopFile}
+            exampleImage={exampleTop}
+            exampleLabel={t("upload.example") || "예시"}
+            isGarment
           />
 
           {/* Bottom Garment (Optional) */}
@@ -290,6 +300,9 @@ const Upload = () => {
             file={bottomFile}
             onFileChange={setBottomFile}
             optional
+            exampleImage={exampleBottom}
+            exampleLabel={t("upload.example") || "예시"}
+            isGarment
           />
 
           {/* Divider */}
