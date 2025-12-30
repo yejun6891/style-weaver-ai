@@ -286,7 +286,7 @@ const Upload = () => {
             onFileChange={setTopFile}
             exampleImage={exampleTop}
             exampleLabel={t("upload.example") || "예시"}
-            isGarment
+            garmentType="top"
           />
 
           {/* Bottom Garment (Optional) */}
@@ -302,7 +302,7 @@ const Upload = () => {
             optional
             exampleImage={exampleBottom}
             exampleLabel={t("upload.example") || "예시"}
-            isGarment
+            garmentType="bottom"
           />
 
           {/* Divider */}

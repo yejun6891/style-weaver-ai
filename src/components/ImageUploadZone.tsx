@@ -13,7 +13,7 @@ interface ImageUploadZoneProps {
   optional?: boolean;
   exampleImage?: string;
   exampleLabel?: string;
-  isGarment?: boolean;
+  garmentType?: "top" | "bottom";
 }
 
 const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
@@ -25,7 +25,7 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
   optional = false,
   exampleImage,
   exampleLabel,
-  isGarment = false,
+  garmentType,
 }) => {
   const { t, language } = useLanguage();
   const [isDragActive, setIsDragActive] = useState(false);
@@ -94,13 +94,13 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
       )}
 
       {/* Garment Notice */}
-      {isGarment && (
+      {garmentType && (
         <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
           <span className="text-xs">💡</span>
           <p className="text-xs text-foreground font-medium">
             {language === "ko" 
-              ? "온라인 쇼핑몰에서 옷만 있는 상품 이미지를 사용해주세요" 
-              : "Use product images from online stores showing only the garment"}
+              ? `온라인 쇼핑몰에서 ${garmentType === "top" ? "상의" : "하의"}만 있는 상품 이미지를 사용해주세요` 
+              : `Use product images from online stores showing only the ${garmentType}`}
           </p>
         </div>
       )}
