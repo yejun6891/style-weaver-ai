@@ -269,6 +269,7 @@ const Upload = () => {
             onFileChange={setPersonFile}
             exampleImage={examplePerson}
             exampleLabel={t("upload.example") || "예시"}
+            showPersonNotice
           />
 
           {/* Top Garment */}
