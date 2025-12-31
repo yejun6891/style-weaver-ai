@@ -92,6 +92,74 @@ export type Database = {
         }
         Relationships: []
       }
+      share_link_clicks: {
+        Row: {
+          created_at: string
+          id: string
+          share_link_id: string
+          visitor_fingerprint: string | null
+          visitor_ip: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          share_link_id: string
+          visitor_fingerprint?: string | null
+          visitor_ip?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          share_link_id?: string
+          visitor_fingerprint?: string | null
+          visitor_ip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_link_clicks_share_link_id_fkey"
+            columns: ["share_link_id"]
+            isOneToOne: false
+            referencedRelation: "share_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      share_links: {
+        Row: {
+          click_count: number
+          created_at: string
+          id: string
+          reward_credits: number
+          reward_given: boolean
+          rewarded_at: string | null
+          share_code: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          click_count?: number
+          created_at?: string
+          id?: string
+          reward_credits?: number
+          reward_given?: boolean
+          rewarded_at?: string | null
+          share_code: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          click_count?: number
+          created_at?: string
+          id?: string
+          reward_credits?: number
+          reward_given?: boolean
+          rewarded_at?: string | null
+          share_code?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       task_ownership: {
         Row: {
           created_at: string
@@ -187,6 +255,10 @@ export type Database = {
       increment_promo_usage: {
         Args: { p_promo_id: string }
         Returns: undefined
+      }
+      process_share_click: {
+        Args: { p_share_code: string; p_visitor_fingerprint: string }
+        Returns: Json
       }
       try_deduct_credit: { Args: { p_user_id: string }; Returns: boolean }
     }

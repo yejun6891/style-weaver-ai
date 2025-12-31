@@ -6,6 +6,7 @@ import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
 import Logo from "@/components/Logo";
 import StyleAnalysisReport from "@/components/StyleAnalysisReport";
+import ShareRewardSection from "@/components/ShareRewardSection";
 import { StyleProfile } from "@/components/StyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -350,6 +351,11 @@ const Result = () => {
                 </div>
               </>
             )}
+
+            {/* Share Reward Section */}
+            <div className="mt-8">
+              <ShareRewardSection taskId={taskId || null} resultImageUrl={imageUrl} />
+            </div>
 
             {/* Try Again */}
             <div className="text-center mt-8">

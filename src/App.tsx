@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import MyPage from "./pages/MyPage";
+import Share from "./pages/Share";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/upload" element={<Upload />} />
               <Route path="/result/:taskId" element={<Result />} />
+              <Route path="/share/:code" element={<Share />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
