@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoHanger from "@/assets/logo-hanger-transparent.png";
+import LogoIcon from "./LogoIcon";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl" | "2xl";
@@ -21,11 +21,7 @@ const Logo = ({ size = "md", showText = true, className = "" }: LogoProps) => {
       to="/" 
       className={`flex items-center gap-2 hover:opacity-80 transition-opacity ${className}`}
     >
-      <img 
-        src={logoHanger} 
-        alt="FitVision Logo" 
-        className={sizeClasses[size].icon}
-      />
+      <LogoIcon className={sizeClasses[size].icon} />
       {showText && (
         <span className={`font-display font-bold gradient-text ${sizeClasses[size].text}`}>
           FitVision
