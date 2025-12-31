@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import LanguageSwitch from "@/components/LanguageSwitch";
+import Logo from "@/components/Logo";
 import { Sparkles } from "lucide-react";
 
 const Auth = () => {
@@ -37,12 +38,7 @@ const Auth = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <button 
-            onClick={() => navigate("/")}
-            className="font-display font-bold text-xl gradient-text"
-          >
-            FitVision
-          </button>
+          <Logo size="md" />
           <LanguageSwitch />
         </div>
       </header>

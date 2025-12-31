@@ -5,6 +5,7 @@ import ImageUploadZone from "@/components/ImageUploadZone";
 import StyleProfileForm, { StyleProfile } from "@/components/StyleProfileForm";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
+import Logo from "@/components/Logo";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -234,7 +235,7 @@ const Upload = () => {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">{t("upload.back")}</span>
           </Link>
-          <Link to="/" className="font-display font-bold text-lg gradient-text hover:opacity-80 transition-opacity">FitVision</Link>
+          <Logo size="md" />
           <div className="flex items-center gap-3">
             <LanguageSwitch />
             <HeaderMenu />

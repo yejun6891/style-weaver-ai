@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
+import Logo from "@/components/Logo";
 import PromoCodeSection from "@/components/PromoCodeSection";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Image, Plus, CreditCard } from "lucide-react";
@@ -93,12 +94,7 @@ const Dashboard = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4 bg-background/80 backdrop-blur-md border-b border-border">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <button 
-            onClick={() => navigate("/")}
-            className="font-display font-bold text-xl gradient-text"
-          >
-            FitVision
-          </button>
+          <Logo size="md" />
           <div className="flex items-center gap-3">
             <LanguageSwitch />
             <HeaderMenu />

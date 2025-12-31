@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
+import Logo from "@/components/Logo";
 import StyleAnalysisReport from "@/components/StyleAnalysisReport";
 import { StyleProfile } from "@/components/StyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -191,7 +192,7 @@ const Result = () => {
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">{t("result.retry")}</span>
           </Link>
-          <div className="font-display font-bold text-lg gradient-text">FitVision</div>
+          <Logo size="md" />
           <div className="flex items-center gap-3">
             <LanguageSwitch />
             <HeaderMenu />
