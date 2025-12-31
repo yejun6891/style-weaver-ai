@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoHanger from "@/assets/logo-hanger.png";
+import logoHanger from "@/assets/logo-hanger-transparent.png";
 
 interface LogoProps {
   size?: "sm" | "md" | "lg" | "xl" | "2xl";
