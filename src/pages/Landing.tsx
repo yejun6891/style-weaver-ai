@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
+import Logo from "@/components/Logo";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Sparkles, ArrowRight, Check, Zap, User, FileText } from "lucide-react";
 
@@ -33,9 +34,7 @@ const Landing = () => {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4 bg-background/80 backdrop-blur-md">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="font-display font-bold text-xl gradient-text">
-            FitVision
-          </div>
+          <Logo size="md" />
           <div className="flex items-center gap-3">
             <LanguageSwitch />
             <HeaderMenu />
