@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
@@ -254,20 +254,30 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-border">
+      <footer className="py-8 px-4 border-t border-border bg-muted/30">
         <div className="max-w-5xl mx-auto">
-          <div className="flex flex-wrap justify-center gap-6 mb-4 text-sm">
-            <a href="/privacy-policy" className="text-muted-foreground hover:text-foreground transition-colors">
-              {t("footer.privacy") || "Privacy Policy"}
-            </a>
-            <a href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
-              {t("footer.terms") || "Terms of Service"}
-            </a>
-            <a href="/refund-policy" className="text-muted-foreground hover:text-foreground transition-colors">
-              {t("footer.refund") || "Refund Policy"}
-            </a>
+          {/* Policy Links */}
+          <div className="flex flex-wrap justify-center gap-4 mb-4 text-sm">
+            <Link to="/privacy-policy" className="text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline">
+              {t("footer.privacy")}
+            </Link>
+            <span className="text-muted-foreground/50">·</span>
+            <Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline">
+              {t("footer.terms")}
+            </Link>
+            <span className="text-muted-foreground/50">·</span>
+            <Link to="/refund-policy" className="text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline">
+              {t("footer.refund")}
+            </Link>
           </div>
-          <p className="text-center text-sm text-muted-foreground">{t("footer.copyright")}</p>
+          
+          {/* Copyright */}
+          <p className="text-center text-sm text-muted-foreground mb-3">© 2024 Trukin. All rights reserved.</p>
+          
+          {/* Company Info */}
+          <p className="text-center text-xs text-muted-foreground/70">
+            {t("footer.companyInfo")}
+          </p>
         </div>
       </footer>
     </main>
