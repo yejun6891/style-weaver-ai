@@ -257,7 +257,19 @@ async function applyMaskToImage(imageBase64: string, maskBase64: string): Promis
     mask.onerror = () => reject(new Error("Failed to load mask"));
 
     img.src = imageBase64;
-    mask.src = maskBase64.startsWith("data:") ? maskBase64 : `data:image/png;base64,${maskBase64}`;
+    
+    // Handle both URL and base64 formats for mask
+    if (maskBase64.startsWith("http://") || maskBase64.startsWith("https://")) {
+      // Mask is a URL - use directly (CORS must be allowed)
+      mask.crossOrigin = "anonymous";
+      mask.src = maskBase64;
+    } else if (maskBase64.startsWith("data:")) {
+      // Already a data URL
+      mask.src = maskBase64;
+    } else {
+      // Raw base64 - add data URL prefix
+      mask.src = `data:image/png;base64,${maskBase64}`;
+    }
   });
 }
 
