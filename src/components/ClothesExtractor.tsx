@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Scissors, Loader2, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface ClothesExtractorProps {
@@ -44,26 +45,39 @@ const ClothesExtractor: React.FC<ClothesExtractorProps> = ({ garmentType, onExtr
     setIsExtracting(true);
 
     try {
-      // Call Render backend instead of Supabase edge function
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://tyron-backend-8yaa.onrender.com";
-      
-      const response = await fetch(`${backendUrl}/api/clothes-segmentation`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ image: sourceImage, garmentType }),
-      });
+      // Prefer in-app backend function (avoids CORS + keeps API key private).
+      // If you want to force your own backend, set VITE_BACKEND_URL.
+      const backendUrl = import.meta.env.VITE_BACKEND_URL as string | undefined;
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error("[ClothesExtractor] API Error:", errorData);
-        toast.error(language === "ko" ? "의류 추출에 실패했습니다." : "Failed to extract clothing.");
-        setIsExtracting(false);
-        return;
+      let data: any;
+      if (backendUrl) {
+        const response = await fetch(`${backendUrl}/api/clothes-segmentation`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: sourceImage, garmentType }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("[ClothesExtractor] API Error:", errorData);
+          toast.error(language === "ko" ? "의류 추출에 실패했습니다." : "Failed to extract clothing.");
+          return;
+        }
+
+        data = await response.json();
+      } else {
+        const res = await supabase.functions.invoke("clothes-segmentation", {
+          body: { image: sourceImage, garmentType },
+        });
+
+        if (res.error) {
+          console.error("[ClothesExtractor] Function Error:", res.error);
+          toast.error(language === "ko" ? "의류 추출에 실패했습니다." : "Failed to extract clothing.");
+          return;
+        }
+
+        data = res.data;
       }
-
-      const data = await response.json();
 
       if (data.noClothingFound) {
         toast.error(
@@ -81,8 +95,8 @@ const ClothesExtractor: React.FC<ClothesExtractorProps> = ({ garmentType, onExtr
         return;
       }
 
-      // Apply mask to extract clothing
-      const extractedBlob = await applyMaskToImage(sourceImage, data.mask);
+      // Apply mask to extract clothing (subtract skin/face/hair if provided)
+      const extractedBlob = await applyMaskToImage(sourceImage, data.mask, data.subtractMask ?? null);
       const extractedFile = new File(
         [extractedBlob],
         `extracted-${garmentType}-${Date.now()}.png`,
@@ -194,7 +208,11 @@ const ClothesExtractor: React.FC<ClothesExtractorProps> = ({ garmentType, onExtr
 };
 
 // Apply mask to extract clothing from image
-async function applyMaskToImage(imageBase64: string, maskBase64: string): Promise<Blob> {
+async function applyMaskToImage(
+  imageBase64: string,
+  maskValue: string,
+  subtractMaskValue: string | null
+): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -205,48 +223,82 @@ async function applyMaskToImage(imageBase64: string, maskBase64: string): Promis
 
     const img = new Image();
     const mask = new Image();
+    const subtract = subtractMaskValue ? new Image() : null;
+
+    const setSrc = (el: HTMLImageElement, v: string) => {
+      if (v.startsWith("http://") || v.startsWith("https://")) {
+        el.crossOrigin = "anonymous";
+        el.src = v;
+      } else if (v.startsWith("data:")) {
+        el.src = v;
+      } else {
+        el.src = `data:image/png;base64,${v}`;
+      }
+    };
 
     let loadedCount = 0;
+    const needCount = subtract ? 3 : 2;
+
     const checkLoaded = () => {
       loadedCount++;
-      if (loadedCount === 2) {
-        canvas.width = img.width;
-        canvas.height = img.height;
+      if (loadedCount !== needCount) return;
 
-        // Draw original image
-        ctx.drawImage(img, 0, 0);
+      canvas.width = img.width;
+      canvas.height = img.height;
 
-        // Get image data
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      // Draw original image
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-        // Create temporary canvas for mask
-        const maskCanvas = document.createElement("canvas");
-        const maskCtx = maskCanvas.getContext("2d");
-        if (!maskCtx) {
-          reject(new Error("Could not get mask canvas context"));
-          return;
-        }
-        maskCanvas.width = img.width;
-        maskCanvas.height = img.height;
-        maskCtx.drawImage(mask, 0, 0, img.width, img.height);
-        const maskData = maskCtx.getImageData(0, 0, img.width, img.height);
+      const readMask = (maskImg: HTMLImageElement) => {
+        const mc = document.createElement("canvas");
+        const mctx = mc.getContext("2d");
+        if (!mctx) throw new Error("Could not get mask canvas context");
+        mc.width = img.width;
+        mc.height = img.height;
+        mctx.drawImage(maskImg, 0, 0, img.width, img.height);
+        return mctx.getImageData(0, 0, img.width, img.height);
+      };
 
-        // Analyze mask to decide if it needs inversion
-        // Heuristic: if most pixels are bright, assume background is white and garment is dark -> invert.
+      try {
+        const garmentMask = readMask(mask);
+        const subtractMask = subtract ? readMask(subtract) : null;
+
+        // Determine if garment mask should be inverted
         let brightCount = 0;
-        const total = maskData.data.length / 4;
-        for (let i = 0; i < maskData.data.length; i += 4) {
-          const b = (maskData.data[i] + maskData.data[i + 1] + maskData.data[i + 2]) / 3;
+        const total = garmentMask.data.length / 4;
+        for (let i = 0; i < garmentMask.data.length; i += 4) {
+          const b = (garmentMask.data[i] + garmentMask.data[i + 1] + garmentMask.data[i + 2]) / 3;
           if (b > 200) brightCount++;
         }
-        const brightRatio = brightCount / total;
-        const shouldInvert = brightRatio > 0.6;
+        const shouldInvertGarment = brightCount / total > 0.6;
 
-        // Apply mask to alpha channel
+        // If subtract mask exists, also decide inversion for it
+        let shouldInvertSubtract = false;
+        if (subtractMask) {
+          let bright2 = 0;
+          const total2 = subtractMask.data.length / 4;
+          for (let i = 0; i < subtractMask.data.length; i += 4) {
+            const b = (subtractMask.data[i] + subtractMask.data[i + 1] + subtractMask.data[i + 2]) / 3;
+            if (b > 200) bright2++;
+          }
+          shouldInvertSubtract = bright2 / total2 > 0.6;
+        }
+
+        // Apply garment alpha, then subtract person parts alpha if available
         for (let i = 0; i < imageData.data.length; i += 4) {
-          const maskBrightness = (maskData.data[i] + maskData.data[i + 1] + maskData.data[i + 2]) / 3;
-          const alpha = shouldInvert ? 255 - maskBrightness : maskBrightness;
-          imageData.data[i + 3] = alpha;
+          const gb = (garmentMask.data[i] + garmentMask.data[i + 1] + garmentMask.data[i + 2]) / 3;
+          const garmentAlpha = shouldInvertGarment ? 255 - gb : gb;
+
+          let finalAlpha = garmentAlpha;
+          if (subtractMask) {
+            const sb = (subtractMask.data[i] + subtractMask.data[i + 1] + subtractMask.data[i + 2]) / 3;
+            const subtractAlpha = shouldInvertSubtract ? 255 - sb : sb;
+            // remove person parts from garment area
+            finalAlpha = Math.max(0, garmentAlpha - subtractAlpha);
+          }
+
+          imageData.data[i + 3] = finalAlpha;
         }
 
         ctx.putImageData(imageData, 0, 0);
@@ -259,28 +311,22 @@ async function applyMaskToImage(imageBase64: string, maskBase64: string): Promis
           "image/png",
           1.0
         );
+      } catch (e) {
+        reject(e instanceof Error ? e : new Error("Failed to apply mask"));
       }
     };
 
     img.onload = checkLoaded;
     mask.onload = checkLoaded;
+    if (subtract) subtract.onload = checkLoaded;
+
     img.onerror = () => reject(new Error("Failed to load image"));
     mask.onerror = () => reject(new Error("Failed to load mask"));
+    if (subtract) subtract.onerror = () => reject(new Error("Failed to load subtract mask"));
 
     img.src = imageBase64;
-    
-    // Handle both URL and base64 formats for mask
-    if (maskBase64.startsWith("http://") || maskBase64.startsWith("https://")) {
-      // Mask is a URL - use directly (CORS must be allowed)
-      mask.crossOrigin = "anonymous";
-      mask.src = maskBase64;
-    } else if (maskBase64.startsWith("data:")) {
-      // Already a data URL
-      mask.src = maskBase64;
-    } else {
-      // Raw base64 - add data URL prefix
-      mask.src = `data:image/png;base64,${maskBase64}`;
-    }
+    setSrc(mask, maskValue);
+    if (subtract && subtractMaskValue) setSrc(subtract, subtractMaskValue);
   });
 }
 
