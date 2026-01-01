@@ -67,7 +67,9 @@ We do not claim ownership of your uploaded content.`
           content: `THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. We do not guarantee that:
 • The Service will meet your specific requirements
 • Virtual try-on results will be 100% accurate
-• The Service will be uninterrupted or error-free`
+• The Service will be uninterrupted or error-free
+
+IMPORTANT: AI-generated virtual try-on images may differ from actual fit and appearance when wearing the clothing. These images should not be used as the sole basis for purchasing decisions. Results may vary based on image quality, lighting, and other factors.`
         },
         {
           title: "9. Limitation of Liability",
@@ -153,7 +155,9 @@ Owner: Yejoon Jeong`
           content: `서비스는 명시적이든 묵시적이든 어떠한 종류의 보증 없이 "있는 그대로" 및 "이용 가능한 대로" 제공됩니다. 당사는 다음을 보장하지 않습니다:
 • 서비스가 귀하의 특정 요구 사항을 충족할 것
 • 가상 피팅 결과가 100% 정확할 것
-• 서비스가 중단 없이 또는 오류 없이 제공될 것`
+• 서비스가 중단 없이 또는 오류 없이 제공될 것
+
+중요: AI가 생성한 가상 피팅 이미지는 실제 착용 시 핏과 외관과 다를 수 있습니다. 이러한 이미지는 구매 결정의 유일한 근거로 사용되어서는 안 됩니다. 이미지 품질, 조명 등 다양한 요인에 따라 결과가 달라질 수 있습니다.`
         },
         {
           title: "9. 책임 제한",

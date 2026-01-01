@@ -48,7 +48,7 @@ We automatically collect certain information when you use our service:
         },
         {
           title: "5. Data Retention",
-          content: `We retain your personal information for as long as your account is active or as needed to provide you services. Uploaded images are processed temporarily for virtual try-on purposes and may be deleted or anonymized after the service is provided. You may request deletion of your data at any time.`
+          content: `We retain your personal information for as long as your account is active or as needed to provide you services. Uploaded images for virtual try-on are automatically deleted within 48 hours after processing. You may request deletion of your data at any time by contacting us.`
         },
         {
           title: "6. Your Rights (California Residents - CCPA)",
@@ -121,7 +121,7 @@ Owner: Yejoon Jeong`
         },
         {
           title: "5. 데이터 보존",
-          content: `귀하의 개인정보는 계정이 활성화되어 있거나 서비스 제공에 필요한 기간 동안 보존됩니다. 업로드된 이미지는 가상 피팅을 위해 처리되며 안전하게 저장됩니다. 언제든지 데이터 삭제를 요청할 수 있습니다.`
+          content: `귀하의 개인정보는 계정이 활성화되어 있거나 서비스 제공에 필요한 기간 동안 보존됩니다. 가상 피팅을 위해 업로드된 이미지는 처리 후 48시간 이내에 자동 삭제됩니다. 언제든지 연락을 통해 데이터 삭제를 요청할 수 있습니다.`
         },
         {
           title: "6. 귀하의 권리 (캘리포니아 거주자 - CCPA)",
