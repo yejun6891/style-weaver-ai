@@ -76,7 +76,8 @@ To exercise these rights, contact us at admin@trukin.app`
           title: "10. Contact Us",
           content: `If you have questions about this Privacy Policy, please contact us at:
 Email: admin@trukin.app
-Company: Trukin`
+Company: Trukin
+Owner: Yejoon Jeong`
         }
       ]
     },
@@ -148,7 +149,8 @@ Company: Trukin`
           title: "10. 문의하기",
           content: `본 개인정보처리방침에 관한 질문이 있으시면 다음으로 연락해 주세요:
 이메일: admin@trukin.app
-회사명: 트루킨 (Trukin)`
+회사명: Trukin
+대표자: 정예준 (Yejoon Jeong)`
         }
       ]
     }

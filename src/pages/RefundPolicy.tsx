@@ -79,6 +79,7 @@ We will review your request and respond within 3-5 business days.`
           content: `For refund requests or questions about this policy, please contact us at:
 Email: admin@trukin.app
 Company: Trukin
+Owner: Yejoon Jeong
 
 We aim to respond to all inquiries within 24-48 hours.`
         }
@@ -154,7 +155,8 @@ We aim to respond to all inquiries within 24-48 hours.`
           title: "9. 문의하기",
           content: `환불 요청이나 이 정책에 관한 질문은 다음으로 연락해 주세요:
 이메일: admin@trukin.app
-회사명: 트루킨 (Trukin)
+회사명: Trukin
+대표자: 정예준 (Yejoon Jeong)
 
 모든 문의에 24-48시간 이내에 답변드리는 것을 목표로 합니다.`
         }
