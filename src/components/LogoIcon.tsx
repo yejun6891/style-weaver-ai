@@ -22,7 +22,7 @@ const LogoIcon = ({ className = "w-8 h-8" }: LogoIconProps) => {
            C100 8, 120 8, 120 22
            C120 36, 92 34, 92 54"
         stroke="url(#hangerGradient)"
-        strokeWidth="8"
+        strokeWidth="12"
         strokeLinecap="round"
         fill="none"
       />
@@ -33,7 +33,7 @@ const LogoIcon = ({ className = "w-8 h-8" }: LogoIconProps) => {
            L170 90
            L30 90"
         stroke="url(#hangerGradient)"
-        strokeWidth="8"
+        strokeWidth="12"
         strokeLinejoin="round"
         strokeLinecap="round"
         fill="none"
