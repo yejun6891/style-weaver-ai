@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
       sections: [
         {
           title: "1. Introduction",
-          content: `Trukin (Korean business name: 트루킨) ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our virtual try-on service.`
+          content: `Trukin (Korean business name: 트루킨) ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use FitVision (our virtual try-on service).`
         },
         {
           title: "2. Information We Collect",
@@ -87,7 +87,7 @@ Owner: Yejoon Jeong`
       sections: [
         {
           title: "1. 소개",
-          content: `트루킨(이하 "회사")은 귀하의 개인정보 보호를 위해 최선을 다하고 있습니다. 본 개인정보처리방침은 가상 피팅 서비스 이용 시 귀하의 정보를 어떻게 수집, 사용, 공개 및 보호하는지 설명합니다.`
+          content: `트루킨(이하 "회사")은 귀하의 개인정보 보호를 위해 최선을 다하고 있습니다. 본 개인정보처리방침은 FitVision(당사의 가상 피팅 서비스) 이용 시 귀하의 정보를 어떻게 수집, 사용, 공개 및 보호하는지 설명합니다.`
         },
         {
           title: "2. 수집하는 정보",
