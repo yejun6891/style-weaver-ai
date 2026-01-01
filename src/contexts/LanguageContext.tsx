@@ -121,10 +121,11 @@ const translations = {
     "cta.title": "지금 바로 체험해보세요",
     "cta.subtitle": "회원가입 없이 바로 시작",
     "cta.button": "무료로 시작하기",
-    "footer.copyright": "© 2024 FitVision. All rights reserved.",
+    "footer.copyright": "© 2024 Trukin. All rights reserved.",
     "footer.privacy": "개인정보처리방침",
     "footer.terms": "이용약관",
     "footer.refund": "환불정책",
+    "footer.companyInfo": "Trukin | 대표자: 정예준 (Yejoon Jeong) | 이메일: admin@trukin.app",
     
     // Upload
     "upload.back": "돌아가기",
@@ -378,10 +379,11 @@ const translations = {
     "cta.title": "Try it now",
     "cta.subtitle": "No sign up required",
     "cta.button": "Start Free",
-    "footer.copyright": "© 2024 FitVision. All rights reserved.",
+    "footer.copyright": "© 2024 Trukin. All rights reserved.",
     "footer.privacy": "Privacy Policy",
     "footer.terms": "Terms of Service",
     "footer.refund": "Refund Policy",
+    "footer.companyInfo": "Trukin | Owner: Yejoon Jeong | Email: admin@trukin.app",
     
     // Upload
     "upload.back": "Back",
