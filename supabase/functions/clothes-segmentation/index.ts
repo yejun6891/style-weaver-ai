@@ -35,16 +35,20 @@ serve(async (req) => {
       );
     }
 
-    // Use taggedMasks to get all clothing items, then filter by garment type
-    // Top-related tags: coat, outerwear, dress, jumpsuit
-    // Bottom-related tags: pants, skirt
+    // All supported clothing tags according to vmake API documentation
+    // Top-related: coat, outerwear, dress, jumpsuit
+    // Bottom-related: pants, skirt
     const topTags = ["coat", "outerwear", "dress", "jumpsuit"];
     const bottomTags = ["pants", "skirt"];
     const targetTags = garmentType === "top" ? topTags : bottomTags;
+    
+    // Create taggedMasks config array - each tag must be explicitly requested
+    const taggedMasksConfig = targetTags.map(tag => ({ tag, maskDataType: "base64" }));
 
-    console.log(`[clothes-segmentation] Processing ${garmentType} with target tags:`, targetTags);
+    console.log(`[clothes-segmentation] Processing ${garmentType} with tags:`, targetTags);
+    console.log(`[clothes-segmentation] taggedMasks config:`, JSON.stringify(taggedMasksConfig));
 
-    // Request tagged masks to get ALL detected clothing items
+    // Request tagged masks with explicit tag configuration
     const response = await fetch(VMAKE_API_URL, {
       method: "POST",
       headers: {
@@ -54,7 +58,7 @@ serve(async (req) => {
       body: JSON.stringify({
         image,
         maskDataType: "base64",
-        taggedMasks: true, // Get all tagged masks instead of unified
+        taggedMasks: taggedMasksConfig,
       }),
     });
 
@@ -73,50 +77,35 @@ serve(async (req) => {
 
     // Get tagged masks from response
     const taggedMasks = data?.data?.taggedMasks;
+    console.log("[clothes-segmentation] Full response:", JSON.stringify(data, null, 2).substring(0, 500));
     console.log("[clothes-segmentation] Tagged masks count:", taggedMasks?.length);
     
     if (taggedMasks && taggedMasks.length > 0) {
       console.log("[clothes-segmentation] Available tags:", taggedMasks.map((m: any) => m.tag));
     }
 
-    if (!taggedMasks || taggedMasks.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "No clothing detected in the image", noClothingFound: true }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+    // Find the first mask that has actual data (not empty)
+    const validMask = taggedMasks?.find((m: any) => m.mask && m.mask.length > 0);
 
-    // Filter masks that match our target tags
-    const matchingMasks = taggedMasks.filter((maskItem: any) => 
-      targetTags.includes(maskItem.tag)
-    );
-
-    console.log("[clothes-segmentation] Matching masks:", matchingMasks.map((m: any) => m.tag));
-
-    if (matchingMasks.length === 0) {
-      // List what was found for debugging
-      const foundTags = taggedMasks.map((m: any) => m.tag);
-      console.log("[clothes-segmentation] No matching tags found. Available:", foundTags);
-      
+    if (!validMask) {
       return new Response(
         JSON.stringify({ 
-          error: `No ${garmentType} clothing found in the image`, 
+          error: `No ${garmentType} clothing detected in the image`, 
           noClothingFound: true,
-          detectedTags: foundTags 
+          requestedTags: targetTags
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Use the first matching mask
-    const selectedMask = matchingMasks[0];
+    console.log("[clothes-segmentation] Selected mask tag:", validMask.tag);
     
     return new Response(
       JSON.stringify({ 
         success: true, 
-        mask: selectedMask.mask,
-        tag: selectedMask.tag,
-        allDetectedTags: taggedMasks.map((m: any) => m.tag)
+        mask: validMask.mask,
+        tag: validMask.tag,
+        allDetectedTags: taggedMasks?.map((m: any) => m.tag) || []
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
