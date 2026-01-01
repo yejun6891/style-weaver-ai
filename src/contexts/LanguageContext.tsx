@@ -122,6 +122,9 @@ const translations = {
     "cta.subtitle": "회원가입 없이 바로 시작",
     "cta.button": "무료로 시작하기",
     "footer.copyright": "© 2024 FitVision. All rights reserved.",
+    "footer.privacy": "개인정보처리방침",
+    "footer.terms": "이용약관",
+    "footer.refund": "환불정책",
     
     // Upload
     "upload.back": "돌아가기",
@@ -376,6 +379,9 @@ const translations = {
     "cta.subtitle": "No sign up required",
     "cta.button": "Start Free",
     "footer.copyright": "© 2024 FitVision. All rights reserved.",
+    "footer.privacy": "Privacy Policy",
+    "footer.terms": "Terms of Service",
+    "footer.refund": "Refund Policy",
     
     // Upload
     "upload.back": "Back",
