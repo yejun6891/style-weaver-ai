@@ -289,6 +289,7 @@ const Upload = () => {
             exampleImage={exampleTop}
             exampleLabel={t("upload.example") || "예시"}
             garmentType="top"
+            showClothesExtractor
           />
 
           {/* Bottom Garment (Optional) */}
@@ -305,6 +306,7 @@ const Upload = () => {
             exampleImage={exampleBottom}
             exampleLabel={t("upload.example") || "예시"}
             garmentType="bottom"
+            showClothesExtractor
           />
 
           {/* Divider */}
