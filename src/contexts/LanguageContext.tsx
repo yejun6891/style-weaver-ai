@@ -530,16 +530,15 @@ const translations = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>("en");
+  const [language, setLanguageState] = useState<Language>(() => {
+    const saved = localStorage.getItem("language");
+    return saved === "ko" || saved === "en" ? saved : "en";
+  });
 
-  useEffect(() => {
-    const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith("ko")) {
-      setLanguage("ko");
-    } else {
-      setLanguage("en");
-    }
-  }, []);
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem("language", lang);
+  };
 
   const t = (key: string): string => {
     return translations[language][key as keyof typeof translations.ko] || key;
