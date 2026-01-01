@@ -20,10 +20,24 @@ serve(async (req) => {
     }
 
     const { image, garmentType } = await req.json();
-    
-    if (!image) {
+
+    if (!image || typeof image !== "string") {
       return new Response(
         JSON.stringify({ error: "Image is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // vmake expects either an image URL or *raw* base64 (no data:... prefix)
+    let normalizedImage = image.trim();
+    if (normalizedImage.startsWith("data:")) {
+      const commaIndex = normalizedImage.indexOf(",");
+      if (commaIndex !== -1) normalizedImage = normalizedImage.slice(commaIndex + 1);
+    }
+
+    if (!normalizedImage) {
+      return new Response(
+        JSON.stringify({ error: "Invalid image payload" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -56,7 +70,7 @@ serve(async (req) => {
         "X-API-Key": VMAKE_API_KEY,
       },
       body: JSON.stringify({
-        image,
+        image: normalizedImage,
         maskDataType: "base64",
         taggedMasks: taggedMasksConfig,
       }),
@@ -72,12 +86,21 @@ serve(async (req) => {
     }
 
     const data = await response.json();
+
+    // API sometimes returns HTTP 200 with an error code in body
+    if (typeof data?.code === "number" && data.code !== 0) {
+      console.error("[clothes-segmentation] API body error:", data);
+      return new Response(
+        JSON.stringify({ error: data?.message || "API error", apiCode: data.code }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     console.log("[clothes-segmentation] API response received");
     console.log("[clothes-segmentation] Response data keys:", Object.keys(data?.data || {}));
 
     // Get tagged masks from response
     const taggedMasks = data?.data?.taggedMasks;
-    console.log("[clothes-segmentation] Full response:", JSON.stringify(data, null, 2).substring(0, 500));
     console.log("[clothes-segmentation] Tagged masks count:", taggedMasks?.length);
     
     if (taggedMasks && taggedMasks.length > 0) {
