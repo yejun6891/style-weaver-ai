@@ -331,24 +331,22 @@ Deno.serve(async (req) => {
           console.log(`[tryon-proxy] Task ${responseData.taskId} created successfully for user ${user.id}`);
 
           // Log usage history with task_id for result re-viewing
-          // First, check if user already has 3 saved results - delete oldest if so
-          const { data: existingHistory } = await supabase
+          // Delete entries older than 48 hours (results expire on tyron backend)
+          const expirationTime = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+          const { data: expiredHistory } = await supabase
             .from("usage_history")
-            .select("id, created_at")
+            .select("id")
             .eq("user_id", user.id)
             .not("task_id", "is", null)
-            .order("created_at", { ascending: false });
+            .lt("created_at", expirationTime);
 
-          if (existingHistory && existingHistory.length >= 3) {
-            // Delete the oldest entries beyond the limit (keep only 2, new one will be 3rd)
-            const idsToDelete = existingHistory.slice(2).map(h => h.id);
-            if (idsToDelete.length > 0) {
-              await supabase
-                .from("usage_history")
-                .delete()
-                .in("id", idsToDelete);
-              console.log(`[tryon-proxy] Deleted ${idsToDelete.length} old usage history entries for user ${user.id}`);
-            }
+          if (expiredHistory && expiredHistory.length > 0) {
+            const idsToDelete = expiredHistory.map(h => h.id);
+            await supabase
+              .from("usage_history")
+              .delete()
+              .in("id", idsToDelete);
+            console.log(`[tryon-proxy] Deleted ${idsToDelete.length} expired usage history entries for user ${user.id}`);
           }
 
           await supabase.from("usage_history").insert({

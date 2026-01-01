@@ -36,10 +36,14 @@ const Dashboard = () => {
     const fetchUsageHistory = async () => {
       if (!user) return;
 
+      // Only fetch entries from last 48 hours (results expire after that)
+      const expirationTime = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+      
       const { data, error } = await supabase
         .from('usage_history')
         .select('*')
         .eq('user_id', user.id)
+        .gte('created_at', expirationTime)
         .order('created_at', { ascending: false })
         .limit(20);
 
@@ -200,35 +204,54 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {usageHistory.map((item) => (
-                  <div 
-                    key={item.id}
-                    className={`flex items-center gap-4 p-4 rounded-xl bg-background border border-border transition-colors ${
-                      item.task_id ? 'hover:border-primary/30 cursor-pointer' : 'opacity-60'
-                    }`}
-                    onClick={() => item.task_id && navigate(`/result/${item.task_id}`)}
-                  >
-                    <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center flex-shrink-0">
-                      <Image className="w-6 h-6 text-accent-foreground" />
+                {usageHistory.map((item) => {
+                  // Calculate remaining time until expiration (48 hours from creation)
+                  const createdAt = new Date(item.created_at);
+                  const expiresAt = new Date(createdAt.getTime() + 48 * 60 * 60 * 1000);
+                  const now = new Date();
+                  const hoursLeft = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / (60 * 60 * 1000)));
+                  const isExpired = hoursLeft <= 0;
+                  
+                  return (
+                    <div 
+                      key={item.id}
+                      className={`flex items-center gap-4 p-4 rounded-xl bg-background border border-border transition-colors ${
+                        item.task_id && !isExpired ? 'hover:border-primary/30 cursor-pointer' : 'opacity-60'
+                      }`}
+                      onClick={() => item.task_id && !isExpired && navigate(`/result/${item.task_id}`)}
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center flex-shrink-0">
+                        <Image className="w-6 h-6 text-accent-foreground" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">
+                          {item.action_type === 'virtual_tryon' ? t("dashboard.tryonAction") : 
+                           item.action_type === 'credit_purchase' ? t("dashboard.purchaseAction") : 
+                           item.action_type}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(item.created_at).toLocaleDateString()} • 
+                          {item.credits_used < 0 ? ` +${Math.abs(item.credits_used)}` : ` -${item.credits_used}`} {t("dashboard.credit")}
+                          {item.task_id && !isExpired && (
+                            <span className="ml-2 text-primary">
+                              ({hoursLeft}h 남음)
+                            </span>
+                          )}
+                          {item.task_id && isExpired && (
+                            <span className="ml-2 text-destructive">
+                              (만료됨)
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                      {item.task_id && !isExpired && (
+                        <Button variant="outline" size="sm">
+                          {t("dashboard.view")}
+                        </Button>
+                      )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">
-                        {item.action_type === 'virtual_tryon' ? t("dashboard.tryonAction") : 
-                         item.action_type === 'credit_purchase' ? t("dashboard.purchaseAction") : 
-                         item.action_type}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(item.created_at).toLocaleDateString()} • 
-                        {item.credits_used < 0 ? ` +${Math.abs(item.credits_used)}` : ` -${item.credits_used}`} {t("dashboard.credit")}
-                      </p>
-                    </div>
-                    {item.task_id && (
-                      <Button variant="outline" size="sm">
-                        {t("dashboard.view")}
-                      </Button>
-                    )}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
