@@ -45,7 +45,7 @@ const ClothesExtractor: React.FC<ClothesExtractorProps> = ({ garmentType, onExtr
 
     try {
       // Call Render backend instead of Supabase edge function
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://tyron-backend.onrender.com";
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://tyron-backend-8yaa.onrender.com";
       
       const response = await fetch(`${backendUrl}/api/clothes-segmentation`, {
         method: "POST",
