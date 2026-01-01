@@ -14,7 +14,7 @@ const TermsOfService = () => {
       sections: [
         {
           title: "1. Acceptance of Terms",
-          content: `By accessing or using Trukin (Korean business name: 트루킨)'s virtual try-on service ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.`
+          content: `By accessing or using Trukin (Korean business name: 트루킨)'s FitVision (our virtual try-on service) ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.`
         },
         {
           title: "2. Description of Service",
@@ -102,7 +102,7 @@ Owner: Yejoon Jeong`
       sections: [
         {
           title: "1. 약관 동의",
-          content: `트루킨의 가상 피팅 서비스(이하 "서비스")에 접속하거나 이용함으로써 귀하는 본 이용약관(이하 "약관")에 동의하게 됩니다. 본 약관에 동의하지 않으시면 서비스를 이용하지 마세요.`
+          content: `트루킨의 FitVision(당사의 가상 피팅 서비스)(이하 "서비스")에 접속하거나 이용함으로써 귀하는 본 이용약관(이하 "약관")에 동의하게 됩니다. 본 약관에 동의하지 않으시면 서비스를 이용하지 마세요.`
         },
         {
           title: "2. 서비스 설명",
