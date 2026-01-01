@@ -255,8 +255,19 @@ const Landing = () => {
 
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-border">
-        <div className="max-w-5xl mx-auto text-center text-sm text-muted-foreground">
-          <p>{t("footer.copyright")}</p>
+        <div className="max-w-5xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-6 mb-4 text-sm">
+            <a href="/privacy-policy" className="text-muted-foreground hover:text-foreground transition-colors">
+              {t("footer.privacy") || "Privacy Policy"}
+            </a>
+            <a href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
+              {t("footer.terms") || "Terms of Service"}
+            </a>
+            <a href="/refund-policy" className="text-muted-foreground hover:text-foreground transition-colors">
+              {t("footer.refund") || "Refund Policy"}
+            </a>
+          </div>
+          <p className="text-center text-sm text-muted-foreground">{t("footer.copyright")}</p>
         </div>
       </footer>
     </main>
