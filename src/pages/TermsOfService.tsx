@@ -14,7 +14,7 @@ const TermsOfService = () => {
       sections: [
         {
           title: "1. Acceptance of Terms",
-          content: `By accessing or using Trukin's virtual try-on service ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.`
+          content: `By accessing or using Trukin (Korean business name: 트루킨)'s virtual try-on service ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.`
         },
         {
           title: "2. Description of Service",
@@ -60,7 +60,7 @@ We do not claim ownership of your uploaded content.`
         },
         {
           title: "7. Intellectual Property",
-          content: `The Service, including its original content, features, and functionality, is owned by Trukin and is protected by international copyright, trademark, and other intellectual property laws. Our AI technology and virtual try-on results remain our intellectual property.`
+          content: `The Service, including its original content, features, and functionality, is owned by Trukin and is protected by international copyright, trademark, and other intellectual property laws. Virtual try-on results are provided for personal, non-commercial use, and Trukin retains rights related to the operation of the Service.`
         },
         {
           title: "8. Disclaimer of Warranties",
@@ -89,7 +89,7 @@ We do not claim ownership of your uploaded content.`
           title: "13. Contact Us",
           content: `If you have questions about these Terms of Service, please contact us at:
 Email: admin@trukin.app
-Company: Trukin
+Company: Trukin (Korean business name: 트루킨)
 Owner: Yejoon Jeong`
         }
       ]
