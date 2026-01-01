@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
       sections: [
         {
           title: "1. Introduction",
-          content: `Trukin ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our virtual try-on service.`
+          content: `Trukin (Korean business name: 트루킨) ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our virtual try-on service.`
         },
         {
           title: "2. Information We Collect",
@@ -48,7 +48,7 @@ We automatically collect certain information when you use our service:
         },
         {
           title: "5. Data Retention",
-          content: `We retain your personal information for as long as your account is active or as needed to provide you services. Uploaded images are processed for virtual try-on and stored securely. You may request deletion of your data at any time.`
+          content: `We retain your personal information for as long as your account is active or as needed to provide you services. Uploaded images are processed temporarily for virtual try-on purposes and may be deleted or anonymized after the service is provided. You may request deletion of your data at any time.`
         },
         {
           title: "6. Your Rights (California Residents - CCPA)",
@@ -76,7 +76,7 @@ To exercise these rights, contact us at admin@trukin.app`
           title: "10. Contact Us",
           content: `If you have questions about this Privacy Policy, please contact us at:
 Email: admin@trukin.app
-Company: Trukin
+Company: Trukin (Korean business name: 트루킨)
 Owner: Yejoon Jeong`
         }
       ]

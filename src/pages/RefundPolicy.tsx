@@ -14,7 +14,7 @@ const RefundPolicy = () => {
       sections: [
         {
           title: "1. Overview",
-          content: `At Trukin, we strive to provide the best virtual try-on experience. We understand that sometimes things don't work out as expected, and we want to ensure your satisfaction with our Service.`
+          content: `At Trukin (Korean business name: 트루킨), we strive to provide the best virtual try-on experience. We understand that sometimes things don't work out as expected, and we want to ensure your satisfaction with our Service.`
         },
         {
           title: "2. Credit Packages",
@@ -62,7 +62,7 @@ We will review your request and respond within 3-5 business days.`
           title: "6. Refund Processing",
           content: `Once approved, refunds will be processed as follows:
 • Refunds are issued through the original payment method (PayPal)
-• Processing time: 5-10 business days
+• Processing time: 5-10 business days (may vary depending on PayPal's policies)
 • You will receive an email confirmation when the refund is processed
 • The refunded amount will appear on your PayPal account or linked payment method`
         },
@@ -78,7 +78,7 @@ We will review your request and respond within 3-5 business days.`
           title: "9. Contact Us",
           content: `For refund requests or questions about this policy, please contact us at:
 Email: admin@trukin.app
-Company: Trukin
+Company: Trukin (Korean business name: 트루킨)
 Owner: Yejoon Jeong
 
 We aim to respond to all inquiries within 24-48 hours.`
