@@ -36,8 +36,8 @@ const Dashboard = () => {
     const fetchUsageHistory = async () => {
       if (!user) return;
 
-      // Only fetch entries from last 48 hours (results expire after that)
-      const expirationTime = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+      // Only fetch entries from last 24 hours (results expire after that)
+      const expirationTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       
       const { data, error } = await supabase
         .from('usage_history')
@@ -205,9 +205,9 @@ const Dashboard = () => {
             ) : (
               <div className="space-y-4">
                 {usageHistory.map((item) => {
-                  // Calculate remaining time until expiration (48 hours from creation)
+                  // Calculate remaining time until expiration (24 hours from creation)
                   const createdAt = new Date(item.created_at);
-                  const expiresAt = new Date(createdAt.getTime() + 48 * 60 * 60 * 1000);
+                  const expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
                   const now = new Date();
                   const hoursLeft = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / (60 * 60 * 1000)));
                   const isExpired = hoursLeft <= 0;

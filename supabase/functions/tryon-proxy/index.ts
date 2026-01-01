@@ -331,8 +331,8 @@ Deno.serve(async (req) => {
           console.log(`[tryon-proxy] Task ${responseData.taskId} created successfully for user ${user.id}`);
 
           // Log usage history with task_id for result re-viewing
-          // Delete entries older than 48 hours (results expire on tyron backend)
-          const expirationTime = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+          // Delete entries older than 24 hours (results expire on tyron backend)
+          const expirationTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
           const { data: expiredHistory } = await supabase
             .from("usage_history")
             .select("id")
