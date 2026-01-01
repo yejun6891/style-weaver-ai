@@ -1,10 +1,8 @@
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Scissors, Loader2, Upload, X } from "lucide-react";
+import { Scissors, Loader2, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 interface ClothesExtractorProps {
   garmentType: "top" | "bottom";
@@ -46,16 +44,26 @@ const ClothesExtractor: React.FC<ClothesExtractorProps> = ({ garmentType, onExtr
     setIsExtracting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("clothes-segmentation", {
-        body: { image: sourceImage, garmentType },
+      // Call Render backend instead of Supabase edge function
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || "https://tyron-backend.onrender.com";
+      
+      const response = await fetch(`${backendUrl}/api/clothes-segmentation`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ image: sourceImage, garmentType }),
       });
 
-      if (error) {
-        console.error("[ClothesExtractor] Error:", error);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("[ClothesExtractor] API Error:", errorData);
         toast.error(language === "ko" ? "의류 추출에 실패했습니다." : "Failed to extract clothing.");
         setIsExtracting(false);
         return;
       }
+
+      const data = await response.json();
 
       if (data.noClothingFound) {
         toast.error(
