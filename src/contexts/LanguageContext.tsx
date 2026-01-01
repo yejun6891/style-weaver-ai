@@ -531,8 +531,14 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguageState] = useState<Language>(() => {
+    // 1. 저장된 언어 설정 확인
     const saved = localStorage.getItem("language");
-    return saved === "ko" || saved === "en" ? saved : "en";
+    if (saved === "ko" || saved === "en") {
+      return saved;
+    }
+    // 2. 브라우저/폰 언어 설정 사용
+    const browserLang = navigator.language.toLowerCase();
+    return browserLang.startsWith("ko") ? "ko" : "en";
   });
 
   const setLanguage = (lang: Language) => {
