@@ -231,11 +231,22 @@ async function applyMaskToImage(imageBase64: string, maskBase64: string): Promis
         maskCtx.drawImage(mask, 0, 0, img.width, img.height);
         const maskData = maskCtx.getImageData(0, 0, img.width, img.height);
 
+        // Analyze mask to decide if it needs inversion
+        // Heuristic: if most pixels are bright, assume background is white and garment is dark -> invert.
+        let brightCount = 0;
+        const total = maskData.data.length / 4;
+        for (let i = 0; i < maskData.data.length; i += 4) {
+          const b = (maskData.data[i] + maskData.data[i + 1] + maskData.data[i + 2]) / 3;
+          if (b > 200) brightCount++;
+        }
+        const brightRatio = brightCount / total;
+        const shouldInvert = brightRatio > 0.6;
+
         // Apply mask to alpha channel
         for (let i = 0; i < imageData.data.length; i += 4) {
-          // Use mask brightness as alpha (white = visible, black = transparent)
           const maskBrightness = (maskData.data[i] + maskData.data[i + 1] + maskData.data[i + 2]) / 3;
-          imageData.data[i + 3] = maskBrightness;
+          const alpha = shouldInvert ? 255 - maskBrightness : maskBrightness;
+          imageData.data[i + 3] = alpha;
         }
 
         ctx.putImageData(imageData, 0, 0);
