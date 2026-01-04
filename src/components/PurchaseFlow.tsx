@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePromoCodes, UserPromoCode } from '@/hooks/usePromoCodes';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, ArrowRight, Search, Gift, Check, Percent, Ticket, CreditCard, X } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -15,7 +14,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-const PAYPAL_CLIENT_ID = 'AdbDO8R26aoLknygY-5ZJxjsgEMysvJQ4dAzBZFBQUVMWoK2b484TiZ_mSFUUjhycOHlsraFHHC_6JO3';
+// Lemon Squeezy checkout URLs for each credit package
+const lemonSqueezyCheckoutUrls: Record<number, string> = {
+  5: 'https://fitvision.lemonsqueezy.com/checkout/buy/b3f87edb-3cb0-4004-9f50-a962d46da837',
+  10: 'https://fitvision.lemonsqueezy.com/checkout/buy/217de21b-8677-4829-9887-a6583a42e856',
+  15: 'https://fitvision.lemonsqueezy.com/checkout/buy/463213df-b0d9-4976-858d-b15d67e35fee',
+  25: 'https://fitvision.lemonsqueezy.com/checkout/buy/8b544155-785d-4a5f-934c-2439eebd4a07',
+};
 
 interface CreditPackage {
   credits: number;
@@ -38,7 +43,7 @@ interface PurchaseFlowProps {
 }
 
 const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
-  const { t, language } = useLanguage();
+  const { t } = useLanguage();
   const { user, refreshProfile } = useAuth();
   const { userPromoCodes, searchPromoCode, claimPromoCode } = usePromoCodes();
   const [step, setStep] = useState<'promo' | 'package' | 'payment'>('promo');
@@ -47,7 +52,6 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
   const [searchCode, setSearchCode] = useState('');
   const [searching, setSearching] = useState(false);
   const [foundCode, setFoundCode] = useState<any>(null);
-  const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [processing, setProcessing] = useState(false);
 
   const unusedDiscountPromoCodes = userPromoCodes.filter(
@@ -59,180 +63,6 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
       setSelectedPromo(initialPromo);
     }
   }, [initialPromo]);
-
-  useEffect(() => {
-    if (step === 'payment' && selectedPackage) {
-      // Wait for DOM to be ready before loading PayPal
-      const timer = setTimeout(() => {
-        loadPayPalScript();
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [step, selectedPackage, language]);
-
-  const loadPayPalScript = () => {
-    const desiredLocale = language === 'ko' ? 'ko_KR' : 'en_US';
-    const desiredSrc = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=capture&components=buttons&locale=${desiredLocale}`;
-
-    const existing = document.getElementById('paypal-script') as HTMLScriptElement | null;
-    if (existing) {
-      // If language changed, reload PayPal SDK so the UI language matches.
-      if (existing.src !== desiredSrc) {
-        existing.remove();
-        setPaypalLoaded(false);
-      } else {
-        setPaypalLoaded(true);
-        renderPayPalButtons();
-        return;
-      }
-    }
-
-    const script = document.createElement('script');
-    script.id = 'paypal-script';
-    script.src = desiredSrc;
-    script.async = true;
-    script.onload = () => {
-      setPaypalLoaded(true);
-      renderPayPalButtons();
-    };
-    script.onerror = () => {
-      console.error('Failed to load PayPal SDK');
-      toast.error(t('purchase.paypalError'));
-    };
-    document.body.appendChild(script);
-  };
-
-  const renderPayPalButtons = () => {
-    // Use setTimeout to ensure DOM is ready
-    setTimeout(() => {
-      const container = document.getElementById('paypal-button-container');
-      if (!container || !window.paypal || !selectedPackage) return;
-
-      container.innerHTML = '';
-
-      const finalPrice = calculateFinalPrice();
-
-      // PayPal does not allow $0.00 orders. This can happen if a fixed discount exceeds the package price.
-      if (finalPrice <= 0) {
-        console.error('Invalid PayPal amount (<= 0). finalPrice=', finalPrice, {
-          selectedPackage,
-          selectedPromo,
-        });
-        toast.error(t('purchase.error'));
-        return;
-      }
-
-      console.log('🟡 PayPal Buttons rendering with:', {
-        finalPrice: finalPrice.toFixed(2),
-        credits: selectedPackage.credits,
-        clientId: PAYPAL_CLIENT_ID.substring(0, 10) + '...',
-      });
-
-      window.paypal.Buttons({
-        createOrder: (data: any, actions: any) => {
-          console.log('🔵 PayPal createOrder called', { data });
-          try {
-            const orderPromise = actions.order.create({
-              purchase_units: [{
-                amount: {
-                  value: finalPrice.toFixed(2),
-                  currency_code: 'USD',
-                },
-                description: `FitVision ${selectedPackage.credits} Credits`,
-              }],
-              application_context: {
-                brand_name: 'FitVision',
-                shipping_preference: 'NO_SHIPPING',
-                user_action: 'PAY_NOW',
-              },
-            });
-            
-            orderPromise.then((orderId: string) => {
-              console.log('🟢 PayPal order created successfully:', orderId);
-            }).catch((err: any) => {
-              console.error('🔴 PayPal order creation failed:', err);
-            });
-            
-            return orderPromise;
-          } catch (e) {
-            console.error('🔴 PayPal createOrder sync error:', e);
-            throw e;
-          }
-        },
-        onApprove: async (data: any, actions: any) => {
-          console.log('🔵 PayPal onApprove called', { data });
-          setProcessing(true);
-          try {
-            const order = await actions.order.capture();
-            console.log('🟢 Payment captured successfully:', order);
-
-            // Add credits to user
-            if (user) {
-              const { data: currentProfile } = await supabase
-                .from('profiles')
-                .select('credits')
-                .eq('user_id', user.id)
-                .single();
-
-              if (currentProfile) {
-                await supabase
-                  .from('profiles')
-                  .update({ credits: currentProfile.credits + selectedPackage.credits })
-                  .eq('user_id', user.id);
-              }
-
-              // Mark promo code as used if applied
-              if (selectedPromo) {
-                await (supabase
-                  .from('user_promo_codes' as any)
-                  .update({ used: true, used_at: new Date().toISOString() })
-                  .eq('id', selectedPromo.id) as any);
-              }
-
-              // Record purchase in usage history
-              await supabase.from('usage_history').insert({
-                user_id: user.id,
-                action_type: 'credit_purchase',
-                credits_used: -selectedPackage.credits, // Negative means credits added
-              });
-
-              await refreshProfile();
-            }
-
-            toast.success(t('purchase.success'));
-            onClose();
-          } catch (error: any) {
-            console.error('🔴 Payment/capture error:', error, { 
-              data, 
-              name: error?.name,
-              message: error?.message,
-              details: error?.details,
-            });
-            toast.error(t('purchase.error'));
-          } finally {
-            setProcessing(false);
-          }
-        },
-        onCancel: (data: any) => {
-          console.log('🟠 PayPal payment cancelled by user:', data);
-        },
-        onError: (err: any) => {
-          console.error('🔴 PayPal onError:', err, {
-            name: err?.name,
-            message: err?.message,
-            details: err?.details,
-            debug_id: err?.debug_id,
-          });
-          
-          // Try to extract more useful error info
-          const errorMessage = err?.message || err?.details?.[0]?.description || t('purchase.paypalError');
-          toast.error(errorMessage);
-        },
-      }).render('#paypal-button-container').catch((renderErr: any) => {
-        console.error('🔴 PayPal button render failed:', renderErr);
-      });
-    }, 50);
-  };
 
   const handleSearch = async () => {
     if (!searchCode.trim()) return;
@@ -303,6 +133,40 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
     setFoundCode(null);
     setSearchCode('');
     onClose();
+  };
+
+  const handleLemonSqueezyCheckout = () => {
+    if (!selectedPackage || !user) return;
+    
+    const baseUrl = lemonSqueezyCheckoutUrls[selectedPackage.credits];
+    if (!baseUrl) {
+      toast.error('Invalid package selected');
+      return;
+    }
+    
+    setProcessing(true);
+    
+    // Build checkout URL with custom data for webhook processing
+    const params = new URLSearchParams();
+    params.set('checkout[email]', user.email || '');
+    params.set('checkout[custom][user_id]', user.id);
+    if (selectedPromo) {
+      params.set('checkout[custom][promo_id]', selectedPromo.id);
+      params.set('checkout[custom][promo_code]', selectedPromo.promo_code.code);
+    }
+    
+    const checkoutUrl = `${baseUrl}?${params.toString()}`;
+    
+    // Open Lemon Squeezy checkout in new tab
+    window.open(checkoutUrl, '_blank');
+    
+    toast.info(t('purchase.redirecting') || '결제 페이지로 이동합니다. 결제 완료 후 크레딧이 충전됩니다.');
+    setProcessing(false);
+    
+    // Close dialog after redirecting
+    setTimeout(() => {
+      handleClose();
+    }, 1000);
   };
 
   return (
@@ -569,14 +433,20 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
               </div>
             </div>
 
-            {/* PayPal Button */}
-            <div id="paypal-button-container" className="min-h-[45px]">
-              {!paypalLoaded && (
-                <div className="text-center py-4 text-muted-foreground">
-                  {t('purchase.loadingPaypal')}...
-                </div>
-              )}
-            </div>
+            {/* Lemon Squeezy Checkout Button */}
+            <Button 
+              variant="gradient" 
+              className="w-full"
+              onClick={handleLemonSqueezyCheckout}
+              disabled={processing}
+            >
+              <CreditCard className="w-4 h-4 mr-2" />
+              {t('purchase.pay') || '결제하기'}
+            </Button>
+
+            <p className="text-xs text-center text-muted-foreground">
+              {t('purchase.lemonSqueezyNote') || '결제 완료 후 크레딧이 자동으로 충전됩니다.'}
+            </p>
 
             {processing && (
               <div className="text-center py-4 text-muted-foreground">
@@ -596,10 +466,3 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
 };
 
 export default PurchaseFlow;
-
-// Add PayPal type declaration
-declare global {
-  interface Window {
-    paypal: any;
-  }
-}
