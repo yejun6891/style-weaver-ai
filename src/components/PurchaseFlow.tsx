@@ -149,8 +149,8 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
     // Build checkout URL with custom data for webhook processing
     const params = new URLSearchParams();
 
-    // Force checkout language to match app language
-    params.set('locale', language === 'en' ? 'en' : 'ko');
+    // Force checkout language to English (Lemon Squeezy is for international customers only)
+    params.set('locale', 'en');
 
     params.set('checkout[email]', user.email || '');
     params.set('checkout[custom][user_id]', user.id);
