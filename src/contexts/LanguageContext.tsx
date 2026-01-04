@@ -81,11 +81,12 @@ const translations = {
     "purchase.back": "이전",
     "purchase.summary": "주문 내역",
     "purchase.total": "결제 금액",
-    "purchase.loadingPaypal": "PayPal 로딩 중",
+    "purchase.pay": "결제하기",
+    "purchase.lemonSqueezyNote": "결제 완료 후 크레딧이 자동으로 충전됩니다.",
+    "purchase.redirecting": "결제 페이지로 이동합니다...",
     "purchase.processing": "결제 처리 중",
     "purchase.success": "결제가 완료되었습니다!",
     "purchase.error": "결제 처리에 실패했습니다",
-    "purchase.paypalError": "PayPal 오류가 발생했습니다",
     
     // Upload - No Credits
     "upload.noCredits.title": "이용권이 없습니다",
@@ -339,11 +340,12 @@ const translations = {
     "purchase.back": "Back",
     "purchase.summary": "Order Summary",
     "purchase.total": "Total",
-    "purchase.loadingPaypal": "Loading PayPal",
+    "purchase.pay": "Pay Now",
+    "purchase.lemonSqueezyNote": "Credits will be automatically added after payment.",
+    "purchase.redirecting": "Redirecting to payment page...",
     "purchase.processing": "Processing payment",
     "purchase.success": "Payment completed!",
     "purchase.error": "Payment failed",
-    "purchase.paypalError": "PayPal error occurred",
     
     // Upload - No Credits
     "upload.noCredits.title": "No Credits Available",
