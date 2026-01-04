@@ -43,7 +43,7 @@ interface PurchaseFlowProps {
 }
 
 const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, refreshProfile } = useAuth();
   const { userPromoCodes, searchPromoCode, claimPromoCode } = usePromoCodes();
   const [step, setStep] = useState<'promo' | 'package' | 'payment'>('promo');
@@ -148,6 +148,10 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
     
     // Build checkout URL with custom data for webhook processing
     const params = new URLSearchParams();
+
+    // Force checkout language to match app language
+    params.set('locale', language === 'en' ? 'en' : 'ko');
+
     params.set('checkout[email]', user.email || '');
     params.set('checkout[custom][user_id]', user.id);
     if (selectedPromo) {
