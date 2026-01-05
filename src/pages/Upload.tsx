@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { preprocessPersonImage, preprocessTopGarment, preprocessBottomGarment } from "@/utils/imagePreprocess";
 
 // Example images
 import examplePerson from "@/assets/example-person.png";
@@ -106,11 +107,20 @@ const Upload = () => {
         userId: freshSession.user?.id,
       });
 
+      // ✅ 클라이언트 측 이미지 전처리
+      console.log("[Upload] 이미지 전처리 시작...");
+      const [processedPerson, processedTop, processedBottom] = await Promise.all([
+        preprocessPersonImage(personFile),
+        preprocessTopGarment(topFile),
+        bottomFile ? preprocessBottomGarment(bottomFile) : Promise.resolve(null),
+      ]);
+      console.log("[Upload] 이미지 전처리 완료");
+
       const formData = new FormData();
-      formData.append("person_image", personFile);
-      formData.append("top_garment", topFile);
-      if (bottomFile) {
-        formData.append("bottom_garment", bottomFile);
+      formData.append("person_image", processedPerson);
+      formData.append("top_garment", processedTop);
+      if (processedBottom) {
+        formData.append("bottom_garment", processedBottom);
       }
 
       // ✅ 공식 SDK 호출 사용
