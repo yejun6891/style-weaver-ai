@@ -43,6 +43,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 // Valid try-on modes
 type TryonMode = "top" | "bottom" | "full";
+type FullModeType = "separate" | "single";
 
 // Timeout settings (in milliseconds)
 const TIMEOUT_SINGLE_MODE = 30000;  // 30s for top/bottom
@@ -301,10 +302,16 @@ Deno.serve(async (req) => {
         ? modeValue as TryonMode 
         : "top";
 
+      // Get fullModeType from form data (only relevant when mode is "full")
+      const fullModeTypeValue = formData.get("fullModeType") as string || "separate";
+      const fullModeType: FullModeType = ["separate", "single"].includes(fullModeTypeValue)
+        ? fullModeTypeValue as FullModeType
+        : "separate";
+
       // Calculate required credits based on mode
       const creditsRequired = mode === "full" ? 2 : 1;
 
-      console.log(`[tryon-proxy] Mode: ${mode}, Credits required: ${creditsRequired}`);
+      console.log(`[tryon-proxy] Mode: ${mode}, FullModeType: ${fullModeType}, Credits required: ${creditsRequired}`);
 
       // Check credit BEFORE starting the upstream job
       const { data: profileRow, error: profileError } = await supabase
@@ -334,14 +341,25 @@ Deno.serve(async (req) => {
 
       const validatedFormData = new FormData();
       validatedFormData.append("mode", mode);
+      
+      // Add fullModeType when mode is "full"
+      if (mode === "full") {
+        validatedFormData.append("fullModeType", fullModeType);
+      }
 
-      // Determine required files based on mode
+      // Determine required files based on mode and fullModeType
       const requiredFields: string[] = ["person_image"];
       if (mode === "top") requiredFields.push("top_garment");
       if (mode === "bottom") requiredFields.push("bottom_garment");
       if (mode === "full") {
-        requiredFields.push("top_garment");
-        requiredFields.push("bottom_garment");
+        if (fullModeType === "single") {
+          // Single mode: only need top_garment (which contains the full outfit)
+          requiredFields.push("top_garment");
+        } else {
+          // Separate mode: need both top and bottom
+          requiredFields.push("top_garment");
+          requiredFields.push("bottom_garment");
+        }
       }
 
       const optionalFields: string[] = [];
@@ -395,7 +413,7 @@ Deno.serve(async (req) => {
         validatedFormData.append(fieldName, validatedFile);
       }
 
-      console.log(`[tryon-proxy] Forwarding validated request to backend for user ${user.id}, mode=${mode}`);
+      console.log(`[tryon-proxy] Forwarding validated request to backend for user ${user.id}, mode=${mode}, fullModeType=${fullModeType}`);
 
       try {
         // Forward to the actual backend
