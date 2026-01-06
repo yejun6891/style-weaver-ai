@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LanguageSwitch from "@/components/LanguageSwitch";
@@ -11,7 +11,7 @@ import { StyleProfile } from "@/components/StyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText, Check, Shirt } from "lucide-react";
 
 type Status = "loading" | "success" | "error";
 
@@ -28,6 +28,7 @@ const defaultStyleProfile: StyleProfile = {
 
 const Result = () => {
   const { taskId } = useParams<{ taskId: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { session } = useAuth();
@@ -36,6 +37,11 @@ const Result = () => {
   const [statusText, setStatusText] = useState("");
   const [progress, setProgress] = useState(0);
   const [styleProfile, setStyleProfile] = useState<StyleProfile>(defaultStyleProfile);
+  
+  // 전신 모드 2단계 진행률 상태
+  const mode = searchParams.get("mode") || "top";
+  const isFullMode = mode === "full";
+  const [currentStep, setCurrentStep] = useState(isFullMode ? 2 : 1); // full 모드면 2단계부터 시작 (1단계는 백엔드에서 완료)
 
   useEffect(() => {
     // Load style profile from sessionStorage
@@ -205,6 +211,34 @@ const Result = () => {
       <div className="max-w-2xl mx-auto px-4 py-8">
         {status === "loading" && (
           <div className="text-center py-20 animate-fade-in">
+            {/* 전신 모드 2단계 표시 */}
+            {isFullMode && (
+              <div className="flex items-center justify-center gap-4 mb-8">
+                {/* Step 1 */}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-4 h-4 text-primary-foreground" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">
+                    {t("result.step1") || "상의 교체"}
+                  </span>
+                </div>
+                
+                {/* Connector */}
+                <div className="w-12 h-0.5 bg-primary" />
+                
+                {/* Step 2 */}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center animate-pulse">
+                    <Shirt className="w-4 h-4 text-primary-foreground" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">
+                    {t("result.step2") || "하의 교체"}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Loading Animation */}
             <div className="relative w-32 h-32 mx-auto mb-8">
               <div className="absolute inset-0 rounded-full border-4 border-border" />
@@ -234,10 +268,14 @@ const Result = () => {
             </div>
 
             <h2 className="font-display text-2xl font-bold mb-2">
-              {statusText}
+              {isFullMode 
+                ? (t("result.fullModeProcessing") || "전신 스타일링 중...") 
+                : statusText}
             </h2>
             <p className="text-muted-foreground mb-4">
-              {t("result.wait")}
+              {isFullMode 
+                ? (t("result.fullModeWait") || "상의와 하의를 순차적으로 교체하고 있어요") 
+                : t("result.wait")}
             </p>
 
             {/* Progress bar */}
@@ -249,7 +287,7 @@ const Result = () => {
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {Math.round(progress)}%
+                {isFullMode ? `2단계: ${Math.round(progress)}%` : `${Math.round(progress)}%`}
               </p>
             </div>
           </div>
