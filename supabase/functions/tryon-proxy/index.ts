@@ -308,8 +308,11 @@ Deno.serve(async (req) => {
         ? fullModeTypeValue as FullModeType
         : "separate";
 
-      // Calculate required credits based on mode
-      const creditsRequired = mode === "full" ? 2 : 1;
+      // Calculate required credits based on mode and fullModeType
+      // full-separate: 2 credits (two API calls), full-single: 1 credit (one API call)
+      const creditsRequired = mode === "full" 
+        ? (fullModeType === "single" ? 1 : 2) 
+        : 1;
 
       console.log(`[tryon-proxy] Mode: ${mode}, FullModeType: ${fullModeType}, Credits required: ${creditsRequired}`);
 

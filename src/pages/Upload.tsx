@@ -67,8 +67,13 @@ const Upload = () => {
     }
   }, [loading, session, navigate]);
 
-  // Get required credits based on mode
-  const getRequiredCredits = () => mode === "full" ? 2 : 1;
+  // Get required credits based on mode and fullModeType
+  const getRequiredCredits = () => {
+    if (mode === "full") {
+      return fullModeType === "single" ? 1 : 2;
+    }
+    return 1;
+  };
 
   const handleSubmit = async () => {
     // Validate based on mode
@@ -449,7 +454,7 @@ const Upload = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={() => setFullModeType("separate")}
-                    className={`p-4 rounded-xl border-2 transition-all text-left ${
+                    className={`relative p-4 rounded-xl border-2 transition-all text-left ${
                       fullModeType === "separate"
                         ? "border-primary bg-primary/10"
                         : "border-border bg-card hover:border-primary/50"
@@ -461,10 +466,15 @@ const Upload = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       {t("upload.fullMode.separateDesc")}
                     </p>
+                    <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                      fullModeType === "separate" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    }`}>
+                      2 {t("upload.mode.credit")}
+                    </div>
                   </button>
                   <button
                     onClick={() => setFullModeType("single")}
-                    className={`p-4 rounded-xl border-2 transition-all text-left ${
+                    className={`relative p-4 rounded-xl border-2 transition-all text-left ${
                       fullModeType === "single"
                         ? "border-primary bg-primary/10"
                         : "border-border bg-card hover:border-primary/50"
@@ -476,6 +486,11 @@ const Upload = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       {t("upload.fullMode.singleDesc")}
                     </p>
+                    <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                      fullModeType === "single" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                    }`}>
+                      1 {t("upload.mode.credit")}
+                    </div>
                   </button>
                 </div>
               </div>
