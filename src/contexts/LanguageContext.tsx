@@ -164,6 +164,7 @@ const translations = {
     "upload.confirm.person": "전신 사진",
     "upload.confirm.top": "상의",
     "upload.confirm.bottom": "하의",
+    "upload.confirm.outfit": "전체 코디 사진",
     "upload.confirm.profile": "스타일 프로필",
     "upload.confirm.ready": "준비 완료",
     "upload.confirm.notReady": "미입력",
@@ -172,6 +173,9 @@ const translations = {
     "upload.confirm.cancel": "취소",
     "upload.confirm.bottomNotice": "하의 미입력 시 AI가 자동으로 생성합니다",
     "upload.confirm.qualityNotice": "결과물은 업로드된 사진의 화질과 조건에 따라 달라질 수 있습니다",
+    "upload.confirm.accuracyTitle": "정확도 높이는 팁",
+    "upload.confirm.topAccuracyTip": "하의가 보이지 않는 상의만 담긴 사진이 가장 정확해요",
+    "upload.confirm.bottomAccuracyTip": "상의가 보이지 않는 하의만 담긴 사진이 가장 정확해요",
     "upload.example": "예시",
     
     // Upload Mode Selection
@@ -454,6 +458,7 @@ const translations = {
     "upload.confirm.person": "Full Body Photo",
     "upload.confirm.top": "Top",
     "upload.confirm.bottom": "Bottom",
+    "upload.confirm.outfit": "Full Outfit Photo",
     "upload.confirm.profile": "Style Profile",
     "upload.confirm.ready": "Ready",
     "upload.confirm.notReady": "Not provided",
@@ -462,6 +467,9 @@ const translations = {
     "upload.confirm.cancel": "Cancel",
     "upload.confirm.bottomNotice": "AI will auto-generate bottom if not provided",
     "upload.confirm.qualityNotice": "Results may vary depending on the quality and conditions of uploaded photos",
+    "upload.confirm.accuracyTitle": "Tips for better accuracy",
+    "upload.confirm.topAccuracyTip": "Photos with only the top (no bottom visible) give the best results",
+    "upload.confirm.bottomAccuracyTip": "Photos with only the bottom (no top visible) give the best results",
     "upload.example": "Example",
     
     // Upload Mode Selection

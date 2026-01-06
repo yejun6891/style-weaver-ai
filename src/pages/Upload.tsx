@@ -581,14 +581,46 @@ const Upload = () => {
               </span>
             </div>
             <CheckItem label={t("upload.confirm.person")} isReady={!!personFile} />
-            {(mode === "top" || mode === "full") && (
+            
+            {/* Top Only Mode */}
+            {mode === "top" && (
               <CheckItem label={t("upload.confirm.top")} isReady={!!topFile} />
             )}
-            {(mode === "bottom" || mode === "full") && (
+            
+            {/* Bottom Only Mode */}
+            {mode === "bottom" && (
               <CheckItem label={t("upload.confirm.bottom")} isReady={!!bottomFile} />
             )}
+            
+            {/* Full Mode - Separate */}
+            {mode === "full" && fullModeType === "separate" && (
+              <>
+                <CheckItem label={t("upload.confirm.top")} isReady={!!topFile} />
+                <CheckItem label={t("upload.confirm.bottom")} isReady={!!bottomFile} />
+              </>
+            )}
+            
+            {/* Full Mode - Single Outfit */}
+            {mode === "full" && fullModeType === "single" && (
+              <CheckItem label={t("upload.confirm.outfit")} isReady={!!outfitFile} />
+            )}
+            
             <CheckItem label={t("upload.confirm.profile")} isReady={isProfileFilled} isOptional />
           </div>
+          
+          {/* Accuracy Tips - Show for top/bottom/separate modes */}
+          {(mode === "top" || mode === "bottom" || (mode === "full" && fullModeType === "separate")) && (
+            <div className="bg-primary/10 rounded-lg p-3 text-xs text-foreground border border-primary/20 mb-3">
+              <p className="font-medium mb-1">💡 {t("upload.confirm.accuracyTitle")}</p>
+              {(mode === "top" || (mode === "full" && fullModeType === "separate")) && (
+                <p>• {t("upload.confirm.topAccuracyTip")}</p>
+              )}
+              {(mode === "bottom" || (mode === "full" && fullModeType === "separate")) && (
+                <p>• {t("upload.confirm.bottomAccuracyTip")}</p>
+              )}
+            </div>
+          )}
+          
           <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground">
             💡 {t("upload.confirm.qualityNotice")}
           </div>
