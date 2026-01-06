@@ -108,13 +108,23 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
       )}
 
       {/* Garment Notice */}
-      {garmentType && (
+      {garmentType === "top" && (
         <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
           <span className="text-xs">💡</span>
           <p className="text-xs text-foreground font-medium">
             {language === "ko" 
-              ? `온라인 쇼핑몰에서 ${garmentType === "top" ? "상의" : "하의"}만 있는 상품 이미지를 사용해주세요` 
-              : `Use product images from online stores showing only the ${garmentType}`}
+              ? "입고 싶은 상의가 들어간 사진을 편집 없이 바로 넣어도 돼요!" 
+              : "Upload any photo with the top you want to try - no editing needed!"}
+          </p>
+        </div>
+      )}
+      {garmentType === "bottom" && (
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
+          <span className="text-xs">💡</span>
+          <p className="text-xs text-foreground font-medium">
+            {language === "ko" 
+              ? "상의가 보이지 않는 하의만 담긴 사진이 가장 정확도가 높아요" 
+              : "Photos with only the bottom (no top visible) give the highest accuracy"}
           </p>
         </div>
       )}
