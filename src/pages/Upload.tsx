@@ -9,7 +9,7 @@ import Logo from "@/components/Logo";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle, Shirt, PanelBottom, Layers } from "lucide-react";
 import { toast } from "sonner";
 import { preprocessPersonImage, preprocessTopGarment, preprocessBottomGarment } from "@/utils/imagePreprocess";
 
@@ -35,10 +35,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+type TryonMode = "top" | "bottom" | "full";
+
 const Upload = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { session, profile, loading, refreshProfile } = useAuth();
+  const [mode, setMode] = useState<TryonMode>("top");
   const [personFile, setPersonFile] = useState<File | null>(null);
   const [topFile, setTopFile] = useState<File | null>(null);
   const [bottomFile, setBottomFile] = useState<File | null>(null);
@@ -65,9 +68,28 @@ const Upload = () => {
     }
   }, [loading, session, navigate]);
 
+  // Get required credits based on mode
+  const getRequiredCredits = () => mode === "full" ? 2 : 1;
+
   const handleSubmit = async () => {
-    if (!personFile || !topFile) {
+    // Validate based on mode
+    if (!personFile) {
       toast.error(t("upload.required"));
+      return;
+    }
+
+    if (mode === "top" && !topFile) {
+      toast.error(t("upload.required"));
+      return;
+    }
+
+    if (mode === "bottom" && !bottomFile) {
+      toast.error(t("upload.required"));
+      return;
+    }
+
+    if (mode === "full" && (!topFile || !bottomFile)) {
+      toast.error(t("upload.fullModeRequired"));
       return;
     }
 
@@ -109,25 +131,24 @@ const Upload = () => {
 
       // ✅ 클라이언트 측 이미지 전처리
       console.log("[Upload] 이미지 전처리 시작...");
-      const [processedPerson, processedTop, processedBottom] = await Promise.all([
-        preprocessPersonImage(personFile),
-        preprocessTopGarment(topFile),
-        bottomFile ? preprocessBottomGarment(bottomFile) : Promise.resolve(null),
-      ]);
+      const processedPerson = await preprocessPersonImage(personFile);
+      const processedTop = topFile ? await preprocessTopGarment(topFile) : null;
+      const processedBottom = bottomFile ? await preprocessBottomGarment(bottomFile) : null;
       console.log("[Upload] 이미지 전처리 완료");
 
       const formData = new FormData();
       formData.append("person_image", processedPerson);
-      formData.append("top_garment", processedTop);
+      formData.append("mode", mode);
+      
+      if (processedTop) {
+        formData.append("top_garment", processedTop);
+      }
       if (processedBottom) {
         formData.append("bottom_garment", processedBottom);
       }
 
       // ✅ 공식 SDK 호출 사용
-      // - 일부 브라우저/환경에서 setAuth가 즉시 반영되지 않는 경우가 있어,
-      //   사용자 토큰을 x-user-token으로도 함께 전달합니다(프록시에서 이를 우선 사용).
-      // - headers를 완전히 덮어쓰지 않기 위해(= apikey 유지) x-user-token만 추가합니다.
-      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...");
+      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...", { mode });
 
       supabase.functions.setAuth(freshSession.access_token);
 
@@ -136,7 +157,6 @@ const Upload = () => {
         headers: {
           "x-user-token": freshSession.access_token,
         },
-        // FormData일 경우 Content-Type을 설정하지 않음 (브라우저가 boundary 포함 자동 설정)
       });
 
       if (error) {
@@ -169,6 +189,7 @@ const Upload = () => {
 
       // Store style profile in sessionStorage for the result page
       sessionStorage.setItem("styleProfile", JSON.stringify(styleProfile));
+      sessionStorage.setItem("tryonMode", mode);
 
       navigate(`/result/${(data as any).taskId}`);
     } catch (err) {
@@ -185,14 +206,26 @@ const Upload = () => {
     // Refresh profile to get latest credits
     await refreshProfile();
     
-    if (profile && profile.credits <= 0) {
+    const requiredCredits = getRequiredCredits();
+    if (profile && profile.credits < requiredCredits) {
       setShowNoCreditsDialog(true);
     } else {
       setShowConfirmDialog(true);
     }
   };
 
-  const canSubmit = personFile && topFile && !isSubmitting && !!session?.access_token;
+  // Determine if form can be submitted based on mode
+  const getCanSubmit = () => {
+    if (!personFile || isSubmitting || !session?.access_token) return false;
+    
+    if (mode === "top") return !!topFile;
+    if (mode === "bottom") return !!bottomFile;
+    if (mode === "full") return !!topFile && !!bottomFile;
+    
+    return false;
+  };
+
+  const canSubmit = getCanSubmit();
 
   // 로딩 중일 때 로딩 UI 표시
   if (loading) {
@@ -236,6 +269,30 @@ const Upload = () => {
     </div>
   );
 
+  const modeOptions = [
+    { 
+      id: "top" as TryonMode, 
+      icon: Shirt, 
+      label: t("upload.mode.top"), 
+      credits: 1,
+      desc: t("upload.mode.topDesc")
+    },
+    { 
+      id: "bottom" as TryonMode, 
+      icon: PanelBottom, 
+      label: t("upload.mode.bottom"), 
+      credits: 1,
+      desc: t("upload.mode.bottomDesc")
+    },
+    { 
+      id: "full" as TryonMode, 
+      icon: Layers, 
+      label: t("upload.mode.full"), 
+      credits: 2,
+      desc: t("upload.mode.fullDesc")
+    },
+  ];
+
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
@@ -264,8 +321,41 @@ const Upload = () => {
           </p>
         </div>
 
+        {/* Mode Selection */}
+        <div className="mb-8">
+          <h3 className="text-base font-bold text-foreground mb-3 font-display">
+            {t("upload.mode.title")}
+          </h3>
+          <div className="grid grid-cols-3 gap-3">
+            {modeOptions.map((option) => (
+              <button
+                key={option.id}
+                onClick={() => setMode(option.id)}
+                className={`relative p-4 rounded-2xl border-2 transition-all text-left ${
+                  mode === option.id
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-card hover:border-primary/50"
+                }`}
+              >
+                <option.icon className={`w-6 h-6 mb-2 ${mode === option.id ? "text-primary" : "text-muted-foreground"}`} />
+                <p className={`text-sm font-semibold ${mode === option.id ? "text-primary" : "text-foreground"}`}>
+                  {option.label}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {option.desc}
+                </p>
+                <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium ${
+                  mode === option.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                }`}>
+                  {option.credits} {t("upload.mode.credit")}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="space-y-8">
-          {/* Person Image */}
+          {/* Person Image - Always shown */}
           <ImageUploadZone
             label={t("upload.person.label")}
             description={t("upload.person.desc")}
@@ -283,41 +373,42 @@ const Upload = () => {
             showPersonNotice
           />
 
-          {/* Top Garment */}
-          <ImageUploadZone
-            label={t("upload.top.label")}
-            description={t("upload.top.desc")}
-            requirements={[
-              t("upload.top.req1"),
-              t("upload.top.req2"),
-              t("upload.top.req3"),
-              t("upload.top.req4"),
-              t("upload.top.req5"),
-            ]}
-            file={topFile}
-            onFileChange={setTopFile}
-            exampleImage={exampleTop}
-            exampleLabel={t("upload.example") || "예시"}
-            garmentType="top"
-            showClothesExtractor
-          />
+          {/* Top Garment - Show for "top" and "full" modes */}
+          {(mode === "top" || mode === "full") && (
+            <ImageUploadZone
+              label={t("upload.top.label")}
+              description={t("upload.top.desc")}
+              requirements={[
+                t("upload.top.req1"),
+                t("upload.top.req2"),
+                t("upload.top.req3"),
+                t("upload.top.req4"),
+                t("upload.top.req5"),
+              ]}
+              file={topFile}
+              onFileChange={setTopFile}
+              exampleImage={exampleTop}
+              exampleLabel={t("upload.example") || "예시"}
+              garmentType="top"
+            />
+          )}
 
-          {/* Bottom Garment (Optional) */}
-          <ImageUploadZone
-            label={t("upload.bottom.label")}
-            description={t("upload.bottom.desc")}
-            requirements={[
-              t("upload.bottom.req1"),
-              t("upload.bottom.req2"),
-            ]}
-            file={bottomFile}
-            onFileChange={setBottomFile}
-            optional
-            exampleImage={exampleBottom}
-            exampleLabel={t("upload.example") || "예시"}
-            garmentType="bottom"
-            showClothesExtractor
-          />
+          {/* Bottom Garment - Show for "bottom" and "full" modes */}
+          {(mode === "bottom" || mode === "full") && (
+            <ImageUploadZone
+              label={t("upload.bottom.label")}
+              description={mode === "full" ? t("upload.bottom.descFull") : t("upload.bottom.desc")}
+              requirements={[
+                t("upload.bottom.req1"),
+                t("upload.bottom.req2"),
+              ]}
+              file={bottomFile}
+              onFileChange={setBottomFile}
+              exampleImage={exampleBottom}
+              exampleLabel={t("upload.example") || "예시"}
+              garmentType="bottom"
+            />
+          )}
 
           {/* Divider */}
           <div className="relative py-4">
@@ -356,14 +447,14 @@ const Upload = () => {
               </>
             ) : (
               <>
-                {t("upload.submit")}
+                {t("upload.submit")} ({getRequiredCredits()} {t("upload.mode.credit")})
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </>
             )}
           </Button>
           {!canSubmit && !isSubmitting && (
             <p className="text-center text-xs text-muted-foreground mt-2">
-              {t("upload.required")}
+              {mode === "full" ? t("upload.fullModeRequired") : t("upload.required")}
             </p>
           )}
         </div>
@@ -379,13 +470,18 @@ const Upload = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
+            <div className="flex items-center justify-between py-3 border-b border-border">
+              <span className="font-medium text-foreground">{t("upload.mode.title")}</span>
+              <span className="text-sm text-primary font-semibold">
+                {modeOptions.find(m => m.id === mode)?.label} ({getRequiredCredits()} {t("upload.mode.credit")})
+              </span>
+            </div>
             <CheckItem label={t("upload.confirm.person")} isReady={!!personFile} />
-            <CheckItem label={t("upload.confirm.top")} isReady={!!topFile} />
-            <CheckItem label={t("upload.confirm.bottom")} isReady={!!bottomFile} isOptional />
-            {!bottomFile && (
-              <p className="text-xs text-amber-500 mt-1 mb-2 pl-1">
-                ⚠️ {t("upload.confirm.bottomNotice")}
-              </p>
+            {(mode === "top" || mode === "full") && (
+              <CheckItem label={t("upload.confirm.top")} isReady={!!topFile} />
+            )}
+            {(mode === "bottom" || mode === "full") && (
+              <CheckItem label={t("upload.confirm.bottom")} isReady={!!bottomFile} />
             )}
             <CheckItem label={t("upload.confirm.profile")} isReady={isProfileFilled} isOptional />
           </div>

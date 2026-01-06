@@ -1,4 +1,4 @@
-// Redeployed: 2025-12-23T11:50 - Force verify_jwt=false apply
+// Redeployed: 2026-01-06 - 3 mode support (top/bottom/full)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -41,6 +41,9 @@ const ALLOWED_IMAGE_TYPES = [
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
+// Valid try-on modes
+type TryonMode = "top" | "bottom" | "full";
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -74,11 +77,6 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     
-    // NOTE:
-    // - Platform-level JWT verification can be inconsistent across environments.
-    // - To keep this endpoint working reliably, we support passing the user's access token via `x-user-token`.
-    //   In that case, the standard `Authorization` header may contain the public key (anon) just to satisfy upstream middleware.
-
     const authHeader = req.headers.get("Authorization");
     const userTokenHeader = req.headers.get("x-user-token");
 
@@ -112,7 +110,6 @@ Deno.serve(async (req) => {
 
     // Handle "result" action - poll for results
     if (action === "result") {
-      // taskId: query param 우선, 없으면 JSON body에서
       let taskId = url.searchParams.get("taskId");
       if (!taskId && jsonBody?.taskId) {
         taskId = jsonBody.taskId;
@@ -125,7 +122,6 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Validate taskId format (allows alphanumeric, dots, underscores, hyphens)
       if (!/^[a-zA-Z0-9._-]+$/.test(taskId)) {
         return new Response(
           JSON.stringify({ error: "Invalid taskId format" }),
@@ -133,7 +129,7 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Verify task ownership - user can only access their own tasks
+      // Verify task ownership
       const { data: taskOwnership, error: ownershipError } = await supabase
         .from("task_ownership")
         .select("user_id")
@@ -193,8 +189,21 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Check credit BEFORE starting the upstream job (do not deduct yet).
-      // We only deduct AFTER the upstream returns a taskId to avoid charging users for timeouts/errors.
+      // Parse the incoming form data
+      const formData = await req.formData();
+      
+      // Get mode from form data (default to "top" for backward compatibility)
+      const modeValue = formData.get("mode") as string || "top";
+      const mode: TryonMode = ["top", "bottom", "full"].includes(modeValue) 
+        ? modeValue as TryonMode 
+        : "top";
+
+      // Calculate required credits based on mode
+      const creditsRequired = mode === "full" ? 2 : 1;
+
+      console.log(`[tryon-proxy] Mode: ${mode}, Credits required: ${creditsRequired}`);
+
+      // Check credit BEFORE starting the upstream job
       const { data: profileRow, error: profileError } = await supabase
         .from("profiles")
         .select("credits")
@@ -210,28 +219,39 @@ Deno.serve(async (req) => {
       }
 
       const currentCredits = profileRow?.credits ?? 0;
-      if (currentCredits < 1) {
-        console.log(`[tryon-proxy] User ${user.id} has insufficient credits (pre-check)`);
+      if (currentCredits < creditsRequired) {
+        console.log(`[tryon-proxy] User ${user.id} has insufficient credits (${currentCredits} < ${creditsRequired})`);
         return new Response(
-          JSON.stringify({ error: "Insufficient credits" }),
+          JSON.stringify({ error: "Insufficient credits", required: creditsRequired, current: currentCredits }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
 
-      console.log(`[tryon-proxy] Credit pre-check OK (credits=${currentCredits}) for user ${user.id}`);
+      console.log(`[tryon-proxy] Credit pre-check OK (credits=${currentCredits}, required=${creditsRequired}) for user ${user.id}`);
 
-      // Parse the incoming form data
-      const formData = await req.formData();
       const validatedFormData = new FormData();
+      validatedFormData.append("mode", mode);
+
+      // Determine required files based on mode
+      const requiredFields: string[] = ["person_image"];
+      if (mode === "top") requiredFields.push("top_garment");
+      if (mode === "bottom") requiredFields.push("bottom_garment");
+      if (mode === "full") {
+        requiredFields.push("top_garment");
+        requiredFields.push("bottom_garment");
+      }
+
+      const optionalFields = mode === "top" || mode === "bottom" 
+        ? [] 
+        : [];
+
+      const allFields = [...requiredFields, ...optionalFields];
 
       // Validate and forward files
-      const fileFields = ["person_image", "top_garment", "bottom_garment"];
-      
-      for (const fieldName of fileFields) {
+      for (const fieldName of allFields) {
         const file = formData.get(fieldName) as File | null;
         if (!file) {
-          if (fieldName === "bottom_garment") continue; // Optional field
-          if (fieldName === "person_image" || fieldName === "top_garment") {
+          if (requiredFields.includes(fieldName)) {
             return new Response(
               JSON.stringify({ error: `Missing required field: ${fieldName}` }),
               { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -275,10 +295,10 @@ Deno.serve(async (req) => {
         validatedFormData.append(fieldName, validatedFile);
       }
 
-      console.log(`[tryon-proxy] Forwarding validated request to backend for user ${user.id}`);
+      console.log(`[tryon-proxy] Forwarding validated request to backend for user ${user.id}, mode=${mode}`);
 
       try {
-        // Forward to the actual backend (keep this fast to avoid gateway 504)
+        // Forward to the actual backend
         const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
           `${BACKEND_BASE_URL}/api/tryon/start`,
           { 
@@ -292,27 +312,18 @@ Deno.serve(async (req) => {
         );
 
         if (backendRes.ok && responseData.taskId) {
-          // Deduct 1 credit AFTER we have a taskId (so users are not charged on upstream timeout/error).
-          const { data: creditDeducted, error: creditError } = await supabase
-            .rpc("try_deduct_credit", { p_user_id: user.id });
+          // Deduct credits AFTER we have a taskId
+          const { error: creditError } = await supabase
+            .from("profiles")
+            .update({ credits: currentCredits - creditsRequired })
+            .eq("user_id", user.id);
 
           if (creditError) {
             console.error("[tryon-proxy] Credit deduction error:", creditError.message);
-            return new Response(
-              JSON.stringify({ error: "Failed to process credits" }),
-              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-            );
+            // Don't fail the request, but log it
+          } else {
+            console.log(`[tryon-proxy] Deducted ${creditsRequired} credit(s) from user ${user.id} for task ${responseData.taskId}`);
           }
-
-          if (!creditDeducted) {
-            console.log(`[tryon-proxy] User ${user.id} has insufficient credits (post-check)`);
-            return new Response(
-              JSON.stringify({ error: "Insufficient credits" }),
-              { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-            );
-          }
-
-          console.log(`[tryon-proxy] Deducted 1 credit from user ${user.id} for task ${responseData.taskId}`);
 
           // Store task ownership for access control
           const { error: ownershipInsertError } = await supabase
@@ -328,10 +339,9 @@ Deno.serve(async (req) => {
             console.log(`[tryon-proxy] Stored task ownership: ${responseData.taskId} -> ${user.id}`);
           }
 
-          console.log(`[tryon-proxy] Task ${responseData.taskId} created successfully for user ${user.id}`);
+          console.log(`[tryon-proxy] Task ${responseData.taskId} created successfully for user ${user.id}, mode=${mode}`);
 
-          // Log usage history with task_id for result re-viewing
-          // Delete entries older than 24 hours (results expire on tyron backend)
+          // Clean up expired history entries
           const expirationTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
           const { data: expiredHistory } = await supabase
             .from("usage_history")
@@ -349,10 +359,12 @@ Deno.serve(async (req) => {
             console.log(`[tryon-proxy] Deleted ${idsToDelete.length} expired usage history entries for user ${user.id}`);
           }
 
+          // Log usage history with mode info
+          const actionType = mode === "full" ? "virtual_tryon_full" : `virtual_tryon_${mode}`;
           await supabase.from("usage_history").insert({
             user_id: user.id,
-            action_type: "virtual_tryon",
-            credits_used: 1,
+            action_type: actionType,
+            credits_used: creditsRequired,
             task_id: responseData.taskId,
           });
         }
