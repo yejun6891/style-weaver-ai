@@ -1,4 +1,4 @@
-// Redeployed: 2026-01-06 - Fixed timeout for full mode (90s)
+// Redeployed: 2026-01-06 - Two-step full mode support
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -45,9 +45,8 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 type TryonMode = "top" | "bottom" | "full";
 
 // Timeout settings (in milliseconds)
-// Full mode requires 2 sequential API calls, so it needs more time
 const TIMEOUT_SINGLE_MODE = 30000;  // 30s for top/bottom
-const TIMEOUT_FULL_MODE = 90000;    // 90s for full mode (상의 ~25s + 하의 ~25s + 여유)
+const TIMEOUT_CONTINUE = 30000;     // 30s for continue-full (single API call)
 const TIMEOUT_RESULT = 15000;       // 15s for result polling
 
 Deno.serve(async (req) => {
@@ -62,7 +61,7 @@ Deno.serve(async (req) => {
 
     // action 결정: query param -> header -> JSON body -> method 기반 기본값
     let action = url.searchParams.get("action") || req.headers.get("x-action");
-    let jsonBody: { action?: string; taskId?: string } | null = null;
+    let jsonBody: { action?: string; taskId?: string; step1TaskId?: string; step1ImageUrl?: string } | null = null;
 
     // JSON body에서 action 읽기 (multipart가 아닌 경우)
     if (!action && contentType.includes("application/json")) {
@@ -186,6 +185,104 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Handle "continue-full" action - Step 2 of full mode
+    if (action === "continue-full") {
+      if (req.method !== "POST") {
+        return new Response(
+          JSON.stringify({ error: "Method not allowed" }),
+          { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Parse JSON body for continue-full
+      let body: { step1TaskId?: string; step1ImageUrl?: string } | null = null;
+      if (contentType.includes("application/json")) {
+        try {
+          body = await req.json();
+        } catch {
+          return new Response(
+            JSON.stringify({ error: "Invalid JSON body" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+
+      const step1TaskId = body?.step1TaskId;
+      const step1ImageUrl = body?.step1ImageUrl;
+
+      if (!step1TaskId || !step1ImageUrl) {
+        return new Response(
+          JSON.stringify({ error: "Missing step1TaskId or step1ImageUrl" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Verify step1 task ownership
+      const { data: taskOwnership, error: ownershipError } = await supabase
+        .from("task_ownership")
+        .select("user_id")
+        .eq("task_id", step1TaskId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (ownershipError || !taskOwnership) {
+        console.error("[tryon-proxy] Step1 task ownership check failed");
+        return new Response(
+          JSON.stringify({ error: "Step 1 task not found or access denied" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log(`[tryon-proxy] Continue-full: Step1 ownership verified, calling backend continue-full`);
+
+      try {
+        // Forward to backend's continue-full endpoint
+        const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
+          `${BACKEND_BASE_URL}/api/tryon/continue-full`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": userBearer,
+            },
+            body: JSON.stringify({
+              step1TaskId,
+              step1ImageUrl,
+            }),
+          },
+          TIMEOUT_CONTINUE,
+        );
+
+        if (backendRes.ok && responseData.taskId) {
+          // Store step2 task ownership
+          const { error: ownershipInsertError } = await supabase
+            .from("task_ownership")
+            .insert({
+              task_id: responseData.taskId,
+              user_id: user.id,
+            });
+
+          if (ownershipInsertError) {
+            console.error("[tryon-proxy] Failed to store step2 task ownership:", ownershipInsertError.message);
+          } else {
+            console.log(`[tryon-proxy] Stored step2 task ownership: ${responseData.taskId} -> ${user.id}`);
+          }
+        }
+
+        return new Response(JSON.stringify(responseData), {
+          status: backendRes.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (e) {
+        const isTimeout = (e as any)?.name === "AbortError";
+        console.error("[tryon-proxy] Backend continue-full fetch failed:", e);
+        return new Response(
+          JSON.stringify({ error: isTimeout ? "Upstream timeout" : "Upstream request failed" }),
+          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     // Handle "start" action - initiate try-on
     if (action === "start") {
       if (req.method !== "POST") {
@@ -207,10 +304,7 @@ Deno.serve(async (req) => {
       // Calculate required credits based on mode
       const creditsRequired = mode === "full" ? 2 : 1;
 
-      // Use longer timeout for full mode (2 sequential API calls)
-      const timeoutMs = mode === "full" ? TIMEOUT_FULL_MODE : TIMEOUT_SINGLE_MODE;
-
-      console.log(`[tryon-proxy] Mode: ${mode}, Credits required: ${creditsRequired}, Timeout: ${timeoutMs}ms`);
+      console.log(`[tryon-proxy] Mode: ${mode}, Credits required: ${creditsRequired}`);
 
       // Check credit BEFORE starting the upstream job
       const { data: profileRow, error: profileError } = await supabase
@@ -250,10 +344,7 @@ Deno.serve(async (req) => {
         requiredFields.push("bottom_garment");
       }
 
-      const optionalFields = mode === "top" || mode === "bottom" 
-        ? [] 
-        : [];
-
+      const optionalFields: string[] = [];
       const allFields = [...requiredFields, ...optionalFields];
 
       // Validate and forward files
@@ -307,7 +398,7 @@ Deno.serve(async (req) => {
       console.log(`[tryon-proxy] Forwarding validated request to backend for user ${user.id}, mode=${mode}`);
 
       try {
-        // Forward to the actual backend with mode-appropriate timeout
+        // Forward to the actual backend
         const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
           `${BACKEND_BASE_URL}/api/tryon/start`,
           { 
@@ -317,7 +408,7 @@ Deno.serve(async (req) => {
               "Authorization": userBearer,
             },
           },
-          timeoutMs,
+          TIMEOUT_SINGLE_MODE,
         );
 
         if (backendRes.ok && responseData.taskId) {
@@ -329,7 +420,6 @@ Deno.serve(async (req) => {
 
           if (creditError) {
             console.error("[tryon-proxy] Credit deduction error:", creditError.message);
-            // Don't fail the request, but log it
           } else {
             console.log(`[tryon-proxy] Deducted ${creditsRequired} credit(s) from user ${user.id} for task ${responseData.taskId}`);
           }
@@ -386,14 +476,14 @@ Deno.serve(async (req) => {
         const isTimeout = (e as any)?.name === "AbortError";
         console.error("[tryon-proxy] Backend start fetch failed:", e);
         return new Response(
-          JSON.stringify({ error: isTimeout ? "Upstream timeout - full mode requires more processing time" : "Upstream request failed" }),
+          JSON.stringify({ error: isTimeout ? "Upstream timeout" : "Upstream request failed" }),
           { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
     }
 
     return new Response(
-      JSON.stringify({ error: "Invalid action. Use 'start' or 'result'" }),
+      JSON.stringify({ error: "Invalid action. Use 'start', 'result', or 'continue-full'" }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 

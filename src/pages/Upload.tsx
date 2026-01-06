@@ -191,7 +191,14 @@ const Upload = () => {
       sessionStorage.setItem("styleProfile", JSON.stringify(styleProfile));
       sessionStorage.setItem("tryonMode", mode);
 
-      navigate(`/result/${(data as any).taskId}`);
+      // Full mode returns needsContinue: true from backend
+      const responseData = data as any;
+      if (responseData.needsContinue && responseData.mode === "full") {
+        // Navigate with step1TaskId for 2-step flow
+        navigate(`/result/${responseData.taskId}?mode=full&needsContinue=true&step1TaskId=${responseData.taskId}`);
+      } else {
+        navigate(`/result/${responseData.taskId}?mode=${mode}`);
+      }
     } catch (err) {
       console.error("[Upload Error]", err);
       toast.error("Request failed. Please try again.");
