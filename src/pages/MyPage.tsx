@@ -62,10 +62,9 @@ const MyPage = () => {
   }
 
   const creditPackages = [
-    { credits: 5, price: "$9.99" },
-    { credits: 10, price: "$14.99", popular: true, discount: "25% OFF" },
-    { credits: 15, price: "$19.99", discount: "33% OFF" },
-    { credits: 25, price: "$29.99", discount: "40% OFF" },
+    { credits: 8, price: "$9.99", name: "Starter" },
+    { credits: 18, price: "$19.99", popular: true, name: "Plus" },
+    { credits: 30, price: "$29.99", name: "Pro" },
   ];
 
   return (
@@ -156,7 +155,7 @@ const MyPage = () => {
               {t("mypage.buyCreditsDesc")}
             </p>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {creditPackages.map((pkg, index) => (
                 <div 
                   key={index}
@@ -172,9 +171,9 @@ const MyPage = () => {
                       {t("mypage.popular")}
                     </div>
                   )}
-                  {pkg.discount && (
-                    <div className="absolute top-4 right-4 px-2 py-1 rounded-md bg-accent text-xs font-bold text-accent-foreground">
-                      {pkg.discount}
+                  {pkg.name && (
+                    <div className="absolute top-4 right-4 px-2 py-1 rounded-md bg-muted text-xs font-medium text-muted-foreground">
+                      {pkg.name}
                     </div>
                   )}
                   <div className="text-center mb-4">
