@@ -1,4 +1,4 @@
-// Redeployed: 2026-01-06 - 3 mode support (top/bottom/full)
+// Redeployed: 2026-01-06 - Fixed timeout for full mode (90s)
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -43,6 +43,12 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 // Valid try-on modes
 type TryonMode = "top" | "bottom" | "full";
+
+// Timeout settings (in milliseconds)
+// Full mode requires 2 sequential API calls, so it needs more time
+const TIMEOUT_SINGLE_MODE = 30000;  // 30s for top/bottom
+const TIMEOUT_FULL_MODE = 90000;    // 90s for full mode (상의 ~25s + 하의 ~25s + 여유)
+const TIMEOUT_RESULT = 15000;       // 15s for result polling
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -163,7 +169,7 @@ Deno.serve(async (req) => {
               "Authorization": userBearer,
             },
           },
-          15000,
+          TIMEOUT_RESULT,
         );
 
         return new Response(JSON.stringify(resultData), {
@@ -201,7 +207,10 @@ Deno.serve(async (req) => {
       // Calculate required credits based on mode
       const creditsRequired = mode === "full" ? 2 : 1;
 
-      console.log(`[tryon-proxy] Mode: ${mode}, Credits required: ${creditsRequired}`);
+      // Use longer timeout for full mode (2 sequential API calls)
+      const timeoutMs = mode === "full" ? TIMEOUT_FULL_MODE : TIMEOUT_SINGLE_MODE;
+
+      console.log(`[tryon-proxy] Mode: ${mode}, Credits required: ${creditsRequired}, Timeout: ${timeoutMs}ms`);
 
       // Check credit BEFORE starting the upstream job
       const { data: profileRow, error: profileError } = await supabase
@@ -298,7 +307,7 @@ Deno.serve(async (req) => {
       console.log(`[tryon-proxy] Forwarding validated request to backend for user ${user.id}, mode=${mode}`);
 
       try {
-        // Forward to the actual backend
+        // Forward to the actual backend with mode-appropriate timeout
         const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
           `${BACKEND_BASE_URL}/api/tryon/start`,
           { 
@@ -308,7 +317,7 @@ Deno.serve(async (req) => {
               "Authorization": userBearer,
             },
           },
-          25000,
+          timeoutMs,
         );
 
         if (backendRes.ok && responseData.taskId) {
@@ -377,7 +386,7 @@ Deno.serve(async (req) => {
         const isTimeout = (e as any)?.name === "AbortError";
         console.error("[tryon-proxy] Backend start fetch failed:", e);
         return new Response(
-          JSON.stringify({ error: isTimeout ? "Upstream timeout" : "Upstream request failed" }),
+          JSON.stringify({ error: isTimeout ? "Upstream timeout - full mode requires more processing time" : "Upstream request failed" }),
           { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } },
         );
       }
