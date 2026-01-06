@@ -16,10 +16,9 @@ import {
 
 // Lemon Squeezy checkout URLs for each credit package
 const lemonSqueezyCheckoutUrls: Record<number, string> = {
-  5: 'https://fitvision.lemonsqueezy.com/checkout/buy/b3f87edb-3cb0-4004-9f50-a962d46da837',
-  10: 'https://fitvision.lemonsqueezy.com/checkout/buy/217de21b-8677-4829-9887-a6583a42e856',
-  15: 'https://fitvision.lemonsqueezy.com/checkout/buy/463213df-b0d9-4976-858d-b15d67e35fee',
-  25: 'https://fitvision.lemonsqueezy.com/checkout/buy/8b544155-785d-4a5f-934c-2439eebd4a07',
+  8: 'https://fitvision.lemonsqueezy.com/checkout/buy/b3f87edb-3cb0-4004-9f50-a962d46da837',
+  18: 'https://fitvision.lemonsqueezy.com/checkout/buy/217de21b-8677-4829-9887-a6583a42e856',
+  30: 'https://fitvision.lemonsqueezy.com/checkout/buy/463213df-b0d9-4976-858d-b15d67e35fee',
 };
 
 interface CreditPackage {
@@ -27,13 +26,13 @@ interface CreditPackage {
   price: number;
   popular?: boolean;
   discount?: string;
+  name?: string;
 }
 
 const creditPackages: CreditPackage[] = [
-  { credits: 5, price: 9.99 },
-  { credits: 10, price: 14.99, popular: true, discount: '25% OFF' },
-  { credits: 15, price: 19.99, discount: '33% OFF' },
-  { credits: 25, price: 29.99, discount: '40% OFF' },
+  { credits: 8, price: 9.99, name: 'Starter' },
+  { credits: 18, price: 19.99, popular: true, name: 'Plus' },
+  { credits: 30, price: 29.99, name: 'Pro' },
 ];
 
 interface PurchaseFlowProps {
