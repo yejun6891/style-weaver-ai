@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,9 +11,9 @@ import { StyleProfile } from "@/components/StyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText, Check, Shirt } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText, Check, Shirt, Loader2 } from "lucide-react";
 
-type Status = "loading" | "success" | "error";
+type Status = "loading" | "step1-polling" | "step2-starting" | "step2-polling" | "success" | "error";
 
 const defaultStyleProfile: StyleProfile = {
   height: "",
@@ -38,10 +38,15 @@ const Result = () => {
   const [progress, setProgress] = useState(0);
   const [styleProfile, setStyleProfile] = useState<StyleProfile>(defaultStyleProfile);
   
-  // 전신 모드 2단계 진행률 상태
-  const mode = searchParams.get("mode") || "top";
+  // Full mode state
+  const mode = searchParams.get("mode") || sessionStorage.getItem("tryonMode") || "top";
   const isFullMode = mode === "full";
-  const [currentStep, setCurrentStep] = useState(isFullMode ? 2 : 1); // full 모드면 2단계부터 시작 (1단계는 백엔드에서 완료)
+  const needsContinue = searchParams.get("needsContinue") === "true";
+  const step1TaskIdParam = searchParams.get("step1TaskId") || taskId;
+  
+  const [currentStep, setCurrentStep] = useState(1);
+  const [step2TaskId, setStep2TaskId] = useState<string | null>(null);
+  const continueCalledRef = useRef(false);
 
   useEffect(() => {
     // Load style profile from sessionStorage
@@ -59,6 +64,7 @@ const Result = () => {
     setStatusText(t("result.processing"));
   }, [t]);
 
+  // Main polling and flow logic
   useEffect(() => {
     if (!taskId) {
       navigate("/upload");
@@ -76,20 +82,20 @@ const Result = () => {
     progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 90) return prev;
-        return prev + Math.random() * 10;
+        return prev + Math.random() * 5;
       });
     }, 500);
 
-    const pollResult = async () => {
-      const intervalMs = 5000;
+    // Poll for result
+    const pollResult = async (pollTaskId: string, onComplete: (imageUrl: string) => void) => {
+      const intervalMs = 3000;
 
       const check = async () => {
         if (isCancelled) return;
 
         try {
-          // 직접 fetch() 사용 - Authorization 헤더 명시적으로 전송
           const response = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=result&taskId=${taskId}`,
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=result&taskId=${pollTaskId}`,
             {
               method: "GET",
               headers: {
@@ -112,13 +118,9 @@ const Result = () => {
           const taskStatus = data.status;
 
           if (taskStatus === 2 && data.imageUrl) {
-            setProgress(100);
-            setImageUrl(data.imageUrl);
-            setStatus("success");
-            clearInterval(progressInterval);
+            onComplete(data.imageUrl);
             return;
           } else if (taskStatus === 0 || taskStatus === 1) {
-            setStatusText(t("result.processing"));
             setTimeout(check, intervalMs);
           } else {
             console.error("Unexpected status:", data);
@@ -139,13 +141,95 @@ const Result = () => {
       check();
     };
 
-    pollResult();
+    // Continue to step 2 (for full mode)
+    const continueToStep2 = async (step1ImageUrl: string) => {
+      if (isCancelled || continueCalledRef.current) return;
+      continueCalledRef.current = true;
+
+      console.log("[Result] Starting step 2 with step1ImageUrl:", step1ImageUrl);
+      setStatus("step2-starting");
+      setCurrentStep(2);
+      setProgress(50);
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=continue-full`,
+          {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${session.access_token}`,
+              "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              step1TaskId: step1TaskIdParam,
+              step1ImageUrl,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          console.error("[Result] continue-full error:", response.status, errorData);
+          throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("[Result] Step 2 started:", data);
+
+        if (data.taskId) {
+          setStep2TaskId(data.taskId);
+          setStatus("step2-polling");
+          
+          // Poll for step 2 result
+          pollResult(data.taskId, (finalImageUrl) => {
+            setProgress(100);
+            setImageUrl(finalImageUrl);
+            setStatus("success");
+            clearInterval(progressInterval);
+          });
+        } else {
+          throw new Error("No taskId returned from continue-full");
+        }
+      } catch (err) {
+        console.error("[Result] Step 2 error:", err);
+        if (!isCancelled) {
+          setStatus("error");
+          setStatusText(t("result.error"));
+          clearInterval(progressInterval);
+        }
+      }
+    };
+
+    // Start the flow
+    if (isFullMode && needsContinue) {
+      // Full mode: start polling step 1, then continue to step 2
+      console.log("[Result] Full mode with needsContinue, polling step 1...");
+      setStatus("step1-polling");
+      setCurrentStep(1);
+      
+      pollResult(taskId, (step1ImageUrl) => {
+        console.log("[Result] Step 1 complete:", step1ImageUrl);
+        continueToStep2(step1ImageUrl);
+      });
+    } else {
+      // Single mode or full mode already processed: just poll for final result
+      console.log("[Result] Single mode or already processed, polling...");
+      setStatus("loading");
+      
+      pollResult(taskId, (finalImageUrl) => {
+        setProgress(100);
+        setImageUrl(finalImageUrl);
+        setStatus("success");
+        clearInterval(progressInterval);
+      });
+    }
 
     return () => {
       isCancelled = true;
       clearInterval(progressInterval);
     };
-  }, [taskId, navigate, t, session]);
+  }, [taskId, navigate, t, session, isFullMode, needsContinue, step1TaskIdParam]);
 
   const handleDownload = async () => {
     if (!imageUrl) return;
@@ -190,6 +274,8 @@ const Result = () => {
     styleProfile.styles.length > 0 || 
     styleProfile.concerns;
 
+  const isLoading = status === "loading" || status === "step1-polling" || status === "step2-starting" || status === "step2-polling";
+
   return (
     <main className="min-h-screen bg-background">
       {/* Header */}
@@ -209,30 +295,38 @@ const Result = () => {
 
       {/* Content */}
       <div className="max-w-2xl mx-auto px-4 py-8">
-        {status === "loading" && (
+        {isLoading && (
           <div className="text-center py-20 animate-fade-in">
-            {/* 전신 모드 2단계 표시 */}
+            {/* Full mode 2-step indicator */}
             {isFullMode && (
               <div className="flex items-center justify-center gap-4 mb-8">
                 {/* Step 1 */}
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                    <Check className="w-4 h-4 text-primary-foreground" />
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    currentStep > 1 ? "bg-primary" : "gradient-primary animate-pulse"
+                  }`}>
+                    {currentStep > 1 ? (
+                      <Check className="w-4 h-4 text-primary-foreground" />
+                    ) : (
+                      <Shirt className="w-4 h-4 text-primary-foreground" />
+                    )}
                   </div>
-                  <span className="text-sm font-medium text-foreground">
+                  <span className={`text-sm font-medium ${currentStep >= 1 ? "text-foreground" : "text-muted-foreground"}`}>
                     {t("result.step1") || "상의 교체"}
                   </span>
                 </div>
                 
                 {/* Connector */}
-                <div className="w-12 h-0.5 bg-primary" />
+                <div className={`w-12 h-0.5 ${currentStep > 1 ? "bg-primary" : "bg-muted"}`} />
                 
                 {/* Step 2 */}
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center animate-pulse">
-                    <Shirt className="w-4 h-4 text-primary-foreground" />
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                    currentStep === 2 ? "gradient-primary animate-pulse" : "bg-muted"
+                  }`}>
+                    <Shirt className={`w-4 h-4 ${currentStep === 2 ? "text-primary-foreground" : "text-muted-foreground"}`} />
                   </div>
-                  <span className="text-sm font-medium text-foreground">
+                  <span className={`text-sm font-medium ${currentStep === 2 ? "text-foreground" : "text-muted-foreground"}`}>
                     {t("result.step2") || "하의 교체"}
                   </span>
                 </div>
@@ -269,12 +363,14 @@ const Result = () => {
 
             <h2 className="font-display text-2xl font-bold mb-2">
               {isFullMode 
-                ? (t("result.fullModeProcessing") || "전신 스타일링 중...") 
+                ? (currentStep === 1 
+                    ? (t("result.step1Processing") || "상의 교체 중...") 
+                    : (t("result.step2Processing") || "하의 교체 중..."))
                 : statusText}
             </h2>
             <p className="text-muted-foreground mb-4">
               {isFullMode 
-                ? (t("result.fullModeWait") || "상의와 하의를 순차적으로 교체하고 있어요") 
+                ? (t("result.fullModeWait") || "잠시만 기다려주세요") 
                 : t("result.wait")}
             </p>
 
@@ -287,7 +383,9 @@ const Result = () => {
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {isFullMode ? `2단계: ${Math.round(progress)}%` : `${Math.round(progress)}%`}
+                {isFullMode 
+                  ? `${currentStep}단계: ${Math.round(currentStep === 1 ? progress : (progress - 50) * 2)}%` 
+                  : `${Math.round(progress)}%`}
               </p>
             </div>
           </div>
@@ -392,7 +490,7 @@ const Result = () => {
 
             {/* Share Reward Section */}
             <div className="mt-8">
-              <ShareRewardSection taskId={taskId || null} resultImageUrl={imageUrl} />
+              <ShareRewardSection taskId={step2TaskId || taskId || null} resultImageUrl={imageUrl} />
             </div>
 
             {/* Try Again */}
