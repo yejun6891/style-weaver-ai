@@ -184,6 +184,20 @@ const translations = {
     "upload.mode.fullDesc": "상의 + 하의 모두 교체",
     "upload.mode.credit": "이용권",
     
+    // Full Mode Sub-selection
+    "upload.fullMode.typeTitle": "옷 사진 업로드 방식",
+    "upload.fullMode.separate": "상의 / 하의 따로",
+    "upload.fullMode.separateDesc": "서로 다른 상의, 하의 2장",
+    "upload.fullMode.single": "한 장에 전체 코디",
+    "upload.fullMode.singleDesc": "상하의가 함께 있는 1장",
+    
+    // Outfit upload
+    "upload.outfit.label": "전체 코디 사진",
+    "upload.outfit.desc": "상의와 하의가 함께 보이는 옷 사진",
+    "upload.outfit.req1": "상의와 하의가 모두 보여야 해요",
+    "upload.outfit.req2": "정면 촬영 권장",
+    "upload.outfitRequired": "전체 코디 사진이 필요합니다",
+    
     // Style Profile
     "profile.title": "스타일 프로필",
     "profile.subtitle": "더 정확한 스타일 분석을 위해 정보를 입력해주세요",
@@ -459,6 +473,20 @@ const translations = {
     "upload.mode.full": "Full Outfit",
     "upload.mode.fullDesc": "Change both top + bottom",
     "upload.mode.credit": "credit",
+    
+    // Full Mode Sub-selection
+    "upload.fullMode.typeTitle": "How to upload outfit",
+    "upload.fullMode.separate": "Top & Bottom Separate",
+    "upload.fullMode.separateDesc": "2 separate photos",
+    "upload.fullMode.single": "Single Outfit Photo",
+    "upload.fullMode.singleDesc": "1 photo with both items",
+    
+    // Outfit upload
+    "upload.outfit.label": "Full Outfit Photo",
+    "upload.outfit.desc": "A photo showing both top and bottom together",
+    "upload.outfit.req1": "Both top and bottom must be visible",
+    "upload.outfit.req2": "Front view recommended",
+    "upload.outfitRequired": "Full outfit photo is required",
     
     // Style Profile
     "profile.title": "Style Profile",

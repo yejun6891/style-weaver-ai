@@ -32,15 +32,18 @@ import {
 } from "@/components/ui/alert-dialog";
 
 type TryonMode = "top" | "bottom" | "full";
+type FullModeType = "separate" | "single";
 
 const Upload = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { session, profile, loading, refreshProfile } = useAuth();
   const [mode, setMode] = useState<TryonMode>("top");
+  const [fullModeType, setFullModeType] = useState<FullModeType>("separate");
   const [personFile, setPersonFile] = useState<File | null>(null);
   const [topFile, setTopFile] = useState<File | null>(null);
   const [bottomFile, setBottomFile] = useState<File | null>(null);
+  const [outfitFile, setOutfitFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showNoCreditsDialog, setShowNoCreditsDialog] = useState(false);
@@ -84,9 +87,15 @@ const Upload = () => {
       return;
     }
 
-    if (mode === "full" && (!topFile || !bottomFile)) {
-      toast.error(t("upload.fullModeRequired"));
-      return;
+    if (mode === "full") {
+      if (fullModeType === "separate" && (!topFile || !bottomFile)) {
+        toast.error(t("upload.fullModeRequired"));
+        return;
+      }
+      if (fullModeType === "single" && !outfitFile) {
+        toast.error(t("upload.outfitRequired"));
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -136,11 +145,19 @@ const Upload = () => {
       formData.append("person_image", processedPerson);
       formData.append("mode", mode);
       
-      if (processedTop) {
-        formData.append("top_garment", processedTop);
-      }
-      if (processedBottom) {
-        formData.append("bottom_garment", processedBottom);
+      // Full mode with single outfit image
+      if (mode === "full" && fullModeType === "single" && outfitFile) {
+        const processedOutfit = await preprocessTopGarment(outfitFile);
+        formData.append("top_garment", processedOutfit);
+        formData.append("fullModeType", "single");
+      } else {
+        // Normal flow: separate top and bottom
+        if (processedTop) {
+          formData.append("top_garment", processedTop);
+        }
+        if (processedBottom) {
+          formData.append("bottom_garment", processedBottom);
+        }
       }
 
       // ✅ 공식 SDK 호출 사용
@@ -223,7 +240,10 @@ const Upload = () => {
     
     if (mode === "top") return !!topFile;
     if (mode === "bottom") return !!bottomFile;
-    if (mode === "full") return !!topFile && !!bottomFile;
+    if (mode === "full") {
+      if (fullModeType === "single") return !!outfitFile;
+      return !!topFile && !!bottomFile;
+    }
     
     return false;
   };
@@ -374,8 +394,8 @@ const Upload = () => {
             showPersonNotice
           />
 
-          {/* Top Garment - Show for "top" and "full" modes */}
-          {(mode === "top" || mode === "full") && (
+          {/* Top Garment - Show for "top" mode only */}
+          {mode === "top" && (
             <ImageUploadZone
               label={t("upload.top.label")}
               description={t("upload.top.desc")}
@@ -384,19 +404,18 @@ const Upload = () => {
                 t("upload.top.req2"),
                 t("upload.top.req3"),
                 t("upload.top.req4"),
-                t("upload.top.req5"),
-              ]}
+              ].filter(Boolean)}
               file={topFile}
               onFileChange={setTopFile}
               garmentType="top"
             />
           )}
 
-          {/* Bottom Garment - Show for "bottom" and "full" modes */}
-          {(mode === "bottom" || mode === "full") && (
+          {/* Bottom Garment - Show for "bottom" mode only */}
+          {mode === "bottom" && (
             <ImageUploadZone
               label={t("upload.bottom.label")}
-              description={mode === "full" ? t("upload.bottom.descFull") : t("upload.bottom.desc")}
+              description={t("upload.bottom.desc")}
               requirements={[
                 t("upload.bottom.req1"),
                 t("upload.bottom.req2"),
@@ -405,6 +424,94 @@ const Upload = () => {
               onFileChange={setBottomFile}
               garmentType="bottom"
             />
+          )}
+
+          {/* Full Mode - Sub-selection */}
+          {mode === "full" && (
+            <>
+              {/* Full Mode Type Selection */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-foreground">
+                  {t("upload.fullMode.typeTitle")}
+                </h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setFullModeType("separate")}
+                    className={`p-4 rounded-xl border-2 transition-all text-left ${
+                      fullModeType === "separate"
+                        ? "border-primary bg-primary/10"
+                        : "border-border bg-card hover:border-primary/50"
+                    }`}
+                  >
+                    <p className={`text-sm font-semibold ${fullModeType === "separate" ? "text-primary" : "text-foreground"}`}>
+                      {t("upload.fullMode.separate")}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("upload.fullMode.separateDesc")}
+                    </p>
+                  </button>
+                  <button
+                    onClick={() => setFullModeType("single")}
+                    className={`p-4 rounded-xl border-2 transition-all text-left ${
+                      fullModeType === "single"
+                        ? "border-primary bg-primary/10"
+                        : "border-border bg-card hover:border-primary/50"
+                    }`}
+                  >
+                    <p className={`text-sm font-semibold ${fullModeType === "single" ? "text-primary" : "text-foreground"}`}>
+                      {t("upload.fullMode.single")}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t("upload.fullMode.singleDesc")}
+                    </p>
+                  </button>
+                </div>
+              </div>
+
+              {/* Separate Mode: Top and Bottom */}
+              {fullModeType === "separate" && (
+                <>
+                  <ImageUploadZone
+                    label={t("upload.top.label")}
+                    description={t("upload.top.desc")}
+                    requirements={[
+                      t("upload.top.req1"),
+                      t("upload.top.req2"),
+                      t("upload.top.req3"),
+                      t("upload.top.req4"),
+                    ].filter(Boolean)}
+                    file={topFile}
+                    onFileChange={setTopFile}
+                    garmentType="top"
+                  />
+                  <ImageUploadZone
+                    label={t("upload.bottom.label")}
+                    description={t("upload.bottom.descFull")}
+                    requirements={[
+                      t("upload.bottom.req1"),
+                      t("upload.bottom.req2"),
+                    ]}
+                    file={bottomFile}
+                    onFileChange={setBottomFile}
+                    garmentType="bottom"
+                  />
+                </>
+              )}
+
+              {/* Single Mode: One Outfit Image */}
+              {fullModeType === "single" && (
+                <ImageUploadZone
+                  label={t("upload.outfit.label")}
+                  description={t("upload.outfit.desc")}
+                  requirements={[
+                    t("upload.outfit.req1"),
+                    t("upload.outfit.req2"),
+                  ]}
+                  file={outfitFile}
+                  onFileChange={setOutfitFile}
+                />
+              )}
+            </>
           )}
 
           {/* Divider */}
