@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { Upload, X, Image as ImageIcon, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import ClothesExtractor from "@/components/ClothesExtractor";
 
 interface ImageUploadZoneProps {
   label: string;
@@ -16,7 +15,6 @@ interface ImageUploadZoneProps {
   exampleLabel?: string;
   garmentType?: "top" | "bottom";
   showPersonNotice?: boolean;
-  showClothesExtractor?: boolean;
 }
 
 const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
@@ -30,7 +28,6 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
   exampleLabel,
   garmentType,
   showPersonNotice = false,
-  showClothesExtractor = false,
 }) => {
   const { t, language } = useLanguage();
   const [isDragActive, setIsDragActive] = useState(false);
@@ -120,21 +117,6 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
               : `Use product images from online stores showing only the ${garmentType}`}
           </p>
         </div>
-      )}
-
-      {/* Clothes Extractor */}
-      {showClothesExtractor && garmentType && (
-        <ClothesExtractor
-          garmentType={garmentType}
-          onExtracted={(extractedFile) => {
-            onFileChange(extractedFile);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              setPreview(e.target?.result as string);
-            };
-            reader.readAsDataURL(extractedFile);
-          }}
-        />
       )}
 
       {/* Main Content: Upload Zone + Example Image */}
