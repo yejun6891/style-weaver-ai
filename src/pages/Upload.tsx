@@ -13,10 +13,6 @@ import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle, Shirt, PanelBott
 import { toast } from "sonner";
 import { preprocessPersonImage, preprocessTopGarment, preprocessBottomGarment } from "@/utils/imagePreprocess";
 
-// Example images
-import examplePerson from "@/assets/example-person.png";
-import exampleTop from "@/assets/example-top.png";
-import exampleBottom from "@/assets/example-bottom.png";
 import {
   Dialog,
   DialogContent,
@@ -375,8 +371,6 @@ const Upload = () => {
             ]}
             file={personFile}
             onFileChange={setPersonFile}
-            exampleImage={examplePerson}
-            exampleLabel={t("upload.example") || "예시"}
             showPersonNotice
           />
 
@@ -394,8 +388,6 @@ const Upload = () => {
               ]}
               file={topFile}
               onFileChange={setTopFile}
-              exampleImage={exampleTop}
-              exampleLabel={t("upload.example") || "예시"}
               garmentType="top"
             />
           )}
@@ -411,8 +403,6 @@ const Upload = () => {
               ]}
               file={bottomFile}
               onFileChange={setBottomFile}
-              exampleImage={exampleBottom}
-              exampleLabel={t("upload.example") || "예시"}
               garmentType="bottom"
             />
           )}
