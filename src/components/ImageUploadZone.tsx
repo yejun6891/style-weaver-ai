@@ -113,8 +113,8 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
           <span className="text-xs">💡</span>
           <p className="text-xs text-foreground font-medium">
             {language === "ko" 
-              ? "입고 싶은 상의가 들어간 사진을 편집 없이 바로 넣어도 돼요!" 
-              : "Upload any photo with the top you want to try - no editing needed!"}
+              ? "하의가 보이지 않는 상의만 담긴 사진이 가장 정확도가 높아요" 
+              : "Photos with only the top (no bottom visible) give the highest accuracy"}
           </p>
         </div>
       )}
