@@ -145,13 +145,25 @@ const Upload = () => {
       formData.append("person_image", processedPerson);
       formData.append("mode", mode);
       
-      // Full mode with single outfit image
-      if (mode === "full" && fullModeType === "single" && outfitFile) {
-        const processedOutfit = await preprocessTopGarment(outfitFile);
-        formData.append("top_garment", processedOutfit);
-        formData.append("fullModeType", "single");
+      // Full mode handling
+      if (mode === "full") {
+        formData.append("fullModeType", fullModeType);
+        
+        if (fullModeType === "single" && outfitFile) {
+          // Single outfit image mode
+          const processedOutfit = await preprocessTopGarment(outfitFile);
+          formData.append("top_garment", processedOutfit);
+        } else {
+          // Separate mode: top and bottom
+          if (processedTop) {
+            formData.append("top_garment", processedTop);
+          }
+          if (processedBottom) {
+            formData.append("bottom_garment", processedBottom);
+          }
+        }
       } else {
-        // Normal flow: separate top and bottom
+        // Top or Bottom mode
         if (processedTop) {
           formData.append("top_garment", processedTop);
         }
@@ -161,7 +173,7 @@ const Upload = () => {
       }
 
       // ✅ 공식 SDK 호출 사용
-      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...", { mode });
+      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...", { mode, fullModeType });
 
       supabase.functions.setAuth(freshSession.access_token);
 
