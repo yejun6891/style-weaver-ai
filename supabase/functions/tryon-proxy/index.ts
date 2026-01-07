@@ -268,6 +268,19 @@ Deno.serve(async (req) => {
           } else {
             console.log(`[tryon-proxy] Stored step2 task ownership: ${responseData.taskId} -> ${user.id}`);
           }
+
+          // Update usage_history to point to the final step2 task (so dashboard shows final result)
+          const { error: updateError } = await supabase
+            .from("usage_history")
+            .update({ task_id: responseData.taskId })
+            .eq("user_id", user.id)
+            .eq("task_id", step1TaskId);
+
+          if (updateError) {
+            console.error("[tryon-proxy] Failed to update usage_history with step2 taskId:", updateError.message);
+          } else {
+            console.log(`[tryon-proxy] Updated usage_history: ${step1TaskId} -> ${responseData.taskId}`);
+          }
         }
 
         return new Response(JSON.stringify(responseData), {

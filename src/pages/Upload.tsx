@@ -220,6 +220,7 @@ const Upload = () => {
       // Store style profile in sessionStorage for the result page
       sessionStorage.setItem("styleProfile", JSON.stringify(styleProfile));
       sessionStorage.setItem("tryonMode", mode);
+      sessionStorage.setItem("fullModeType", fullModeType);
 
       // Full mode returns needsContinue: true from backend
       const responseData = data as any;
@@ -648,8 +649,11 @@ const Upload = () => {
             </div>
           )}
           
-          <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground">
+          <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground mb-3">
             💡 {t("upload.confirm.qualityNotice")}
+          </div>
+          <div className="bg-accent/50 rounded-lg p-3 text-xs text-accent-foreground border border-accent">
+            📂 {t("upload.confirm.dashboardNotice")}
           </div>
           <DialogFooter className="flex gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>

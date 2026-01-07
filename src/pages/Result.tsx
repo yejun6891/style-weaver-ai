@@ -40,7 +40,9 @@ const Result = () => {
   
   // Full mode state
   const mode = searchParams.get("mode") || sessionStorage.getItem("tryonMode") || "top";
+  const fullModeType = searchParams.get("fullModeType") || sessionStorage.getItem("fullModeType") || "separate";
   const isFullMode = mode === "full";
+  const isTwoStepFullMode = isFullMode && fullModeType === "separate";
   const needsContinue = searchParams.get("needsContinue") === "true";
   const step1TaskIdParam = searchParams.get("step1TaskId") || taskId;
   
@@ -202,9 +204,9 @@ const Result = () => {
     };
 
     // Start the flow
-    if (isFullMode && needsContinue) {
-      // Full mode: start polling step 1, then continue to step 2
-      console.log("[Result] Full mode with needsContinue, polling step 1...");
+    if (isTwoStepFullMode && needsContinue) {
+      // Full mode separate: start polling step 1, then continue to step 2
+      console.log("[Result] Full mode separate with needsContinue, polling step 1...");
       setStatus("step1-polling");
       setCurrentStep(1);
       
@@ -213,8 +215,8 @@ const Result = () => {
         continueToStep2(step1ImageUrl);
       });
     } else {
-      // Single mode or full mode already processed: just poll for final result
-      console.log("[Result] Single mode or already processed, polling...");
+      // Single mode, top/bottom mode, or full-single: just poll for final result
+      console.log("[Result] Single step mode, polling...");
       setStatus("loading");
       
       pollResult(taskId, (finalImageUrl) => {
@@ -229,7 +231,7 @@ const Result = () => {
       isCancelled = true;
       clearInterval(progressInterval);
     };
-  }, [taskId, navigate, t, session, isFullMode, needsContinue, step1TaskIdParam]);
+  }, [taskId, navigate, t, session, isTwoStepFullMode, needsContinue, step1TaskIdParam]);
 
   const handleDownload = async () => {
     if (!imageUrl) return;
@@ -297,8 +299,8 @@ const Result = () => {
       <div className="max-w-2xl mx-auto px-4 py-8">
         {isLoading && (
           <div className="text-center py-20 animate-fade-in">
-            {/* Full mode 2-step indicator */}
-            {isFullMode && (
+            {/* Full mode 2-step indicator - only show for separate mode */}
+            {isTwoStepFullMode && (
               <div className="flex items-center justify-center gap-4 mb-8">
                 {/* Step 1 */}
                 <div className="flex items-center gap-2">
@@ -362,14 +364,14 @@ const Result = () => {
             </div>
 
             <h2 className="font-display text-2xl font-bold mb-2">
-              {isFullMode 
+              {isTwoStepFullMode 
                 ? (currentStep === 1 
                     ? (t("result.step1Processing") || "상의 교체 중...") 
                     : (t("result.step2Processing") || "하의 교체 중..."))
                 : statusText}
             </h2>
             <p className="text-muted-foreground mb-4">
-              {isFullMode 
+              {isTwoStepFullMode 
                 ? (t("result.fullModeWait") || "잠시만 기다려주세요") 
                 : t("result.wait")}
             </p>
@@ -383,7 +385,7 @@ const Result = () => {
                 />
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {isFullMode 
+                {isTwoStepFullMode 
                   ? `${currentStep}단계: ${Math.round(currentStep === 1 ? progress : (progress - 50) * 2)}%` 
                   : `${Math.round(progress)}%`}
               </p>
