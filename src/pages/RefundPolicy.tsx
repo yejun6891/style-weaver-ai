@@ -24,7 +24,7 @@ const RefundPolicy = () => {
 • 15 Credits: $19.99 (33% discount)
 • 25 Credits: $29.99 (40% discount)
 
-All payments are processed securely through PayPal.`
+All payments are processed securely through Paddle.`
         },
         {
           title: "3. Refund Eligibility",
@@ -53,7 +53,7 @@ Partial Refund:
           content: `To request a refund:
 1. Email us at admin@trukin.app
 2. Include your account email address
-3. Provide your purchase date and transaction ID (from PayPal)
+3. Provide your purchase date and transaction ID (from Paddle)
 4. Describe the reason for your refund request
 
 We will review your request and respond within 3-5 business days.`
@@ -61,14 +61,14 @@ We will review your request and respond within 3-5 business days.`
         {
           title: "6. Refund Processing",
           content: `Once approved, refunds will be processed as follows:
-• Refunds are issued through the original payment method (PayPal)
-• Processing time: 5-10 business days (may vary depending on PayPal's policies)
+• Refunds are issued through the original payment method (Paddle)
+• Processing time: 5-10 business days (may vary depending on Paddle's policies)
 • You will receive an email confirmation when the refund is processed
-• The refunded amount will appear on your PayPal account or linked payment method`
+• The refunded amount will appear on your original payment method`
         },
         {
           title: "7. Disputes",
-          content: `If you have a dispute regarding your purchase, please contact us first at admin@trukin.app before initiating a dispute through PayPal. We are committed to resolving issues fairly and promptly.`
+          content: `If you have a dispute regarding your purchase, please contact us first at admin@trukin.app before initiating a dispute through Paddle. We are committed to resolving issues fairly and promptly.`
         },
         {
           title: "8. Changes to This Policy",
@@ -101,7 +101,7 @@ We aim to respond to all inquiries within 24-48 hours.`
 • 15 이용권: $19.99 (33% 할인)
 • 25 이용권: $29.99 (40% 할인)
 
-모든 결제는 PayPal을 통해 안전하게 처리됩니다.`
+모든 결제는 Paddle을 통해 안전하게 처리됩니다.`
         },
         {
           title: "3. 환불 자격",
@@ -130,7 +130,7 @@ We aim to respond to all inquiries within 24-48 hours.`
           content: `환불을 요청하려면:
 1. admin@trukin.app으로 이메일을 보내주세요
 2. 계정 이메일 주소를 포함해 주세요
-3. 구매 날짜와 거래 ID(PayPal에서 확인)를 제공해 주세요
+3. 구매 날짜와 거래 ID(Paddle에서 확인)를 제공해 주세요
 4. 환불 요청 사유를 설명해 주세요
 
 요청을 검토하고 3-5 영업일 이내에 답변드리겠습니다.`
@@ -138,14 +138,14 @@ We aim to respond to all inquiries within 24-48 hours.`
         {
           title: "6. 환불 처리",
           content: `승인되면 다음과 같이 환불이 처리됩니다:
-• 원래 결제 수단(PayPal)을 통해 환불됩니다
-• 처리 시간: 5-10 영업일
+• 원래 결제 수단(Paddle)을 통해 환불됩니다
+• 처리 시간: 5-10 영업일 (Paddle 정책에 따라 달라질 수 있음)
 • 환불이 처리되면 이메일 확인을 받으실 수 있습니다
-• 환불 금액은 PayPal 계정 또는 연결된 결제 수단에 표시됩니다`
+• 환불 금액은 원래 결제 수단에 표시됩니다`
         },
         {
           title: "7. 분쟁",
-          content: `구매에 관한 분쟁이 있는 경우, PayPal을 통해 분쟁을 제기하기 전에 먼저 admin@trukin.app으로 연락해 주세요. 저희는 문제를 공정하고 신속하게 해결하기 위해 최선을 다하겠습니다.`
+          content: `구매에 관한 분쟁이 있는 경우, Paddle을 통해 분쟁을 제기하기 전에 먼저 admin@trukin.app으로 연락해 주세요. 저희는 문제를 공정하고 신속하게 해결하기 위해 최선을 다하겠습니다.`
         },
         {
           title: "8. 정책 변경",

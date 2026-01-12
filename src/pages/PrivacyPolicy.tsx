@@ -21,7 +21,7 @@ const PrivacyPolicy = () => {
           content: `We collect information you provide directly to us, including:
 • Account information (email address, name, profile picture via Google Sign-In)
 • Photos you upload for virtual try-on
-• Payment information (processed securely through PayPal)
+• Payment information (processed securely through Paddle)
 • Usage data and interaction with our services
 
 We automatically collect certain information when you use our service:
@@ -94,7 +94,7 @@ Owner: Yejoon Jeong`
           content: `귀하가 직접 제공하는 정보:
 • 계정 정보 (이메일 주소, 이름, Google 로그인을 통한 프로필 사진)
 • 가상 피팅을 위해 업로드하는 사진
-• 결제 정보 (PayPal을 통해 안전하게 처리)
+• 결제 정보 (Paddle을 통해 안전하게 처리)
 • 서비스 이용 데이터
 
 자동으로 수집되는 정보:
