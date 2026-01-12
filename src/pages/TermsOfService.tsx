@@ -36,7 +36,7 @@ const TermsOfService = () => {
 • 15 Credits: $19.99 (33% discount)
 • 25 Credits: $29.99 (40% discount)
 
-Each virtual try-on uses 1 credit. Payments are processed securely through PayPal. All prices are in USD.`
+Each virtual try-on uses 1 credit. Payments are processed securely through Paddle. All prices are in USD.`
         },
         {
           title: "5. User Content",
@@ -124,7 +124,7 @@ Owner: Yejoon Jeong`
 • 15 이용권: $19.99 (33% 할인)
 • 25 이용권: $29.99 (40% 할인)
 
-각 가상 피팅은 1 이용권을 사용합니다. 결제는 PayPal을 통해 안전하게 처리됩니다. 모든 가격은 USD 기준입니다.`
+각 가상 피팅은 1 이용권을 사용합니다. 결제는 Paddle을 통해 안전하게 처리됩니다. 모든 가격은 USD 기준입니다.`
         },
         {
           title: "5. 사용자 콘텐츠",
