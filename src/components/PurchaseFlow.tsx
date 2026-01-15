@@ -14,11 +14,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-// Lemon Squeezy checkout URLs for each credit package
+// Lemon Squeezy checkout URLs for each credit package (Live mode)
 const lemonSqueezyCheckoutUrls: Record<number, string> = {
-  8: 'https://fitvision.lemonsqueezy.com/checkout/buy/b3f87edb-3cb0-4004-9f50-a962d46da837',
-  18: 'https://fitvision.lemonsqueezy.com/checkout/buy/217de21b-8677-4829-9887-a6583a42e856',
-  30: 'https://fitvision.lemonsqueezy.com/checkout/buy/463213df-b0d9-4976-858d-b15d67e35fee',
+  8: 'https://fitvision.lemonsqueezy.com/checkout/buy/0a310f07-5a74-4538-a2d7-7d794baaa471',
+  18: 'https://fitvision.lemonsqueezy.com/checkout/buy/13e8e780-6cb8-4010-818c-1930571a5d8f',
+  30: 'https://fitvision.lemonsqueezy.com/checkout/buy/17e65cf2-1805-44da-9020-804367e94a50',
 };
 
 interface CreditPackage {
