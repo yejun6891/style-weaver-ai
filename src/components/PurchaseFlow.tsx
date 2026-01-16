@@ -436,6 +436,15 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
               </div>
             </div>
 
+            {/* Payment Methods Info - English only */}
+            {language === 'en' && (
+              <div className="p-3 rounded-lg bg-muted/50 border border-border">
+                <p className="text-xs text-center text-muted-foreground">
+                  💳 Apple Pay, Cash App Pay, and all major cards accepted
+                </p>
+              </div>
+            )}
+
             {/* Lemon Squeezy Checkout Button */}
             <Button 
               variant="gradient" 
