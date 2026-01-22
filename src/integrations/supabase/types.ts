@@ -260,6 +260,7 @@ export type Database = {
         Args: { p_share_code: string; p_visitor_fingerprint: string }
         Returns: Json
       }
+      search_promo_code: { Args: { p_code: string }; Returns: Json }
       try_deduct_credit: { Args: { p_user_id: string }; Returns: boolean }
     }
     Enums: {

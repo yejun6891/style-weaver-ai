@@ -81,29 +81,35 @@ export const usePromoCodes = () => {
 
   const searchPromoCode = async (code: string): Promise<PromoCode | null> => {
     try {
-      const { data, error } = await (supabase
-        .from('promo_codes' as any)
-        .select('*')
-        .eq('code', code.toUpperCase())
-        .eq('is_active', true)
-        .maybeSingle() as any);
+      // Use secure RPC function to search promo codes
+      // This prevents exposure of sensitive business data (uses_count, max_uses, per_user_limit, etc.)
+      const { data, error } = await (supabase.rpc as any)('search_promo_code', {
+        p_code: code
+      });
 
       if (error) {
         console.error('Error searching promo code:', error);
         return null;
       }
 
-      if (!data) return null;
+      if (!data || !data.found) return null;
 
-      // Check validity dates
-      const now = new Date();
-      if (data.valid_from && new Date(data.valid_from) > now) return null;
-      if (data.valid_until && new Date(data.valid_until) < now) return null;
-
-      // Check max uses
-      if (data.max_uses && data.uses_count >= data.max_uses) return null;
-
-      return data as PromoCode;
+      // Return promo code with only the fields exposed by the secure RPC
+      return {
+        id: data.id,
+        code: data.code,
+        discount_type: data.discount_type,
+        discount_value: data.discount_value,
+        // These fields are not exposed by the RPC for security reasons
+        min_purchase: null,
+        max_uses: null,
+        uses_count: 0,
+        per_user_limit: 1,
+        is_active: true,
+        valid_from: null,
+        valid_until: null,
+        created_at: new Date().toISOString()
+      } as PromoCode;
     } catch (err) {
       console.error('Error searching promo code:', err);
       return null;
