@@ -195,7 +195,7 @@ export const usePromoCodes = () => {
       await (supabase.rpc as any)('increment_promo_usage', { p_promo_id: promoCodeId });
 
       await fetchUserPromoCodes();
-      return { success: true, message: `${creditsToAdd}개의 이용권이 추가되었습니다!` };
+      return { success: true, message: `${creditsToAdd}개의 크레딧이 추가되었습니다!` };
     } catch (err) {
       console.error('Error using credits promo code:', err);
       return { success: false, message: '오류가 발생했습니다' };
