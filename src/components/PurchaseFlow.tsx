@@ -197,7 +197,7 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
             )}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            {t('purchase.dialogDescription') || '프로모션 코드 및 이용권 구매'}
+            {t('purchase.dialogDescription') || '프로모션 코드 및 크레딧 구매'}
           </DialogDescription>
         </DialogHeader>
 

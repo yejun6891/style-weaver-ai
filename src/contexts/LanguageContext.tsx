@@ -21,7 +21,7 @@ const translations = {
     "auth.subtitle": "Google 계정으로 간편하게 로그인하세요",
     "auth.google": "Google로 계속하기",
     "auth.benefits.title": "로그인하면 이런 혜택이!",
-    "auth.benefits.1": "무료 이용권 5개 즉시 지급",
+    "auth.benefits.1": "무료 크레딧 5개 즉시 지급",
     "auth.benefits.2": "모든 결과물 저장 및 관리",
     "auth.benefits.3": "맞춤형 스타일 분석 리포트",
     "auth.terms": "로그인 시 서비스 이용약관에 동의하게 됩니다",
@@ -29,8 +29,8 @@ const translations = {
     // Dashboard
     "dashboard.welcome": "안녕하세요",
     "dashboard.subtitle": "오늘도 멋진 스타일을 만들어보세요",
-    "dashboard.credits": "보유 이용권",
-    "dashboard.buyCredits": "이용권 충전",
+    "dashboard.credits": "보유 크레딧",
+    "dashboard.buyCredits": "크레딧 충전",
     "dashboard.totalUsage": "총 이용 횟수",
     "dashboard.usageDesc": "지금까지 생성한 피팅 이미지",
     "dashboard.newTryon": "새로운 피팅",
@@ -40,22 +40,22 @@ const translations = {
     "dashboard.noHistory": "아직 이용 내역이 없습니다",
     "dashboard.createFirst": "첫 피팅 만들기",
     "dashboard.tryonAction": "가상 피팅",
-    "dashboard.purchaseAction": "이용권 구매",
-    "dashboard.credit": "이용권",
+    "dashboard.purchaseAction": "크레딧 구매",
+    "dashboard.credit": "크레딧",
     "dashboard.view": "보기",
     
     // MyPage
     "mypage.title": "마이페이지",
-    "mypage.subtitle": "프로필 관리 및 이용권 충전",
+    "mypage.subtitle": "프로필 관리 및 크레딧 충전",
     "mypage.profile": "내 프로필",
-    "mypage.currentCredits": "보유 이용권",
+    "mypage.currentCredits": "보유 크레딧",
     "mypage.memberSince": "가입일",
-    "mypage.buyCredits": "이용권 충전",
-    "mypage.buyCreditsDesc": "이용권을 충전하여 더 많은 가상 피팅을 즐겨보세요",
-    "mypage.credits": "이용권",
+    "mypage.buyCredits": "크레딧 충전",
+    "mypage.buyCreditsDesc": "크레딧을 충전하여 더 많은 가상 피팅을 즐겨보세요",
+    "mypage.credits": "크레딧",
     "mypage.popular": "인기",
     "mypage.purchase": "구매하기",
-    "mypage.paymentNote": "PayPal로 안전하게 결제됩니다",
+    "mypage.paymentNote": "Apple Pay, Cash App Pay 및 모든 주요 카드 결제 가능",
     
     // Promo Codes
     "promo.title": "프로모션 코드",
@@ -66,7 +66,7 @@ const translations = {
     "promo.use": "사용하기",
     "promo.applied": "적용됨",
     "promo.discount": "할인",
-    "promo.creditsBonus": "이용권 추가",
+    "promo.creditsBonus": "크레딧 추가",
     "promo.myPromoCodes": "보유 프로모션",
     "promo.noPromoCodes": "보유한 프로모션이 없습니다",
     "promo.searchHint": "프로모션 코드를 검색해보세요",
@@ -74,7 +74,7 @@ const translations = {
     
     // Purchase Flow
     "purchase.promoStep": "프로모션 선택",
-    "purchase.packageStep": "이용권 선택",
+    "purchase.packageStep": "크레딧 선택",
     "purchase.paymentStep": "결제",
     "purchase.skip": "다음",
     "purchase.next": "다음",
@@ -89,10 +89,10 @@ const translations = {
     "purchase.error": "결제 처리에 실패했습니다",
     
     // Upload - No Credits
-    "upload.noCredits.title": "이용권이 없습니다",
-    "upload.noCredits.description": "피팅 분석을 시작하려면 이용권이 필요합니다. 이용권을 구매해주세요.",
+    "upload.noCredits.title": "크레딧이 없습니다",
+    "upload.noCredits.description": "피팅 분석을 시작하려면 크레딧이 필요합니다. 크레딧을 구매해주세요.",
     "upload.noCredits.cancel": "취소",
-    "upload.noCredits.purchase": "이용권 구매하기",
+    "upload.noCredits.purchase": "크레딧 구매하기",
     
     // Landing
     "hero.badge": "AI 가상 피팅 + 스타일 분석",
@@ -187,7 +187,7 @@ const translations = {
     "upload.mode.bottomDesc": "상의는 그대로 유지",
     "upload.mode.full": "전체 코디",
     "upload.mode.fullDesc": "상의 + 하의 모두 교체",
-    "upload.mode.credit": "이용권",
+    "upload.mode.credit": "크레딧",
     
     // Full Mode Sub-selection
     "upload.fullMode.typeTitle": "옷 사진 업로드 방식",
@@ -277,13 +277,13 @@ const translations = {
     "report.styleTags": "스타일 태그",
     
     // Share Reward
-    "share.earnCredits": "공유하고 이용권 받기!",
-    "share.earnCreditsDesc": "친구들에게 공유하면 무료 이용권 1개를 드려요",
+    "share.earnCredits": "공유하고 크레딧 받기!",
+    "share.earnCreditsDesc": "친구들에게 공유하면 무료 크레딧 1개를 드려요",
     "share.rewardComplete": "보상 지급 완료!",
-    "share.rewardCompleteDesc": "이용권 1개가 지급되었어요",
+    "share.rewardCompleteDesc": "크레딧 1개가 지급되었어요",
     "share.clicks": "클릭 수",
     "share.clicksRemaining": "{n}번 더 클릭되면 보상 지급!",
-    "share.creditEarned": "+1 이용권 획득!",
+    "share.creditEarned": "+1 크레딧 획득!",
     "share.creating": "링크 생성 중...",
     "share.createLink": "공유 링크 만들기",
     "share.linkCopied": "링크가 복사되었어요",
@@ -293,7 +293,7 @@ const translations = {
     "share.checkStatus": "상태 확인",
     "share.instruction1": "인스타그램 스토리에 이미지와 함께 공유하세요",
     "share.instruction2": "링크를 꼭 포함해주세요",
-    "share.instruction3": "3명이 클릭하면 이용권 1개 자동 지급!",
+    "share.instruction3": "3명이 클릭하면 크레딧 1개 자동 지급!",
     "share.shareTemplate": "FitVision으로 가상 피팅해봤어요! 내 모습이 어때 보여?\n\n지금 바로 체험하기\n{url}",
     
     // Share Page
@@ -302,7 +302,7 @@ const translations = {
     "share.subtitle": "AI 가상 피팅으로 온라인 쇼핑 전 미리 입어보세요",
     "share.alreadyVisited": "이미 방문하셨네요!",
     "share.tryNow": "지금 바로 체험하기",
-    "share.freeCredits": "가입 시 무료 이용권 5개 제공",
+    "share.freeCredits": "가입 시 무료 크레딧 5개 제공",
     "share.errorTitle": "링크를 찾을 수 없어요",
     "share.errorSubtitle": "유효하지 않거나 만료된 링크예요",
     "share.goHome": "홈으로 가기",
@@ -353,7 +353,7 @@ const translations = {
     "mypage.credits": "credits",
     "mypage.popular": "Popular",
     "mypage.purchase": "Purchase",
-    "mypage.paymentNote": "Secure payment via PayPal",
+    "mypage.paymentNote": "Apple Pay, Cash App Pay, and all major cards accepted",
     
     // Promo Codes
     "promo.title": "Promo Codes",

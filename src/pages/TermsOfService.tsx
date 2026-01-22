@@ -31,12 +31,11 @@ const TermsOfService = () => {
         {
           title: "4. Credits and Payments",
           content: `Our Service operates on a credit-based system:
-• 5 Credits: $9.99
-• 10 Credits: $14.99 (25% discount)
-• 15 Credits: $19.99 (33% discount)
-• 25 Credits: $29.99 (40% discount)
+• 8 Credits: $9.99 (Starter)
+• 18 Credits: $19.99 (Plus)
+• 30 Credits: $29.99 (Pro)
 
-Each virtual try-on uses 1 credit. Payments are processed securely through Paddle. All prices are in USD.`
+Each virtual try-on uses 1 credit. Payments are processed securely through Lemon Squeezy. Apple Pay, Cash App Pay, and all major cards are accepted. All prices are in USD.`
         },
         {
           title: "5. User Content",
@@ -117,14 +116,13 @@ Owner: Yejoon Jeong`
 • 무단 접근 시 즉시 알림`
         },
         {
-          title: "4. 이용권 및 결제",
-          content: `서비스는 이용권(크레딧) 기반 시스템으로 운영됩니다:
-• 5 이용권: $9.99
-• 10 이용권: $14.99 (25% 할인)
-• 15 이용권: $19.99 (33% 할인)
-• 25 이용권: $29.99 (40% 할인)
+          title: "4. 크레딧 및 결제",
+          content: `서비스는 크레딧 기반 시스템으로 운영됩니다:
+• 8 크레딧: $9.99 (Starter)
+• 18 크레딧: $19.99 (Plus)
+• 30 크레딧: $29.99 (Pro)
 
-각 가상 피팅은 1 이용권을 사용합니다. 결제는 Paddle을 통해 안전하게 처리됩니다. 모든 가격은 USD 기준입니다.`
+각 가상 피팅은 1 크레딧을 사용합니다. 결제는 Lemon Squeezy를 통해 안전하게 처리됩니다. Apple Pay, Cash App Pay 및 모든 주요 카드가 지원됩니다. 모든 가격은 USD 기준입니다.`
         },
         {
           title: "5. 사용자 콘텐츠",

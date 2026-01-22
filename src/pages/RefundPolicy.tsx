@@ -19,12 +19,11 @@ const RefundPolicy = () => {
         {
           title: "2. Credit Packages",
           content: `Our credit packages and pricing:
-• 5 Credits: $9.99
-• 10 Credits: $14.99 (25% discount)
-• 15 Credits: $19.99 (33% discount)
-• 25 Credits: $29.99 (40% discount)
+• 8 Credits: $9.99 (Starter)
+• 18 Credits: $19.99 (Plus)
+• 30 Credits: $29.99 (Pro)
 
-All payments are processed securely through Paddle.`
+All payments are processed securely through Lemon Squeezy. Apple Pay, Cash App Pay, and all major cards are accepted.`
         },
         {
           title: "3. Refund Eligibility",
@@ -61,14 +60,14 @@ We will review your request and respond within 3-5 business days.`
         {
           title: "6. Refund Processing",
           content: `Once approved, refunds will be processed as follows:
-• Refunds are issued through the original payment method (Paddle)
-• Processing time: 5-10 business days (may vary depending on Paddle's policies)
+• Refunds are issued through the original payment method (Lemon Squeezy)
+• Processing time: 5-10 business days (may vary depending on Lemon Squeezy's policies)
 • You will receive an email confirmation when the refund is processed
 • The refunded amount will appear on your original payment method`
         },
         {
           title: "7. Disputes",
-          content: `If you have a dispute regarding your purchase, please contact us first at admin@trukin.app before initiating a dispute through Paddle. We are committed to resolving issues fairly and promptly.`
+          content: `If you have a dispute regarding your purchase, please contact us first at admin@trukin.app before initiating a dispute through Lemon Squeezy. We are committed to resolving issues fairly and promptly.`
         },
         {
           title: "8. Changes to This Policy",
@@ -94,14 +93,13 @@ We aim to respond to all inquiries within 24-48 hours.`
           content: `트루킨은 최고의 가상 피팅 경험을 제공하기 위해 노력합니다. 때로는 기대한 대로 되지 않을 수 있음을 이해하며, 서비스에 대한 귀하의 만족을 보장하고자 합니다.`
         },
         {
-          title: "2. 이용권 패키지",
-          content: `이용권 패키지 및 가격:
-• 5 이용권: $9.99
-• 10 이용권: $14.99 (25% 할인)
-• 15 이용권: $19.99 (33% 할인)
-• 25 이용권: $29.99 (40% 할인)
+          title: "2. 크레딧 패키지",
+          content: `크레딧 패키지 및 가격:
+• 8 크레딧: $9.99 (Starter)
+• 18 크레딧: $19.99 (Plus)
+• 30 크레딧: $29.99 (Pro)
 
-모든 결제는 Paddle을 통해 안전하게 처리됩니다.`
+모든 결제는 Lemon Squeezy를 통해 안전하게 처리됩니다. Apple Pay, Cash App Pay 및 모든 주요 카드가 지원됩니다.`
         },
         {
           title: "3. 환불 자격",
@@ -138,14 +136,14 @@ We aim to respond to all inquiries within 24-48 hours.`
         {
           title: "6. 환불 처리",
           content: `승인되면 다음과 같이 환불이 처리됩니다:
-• 원래 결제 수단(Paddle)을 통해 환불됩니다
-• 처리 시간: 5-10 영업일 (Paddle 정책에 따라 달라질 수 있음)
+• 원래 결제 수단(Lemon Squeezy)을 통해 환불됩니다
+• 처리 시간: 5-10 영업일 (Lemon Squeezy 정책에 따라 달라질 수 있음)
 • 환불이 처리되면 이메일 확인을 받으실 수 있습니다
 • 환불 금액은 원래 결제 수단에 표시됩니다`
         },
         {
           title: "7. 분쟁",
-          content: `구매에 관한 분쟁이 있는 경우, Paddle을 통해 분쟁을 제기하기 전에 먼저 admin@trukin.app으로 연락해 주세요. 저희는 문제를 공정하고 신속하게 해결하기 위해 최선을 다하겠습니다.`
+          content: `구매에 관한 분쟁이 있는 경우, Lemon Squeezy를 통해 분쟁을 제기하기 전에 먼저 admin@trukin.app으로 연락해 주세요. 저희는 문제를 공정하고 신속하게 해결하기 위해 최선을 다하겠습니다.`
         },
         {
           title: "8. 정책 변경",
