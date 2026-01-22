@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,11 +7,12 @@ import HeaderMenu from "@/components/HeaderMenu";
 import Logo from "@/components/Logo";
 import StyleAnalysisReport from "@/components/StyleAnalysisReport";
 import ShareRewardSection from "@/components/ShareRewardSection";
+import LoadingTips from "@/components/LoadingTips";
 import { StyleProfile } from "@/components/StyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText, Check, Shirt, Loader2 } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText, Check, Shirt, Clock } from "lucide-react";
 
 type Status = "loading" | "step1-polling" | "step2-starting" | "step2-polling" | "success" | "error";
 
@@ -49,6 +50,8 @@ const Result = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [step2TaskId, setStep2TaskId] = useState<string | null>(null);
   const continueCalledRef = useRef(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const pollCountRef = useRef(0);
 
   useEffect(() => {
     // Load style profile from sessionStorage
@@ -65,6 +68,27 @@ const Result = () => {
   useEffect(() => {
     setStatusText(t("result.processing"));
   }, [t]);
+
+  // Elapsed time counter - runs while status is a loading state
+  const isLoadingState = status === "loading" || status === "step1-polling" || status === "step2-starting" || status === "step2-polling";
+  
+  useEffect(() => {
+    if (isLoadingState) {
+      setElapsedTime(0); // Reset on new loading
+      const timer = setInterval(() => {
+        setElapsedTime((prev) => prev + 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [isLoadingState]);
+
+  // Exponential backoff polling interval calculator
+  const getPollingInterval = useCallback(() => {
+    const baseInterval = 2000;  // 초반 2초
+    const maxInterval = 8000;   // 최대 8초
+    const factor = 1.3;
+    return Math.min(baseInterval * Math.pow(factor, pollCountRef.current), maxInterval);
+  }, []);
 
   // Main polling and flow logic
   useEffect(() => {
@@ -88,10 +112,8 @@ const Result = () => {
       });
     }, 500);
 
-    // Poll for result
+    // Poll for result with exponential backoff
     const pollResult = async (pollTaskId: string, onComplete: (imageUrl: string) => void) => {
-      const intervalMs = 3000;
-
       const check = async () => {
         if (isCancelled) return;
 
@@ -123,7 +145,10 @@ const Result = () => {
             onComplete(data.imageUrl);
             return;
           } else if (taskStatus === 0 || taskStatus === 1) {
-            setTimeout(check, intervalMs);
+            pollCountRef.current += 1;
+            const nextInterval = getPollingInterval();
+            console.log(`[Result] Polling again in ${nextInterval}ms (attempt ${pollCountRef.current})`);
+            setTimeout(check, nextInterval);
           } else {
             console.error("Unexpected status:", data);
             setStatus("error");
@@ -276,7 +301,7 @@ const Result = () => {
     styleProfile.styles.length > 0 || 
     styleProfile.concerns;
 
-  const isLoading = status === "loading" || status === "step1-polling" || status === "step2-starting" || status === "step2-polling";
+  const isLoading = isLoadingState;
 
   return (
     <main className="min-h-screen bg-background">
@@ -370,14 +395,23 @@ const Result = () => {
                     : (t("result.step2Processing") || "하의 교체 중..."))
                 : statusText}
             </h2>
-            <p className="text-muted-foreground mb-4">
-              {isTwoStepFullMode 
-                ? (t("result.fullModeWait") || "잠시만 기다려주세요") 
-                : t("result.wait")}
-            </p>
+            
+            {/* Elapsed time and estimated time */}
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mb-4">
+              <Clock className="w-4 h-4" />
+              <span>
+                {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}
+              </span>
+              <span className="mx-2">|</span>
+              <span>
+                {isTwoStepFullMode 
+                  ? (t("result.estimatedTimeFull") || "예상 소요: 1~2분")
+                  : (t("result.estimatedTime") || "예상 소요: 30~60초")}
+              </span>
+            </div>
 
             {/* Progress bar */}
-            <div className="mt-8 max-w-xs mx-auto">
+            <div className="mt-4 max-w-xs mx-auto">
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <div 
                   className="h-full gradient-primary rounded-full transition-all duration-500"
@@ -386,10 +420,12 @@ const Result = () => {
               </div>
               <p className="text-xs text-muted-foreground mt-2">
                 {isTwoStepFullMode 
-                  ? `${currentStep}단계: ${Math.round(currentStep === 1 ? progress : (progress - 50) * 2)}%` 
+                  ? `${currentStep}${t("result.stepLabel") || "단계"}: ${Math.round(currentStep === 1 ? progress : (progress - 50) * 2)}%` 
                   : `${Math.round(progress)}%`}
               </p>
             </div>
+            {/* Fashion Tips */}
+            <LoadingTips intervalMs={4000} />
           </div>
         )}
 

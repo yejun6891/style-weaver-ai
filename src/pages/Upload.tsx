@@ -139,12 +139,19 @@ const Upload = () => {
         userId: freshSession.user?.id,
       });
 
-      // ✅ 클라이언트 측 이미지 전처리
-      console.log("[Upload] 이미지 전처리 시작...");
-      const processedPerson = await preprocessPersonImage(personFile);
-      const processedTop = topFile ? await preprocessTopGarment(topFile) : null;
-      const processedBottom = bottomFile ? await preprocessBottomGarment(bottomFile) : null;
-      console.log("[Upload] 이미지 전처리 완료");
+      // ✅ 클라이언트 측 이미지 전처리 (병렬 처리로 성능 최적화)
+      console.log("[Upload] 이미지 전처리 시작 (병렬)...");
+      const preprocessStart = performance.now();
+      
+      // Promise.all()로 병렬 처리하여 2-3초 단축
+      const [processedPerson, processedTop, processedBottom] = await Promise.all([
+        preprocessPersonImage(personFile),
+        topFile ? preprocessTopGarment(topFile) : Promise.resolve(null),
+        bottomFile ? preprocessBottomGarment(bottomFile) : Promise.resolve(null),
+      ]);
+      
+      const preprocessTime = Math.round(performance.now() - preprocessStart);
+      console.log(`[Upload] 이미지 전처리 완료 (${preprocessTime}ms)`);
 
       const formData = new FormData();
       formData.append("person_image", processedPerson);

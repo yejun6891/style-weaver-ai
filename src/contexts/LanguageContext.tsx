@@ -250,6 +250,9 @@ const translations = {
     "result.error": "오류가 발생했습니다",
     "result.imageTab": "피팅 이미지",
     "result.reportTab": "스타일 리포트",
+    "result.estimatedTime": "예상 소요: 30~60초",
+    "result.estimatedTimeFull": "예상 소요: 1~2분",
+    "result.stepLabel": "단계",
     
     // Style Report
     "report.title": "스타일 분석 리포트",
@@ -545,6 +548,9 @@ const translations = {
     "result.error": "Something went wrong",
     "result.imageTab": "Try-On Image",
     "result.reportTab": "Style Report",
+    "result.estimatedTime": "Est. time: 30~60 sec",
+    "result.estimatedTimeFull": "Est. time: 1~2 min",
+    "result.stepLabel": " step",
     
     // Style Report
     "report.title": "Style Analysis Report",
