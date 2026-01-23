@@ -6,6 +6,7 @@ import { AdminStatsCards } from '@/components/admin/AdminStatsCards';
 import { UsageChart } from '@/components/admin/UsageChart';
 import { UsageTypeChart } from '@/components/admin/UsageTypeChart';
 import { UserListTable } from '@/components/admin/UserListTable';
+import { PromoCodeManagement } from '@/components/admin/PromoCodeManagement';
 import Logo from '@/components/Logo';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Shield } from 'lucide-react';
@@ -236,6 +237,8 @@ const Admin = () => {
               <UsageChart data={dailyUsage} />
               <UsageTypeChart data={usageByType} />
             </div>
+
+            <PromoCodeManagement />
 
             <UserListTable users={users} />
           </>
