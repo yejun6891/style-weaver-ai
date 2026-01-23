@@ -160,7 +160,7 @@ const Share = () => {
 
       {/* Footer */}
       <footer className="p-4 text-center text-sm text-muted-foreground">
-        © 2024 FitVision. All rights reserved.
+        © 2025 Trukin. All rights reserved.
       </footer>
     </div>
   );

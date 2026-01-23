@@ -17,7 +17,7 @@ const translations = {
     
     // Auth
     "auth.badge": "스마트한 패션 시작",
-    "auth.title": "FitVision 시작하기",
+    "auth.title": "TruPick 시작하기",
     "auth.subtitle": "Google 계정으로 간편하게 로그인하세요",
     "auth.google": "Google로 계속하기",
     "auth.benefits.title": "로그인하면 이런 혜택이!",
@@ -294,11 +294,11 @@ const translations = {
     "share.instruction1": "인스타그램 스토리에 이미지와 함께 공유하세요",
     "share.instruction2": "링크를 꼭 포함해주세요",
     "share.instruction3": "3명이 클릭하면 크레딧 1개 자동 지급!",
-    "share.shareTemplate": "FitVision으로 가상 피팅해봤어요! 내 모습이 어때 보여?\n\n지금 바로 체험하기\n{url}",
+    "share.shareTemplate": "TruPick으로 가상 피팅해봤어요! 내 모습이 어때 보여?\n\n지금 바로 체험하기\n{url}",
     
     // Share Page
     "share.loading": "로딩 중...",
-    "share.title": "FitVision에 오신 것을 환영해요!",
+    "share.title": "TruPick에 오신 것을 환영해요!",
     "share.subtitle": "AI 가상 피팅으로 온라인 쇼핑 전 미리 입어보세요",
     "share.alreadyVisited": "이미 방문하셨네요!",
     "share.tryNow": "지금 바로 체험하기",
@@ -315,7 +315,7 @@ const translations = {
     
     // Auth
     "auth.badge": "Smart Fashion Starts Here",
-    "auth.title": "Get Started with FitVision",
+    "auth.title": "Get Started with TruPick",
     "auth.subtitle": "Sign in easily with your Google account",
     "auth.google": "Continue with Google",
     "auth.benefits.title": "Benefits of signing in",
@@ -592,11 +592,11 @@ const translations = {
     "share.instruction1": "Share on Instagram Stories with your image",
     "share.instruction2": "Make sure to include the link",
     "share.instruction3": "Get 1 free credit when 3 people click!",
-    "share.shareTemplate": "I tried virtual fitting with FitVision! How do I look?\n\nTry it now\n{url}",
+    "share.shareTemplate": "I tried virtual fitting with TruPick! How do I look?\n\nTry it now\n{url}",
     
     // Share Page
     "share.loading": "Loading...",
-    "share.title": "Welcome to FitVision!",
+    "share.title": "Welcome to TruPick!",
     "share.subtitle": "Try on clothes virtually before buying online",
     "share.alreadyVisited": "You've already visited!",
     "share.tryNow": "Try Now",
