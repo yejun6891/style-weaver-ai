@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, X, LayoutDashboard, User, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, User, LogOut, MessageCircle } from "lucide-react";
 
 const HeaderMenu = () => {
   const navigate = useNavigate();
@@ -64,6 +64,16 @@ const HeaderMenu = () => {
           >
             <User className="w-4 h-4" />
             <span className="font-medium">{t("nav.mypage")}</span>
+          </button>
+          <button
+            onClick={() => {
+              navigate("/feedback");
+              setMenuOpen(false);
+            }}
+            className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-accent transition-colors"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span className="font-medium">{t("nav.feedback")}</span>
           </button>
           <div className="border-t border-border my-1" />
           <button

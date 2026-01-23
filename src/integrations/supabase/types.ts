@@ -14,6 +14,109 @@ export type Database = {
   }
   public: {
     Tables: {
+      feedback_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_url: string
+          id: string
+          ticket_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_url: string
+          id?: string
+          ticket_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_url?: string
+          id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_attachments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_replies: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_admin: boolean
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_admin?: boolean
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_admin?: boolean
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_replies_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      feedback_tickets: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          priority: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          priority?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          priority?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
