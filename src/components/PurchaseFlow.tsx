@@ -16,9 +16,9 @@ import {
 
 // Lemon Squeezy checkout URLs for each credit package (Live mode)
 const lemonSqueezyCheckoutUrls: Record<number, string> = {
-  8: 'https://fitvision.lemonsqueezy.com/checkout/buy/0a310f07-5a74-4538-a2d7-7d794baaa471',
-  18: 'https://fitvision.lemonsqueezy.com/checkout/buy/13e8e780-6cb8-4010-818c-1930571a5d8f',
-  30: 'https://fitvision.lemonsqueezy.com/checkout/buy/17e65cf2-1805-44da-9020-804367e94a50',
+  8: 'https://trupickai.lemonsqueezy.com/checkout/buy/0a310f07-5a74-4538-a2d7-7d794baaa471',
+  18: 'https://trupickai.lemonsqueezy.com/checkout/buy/13e8e780-6cb8-4010-818c-1930571a5d8f',
+  30: 'https://trupickai.lemonsqueezy.com/checkout/buy/17e65cf2-1805-44da-9020-804367e94a50',
 };
 
 interface CreditPackage {
