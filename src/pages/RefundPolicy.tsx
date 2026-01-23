@@ -52,7 +52,7 @@ Partial Refund:
           content: `To request a refund:
 1. Email us at admin@trukin.app
 2. Include your account email address
-3. Provide your purchase date and transaction ID (from Paddle)
+3. Provide your purchase date and transaction ID (from Lemon Squeezy)
 4. Describe the reason for your refund request
 
 We will review your request and respond within 3-5 business days.`
@@ -128,7 +128,7 @@ We aim to respond to all inquiries within 24-48 hours.`
           content: `환불을 요청하려면:
 1. admin@trukin.app으로 이메일을 보내주세요
 2. 계정 이메일 주소를 포함해 주세요
-3. 구매 날짜와 거래 ID(Paddle에서 확인)를 제공해 주세요
+3. 구매 날짜와 거래 ID(Lemon Squeezy에서 확인)를 제공해 주세요
 4. 환불 요청 사유를 설명해 주세요
 
 요청을 검토하고 3-5 영업일 이내에 답변드리겠습니다.`
