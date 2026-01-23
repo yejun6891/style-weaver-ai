@@ -240,7 +240,7 @@ const Admin = () => {
 
             <PromoCodeManagement />
 
-            <UserListTable users={users} />
+            <UserListTable users={users} onUserUpdated={fetchAllData} />
           </>
         )}
       </main>
