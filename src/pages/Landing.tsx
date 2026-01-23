@@ -269,6 +269,10 @@ const Landing = () => {
             <Link to="/refund-policy" className="text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline">
               {t("footer.refund")}
             </Link>
+            <span className="text-muted-foreground/50">·</span>
+            <Link to="/feedback" className="text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline">
+              {t("footer.feedback")}
+            </Link>
           </div>
           
           {/* Copyright */}

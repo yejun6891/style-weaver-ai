@@ -7,6 +7,7 @@ import { UsageChart } from '@/components/admin/UsageChart';
 import { UsageTypeChart } from '@/components/admin/UsageTypeChart';
 import { UserListTable } from '@/components/admin/UserListTable';
 import { PromoCodeManagement } from '@/components/admin/PromoCodeManagement';
+import FeedbackManagement from '@/components/admin/FeedbackManagement';
 import Logo from '@/components/Logo';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Shield } from 'lucide-react';
@@ -239,6 +240,8 @@ const Admin = () => {
             </div>
 
             <PromoCodeManagement />
+
+            <FeedbackManagement />
 
             <UserListTable users={users} onUserUpdated={fetchAllData} />
           </>

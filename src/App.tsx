@@ -13,11 +13,13 @@ import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import MyPage from "./pages/MyPage";
 import Share from "./pages/Share";
+import Feedback from "./pages/Feedback";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import RefundPolicy from "./pages/RefundPolicy";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
+import FloatingFeedbackButton from "./components/FloatingFeedbackButton";
 
 const queryClient = new QueryClient();
 
@@ -38,12 +40,15 @@ const App = () => (
               <Route path="/upload" element={<Upload />} />
               <Route path="/result/:taskId" element={<Result />} />
               <Route path="/share/:code" element={<Share />} />
+              <Route path="/feedback" element={<Feedback />} />
+              <Route path="/feedback/:ticketId" element={<Feedback />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <FloatingFeedbackButton />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
