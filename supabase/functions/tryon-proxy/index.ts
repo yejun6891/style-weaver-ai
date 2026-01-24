@@ -474,8 +474,8 @@ Deno.serve(async (req) => {
 
           console.log(`[tryon-proxy] Task ${responseData.taskId} created successfully for user ${user.id}, mode=${mode}`);
 
-          // Clean up expired history entries (1 hour retention with Fashn.ai)
-          const expirationTime = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString();
+          // Clean up expired history entries (72 hour retention with Fashn.ai)
+          const expirationTime = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
           const { data: expiredHistory } = await supabase
             .from("usage_history")
             .select("id")
