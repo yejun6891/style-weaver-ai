@@ -276,7 +276,7 @@ const Landing = () => {
           </div>
           
           {/* Copyright */}
-          <p className="text-center text-sm text-muted-foreground mb-3">© 2025 Trukin. All rights reserved.</p>
+          <p className="text-center text-sm text-muted-foreground mb-3">© 2026 Trukin. All rights reserved.</p>
           
           {/* Company Info */}
           <p className="text-center text-xs text-muted-foreground/70">
