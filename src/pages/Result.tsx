@@ -142,6 +142,7 @@ const Result = () => {
           const taskStatus = data.status;
 
           if (taskStatus === 2 && data.imageUrl) {
+            console.log(`[Result] ✅ Image received! Total elapsed: ${elapsedTime}s, Poll attempts: ${pollCountRef.current}`);
             onComplete(data.imageUrl);
             return;
           } else if (taskStatus === 0 || taskStatus === 1) {
