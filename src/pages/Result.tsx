@@ -12,7 +12,7 @@ import { StyleProfile } from "@/components/StyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText, Check, Shirt, Clock } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText, Check, Shirt, Clock, MessageCircle } from "lucide-react";
 
 type Status = "loading" | "step1-polling" | "step2-starting" | "step2-polling" | "success" | "error";
 
@@ -553,18 +553,37 @@ const Result = () => {
             <h2 className="font-display text-2xl font-bold mb-2">
               {t("result.error")}
             </h2>
-            <p className="text-muted-foreground mb-8">
+            <p className="text-muted-foreground mb-4">
               {statusText}
             </p>
-            <Button
-              variant="gradient"
-              size="lg"
-              onClick={() => navigate("/upload")}
-              className="gap-2"
-            >
-              <RefreshCw className="w-5 h-5" />
-              {t("result.retry")}
-            </Button>
+            
+            {/* Error compensation guide */}
+            <div className="bg-accent/50 border border-border rounded-xl p-4 mb-6 max-w-md mx-auto">
+              <p className="text-sm text-foreground">
+                💡 {t("result.errorGuide")}
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                variant="gradient"
+                size="lg"
+                onClick={() => navigate("/upload")}
+                className="gap-2"
+              >
+                <RefreshCw className="w-5 h-5" />
+                {t("result.retry")}
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => navigate("/feedback")}
+                className="gap-2"
+              >
+                <MessageCircle className="w-5 h-5" />
+                {t("result.contactUs")}
+              </Button>
+            </div>
           </div>
         )}
       </div>
