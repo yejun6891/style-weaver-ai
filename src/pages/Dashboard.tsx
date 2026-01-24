@@ -36,8 +36,8 @@ const Dashboard = () => {
     const fetchUsageHistory = async () => {
       if (!user) return;
 
-      // Only fetch entries from last 24 hours (results expire after that)
-      const expirationTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      // Only fetch entries from last 1 hour (results expire after that with Fashn.ai)
+      const expirationTime = new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString();
       
       const { data, error } = await supabase
         .from('usage_history')
@@ -205,12 +205,12 @@ const Dashboard = () => {
             ) : (
               <div className="space-y-4">
                 {usageHistory.map((item) => {
-                  // Calculate remaining time until expiration (24 hours from creation)
+                  // Calculate remaining time until expiration (1 hour from creation with Fashn.ai)
                   const createdAt = new Date(item.created_at);
-                  const expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+                  const expiresAt = new Date(createdAt.getTime() + 1 * 60 * 60 * 1000);
                   const now = new Date();
-                  const hoursLeft = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / (60 * 60 * 1000)));
-                  const isExpired = hoursLeft <= 0;
+                  const minutesLeft = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / (60 * 1000)));
+                  const isExpired = minutesLeft <= 0;
                   
                   return (
                     <div 
@@ -234,7 +234,7 @@ const Dashboard = () => {
                           {item.credits_used < 0 ? ` +${Math.abs(item.credits_used)}` : ` -${item.credits_used}`} {t("dashboard.credit")}
                           {item.task_id && !isExpired && (
                             <span className="ml-2 text-primary">
-                              ({hoursLeft}h 남음)
+                              ({minutesLeft}분 남음)
                             </span>
                           )}
                           {item.task_id && isExpired && (
