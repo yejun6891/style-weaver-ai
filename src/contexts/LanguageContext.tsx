@@ -305,8 +305,8 @@ const translations = {
     "result.contactUs": "문의하기",
     "result.imageTab": "피팅 이미지",
     "result.reportTab": "스타일 리포트",
-    "result.estimatedTime": "예상 소요: 30~60초",
-    "result.estimatedTimeFull": "예상 소요: 1~2분",
+    "result.estimatedTime": "예상 소요: 10~20초",
+    "result.estimatedTimeFull": "예상 소요: 25~35초",
     "result.stepLabel": "단계",
     
     // Style Report
@@ -658,8 +658,8 @@ const translations = {
     "result.contactUs": "Contact Us",
     "result.imageTab": "Try-On Image",
     "result.reportTab": "Style Report",
-    "result.estimatedTime": "Est. time: 30~60 sec",
-    "result.estimatedTimeFull": "Est. time: 1~2 min",
+    "result.estimatedTime": "Est. time: 10~20 sec",
+    "result.estimatedTimeFull": "Est. time: 25~35 sec",
     "result.stepLabel": " step",
     
     // Style Report
