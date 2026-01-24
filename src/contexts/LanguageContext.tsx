@@ -14,6 +14,7 @@ const translations = {
     "nav.mypage": "마이페이지",
     "nav.dashboard": "대시보드",
     "nav.login": "로그인",
+    "nav.admin": "관리자 대시보드",
     
     // Auth
     "auth.badge": "스마트한 패션 시작",
@@ -366,6 +367,7 @@ const translations = {
     "nav.mypage": "My Page",
     "nav.dashboard": "Dashboard",
     "nav.login": "Login",
+    "nav.admin": "Admin Dashboard",
     
     // Auth
     "auth.badge": "Smart Fashion Starts Here",
