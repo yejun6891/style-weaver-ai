@@ -288,6 +288,20 @@ const translations = {
     "profile.concerns.label": "패션 고민 / 목표",
     "profile.concerns.placeholder": "예: 다리가 길어 보이면 좋겠어요, 어깨가 좁아 보이게 하고 싶어요...",
     
+    // Fitting Options
+    "profile.fittingOptions.title": "피팅 옵션",
+    "profile.fittingOptions.subtitle": "피팅 품질과 옷 사진 타입을 선택하세요",
+    "profile.runMode.label": "피팅 모드",
+    "profile.runMode.performance": "빠른 피팅",
+    "profile.runMode.performanceDesc": "가벼운 티셔츠나 심플한 디자인에 추천해요",
+    "profile.runMode.quality": "정밀 피팅",
+    "profile.runMode.qualityDesc": "복잡한 패턴이나 고화질 결과물을 원할 때 추천해요",
+    "profile.garmentType.label": "옷 사진 타입",
+    "profile.garmentType.flatLay": "제품 단독 사진",
+    "profile.garmentType.flatLayDesc": "바닥에 펼친 사진, 옷걸이 사진, 또는 배경을 지운 사진",
+    "profile.garmentType.model": "모델 착용 사진",
+    "profile.garmentType.modelDesc": "다른 모델이 입고 있는 사진에서 옷만 가져오기",
+    
     // Result
     "result.title": "가상 피팅 결과",
     "result.processing": "AI가 열심히 작업 중이에요",
@@ -640,6 +654,20 @@ const translations = {
     "profile.style.vintage": "Vintage",
     "profile.concerns.label": "Fashion Goals",
     "profile.concerns.placeholder": "e.g., I want my legs to look longer, I want to balance my shoulders...",
+    
+    // Fitting Options
+    "profile.fittingOptions.title": "Fitting Options",
+    "profile.fittingOptions.subtitle": "Choose fitting quality and garment photo type",
+    "profile.runMode.label": "Fitting Mode",
+    "profile.runMode.performance": "Quick Fitting",
+    "profile.runMode.performanceDesc": "Recommended for simple t-shirts or basic designs",
+    "profile.runMode.quality": "Precise Fitting",
+    "profile.runMode.qualityDesc": "Recommended for complex patterns or high-quality results",
+    "profile.garmentType.label": "Garment Photo Type",
+    "profile.garmentType.flatLay": "Product Photo",
+    "profile.garmentType.flatLayDesc": "Flat-lay, hanger photo, or background-removed image",
+    "profile.garmentType.model": "Model Wearing Photo",
+    "profile.garmentType.modelDesc": "Extract clothing from a photo of another model",
     
     // Result
     "result.title": "Virtual Try-On Result",

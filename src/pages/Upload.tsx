@@ -57,6 +57,8 @@ const Upload = () => {
     styles: [],
     styleOther: "",
     concerns: "",
+    runMode: "performance",
+    garmentPhotoType: "flat-lay",
   });
 
   // 로그인 상태 확인 - 로그인 안 된 경우 리다이렉트
@@ -157,6 +159,10 @@ const Upload = () => {
       formData.append("person_image", processedPerson);
       formData.append("mode", mode);
       
+      // Append runMode and garmentPhotoType for Fashn.ai API
+      formData.append("runMode", styleProfile.runMode);
+      formData.append("garmentPhotoType", styleProfile.garmentPhotoType);
+      
       // Full mode handling
       if (mode === "full") {
         formData.append("fullModeType", fullModeType);
@@ -185,7 +191,7 @@ const Upload = () => {
       }
 
       // ✅ 공식 SDK 호출 사용
-      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...", { mode, fullModeType });
+      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...", { mode, fullModeType, runMode: styleProfile.runMode, garmentPhotoType: styleProfile.garmentPhotoType });
 
       supabase.functions.setAuth(freshSession.access_token);
 

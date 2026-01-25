@@ -25,6 +25,8 @@ const defaultStyleProfile: StyleProfile = {
   styles: [],
   styleOther: "",
   concerns: "",
+  runMode: "performance",
+  garmentPhotoType: "flat-lay",
 };
 
 const Result = () => {
