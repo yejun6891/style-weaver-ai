@@ -6,12 +6,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-signature',
 };
 
-// Variant ID → Credits mapping
-const VARIANT_TO_CREDITS: Record<string, number> = {
-  [Deno.env.get('LEMONSQUEEZY_VARIANT_ID_STARTER') || '']: 8,
-  [Deno.env.get('LEMONSQUEEZY_VARIANT_ID_PLUS') || '']: 18,
-  [Deno.env.get('LEMONSQUEEZY_VARIANT_ID_PRO') || '']: 30,
-};
+// Variant ID → Credits mapping (loaded at request time for fresh env vars)
+function getVariantCredits(variantId: string): number | undefined {
+  const starterVariant = Deno.env.get('LEMONSQUEEZY_VARIANT_ID_STARTER')?.trim();
+  const plusVariant = Deno.env.get('LEMONSQUEEZY_VARIANT_ID_PLUS')?.trim();
+  const proVariant = Deno.env.get('LEMONSQUEEZY_VARIANT_ID_PRO')?.trim();
+  
+  console.log('[Lemon Webhook] Variant env vars:', { 
+    starterVariant, 
+    plusVariant, 
+    proVariant,
+    receivedVariant: variantId 
+  });
+  
+  if (variantId === starterVariant) return 8;
+  if (variantId === plusVariant) return 18;
+  if (variantId === proVariant) return 30;
+  
+  return undefined;
+}
 
 /**
  * Verify HMAC SHA-256 signature from Lemon Squeezy
@@ -77,7 +90,7 @@ serve(async (req) => {
     const userId = payload.meta?.custom_data?.user_id;
     const promoId = payload.meta?.custom_data?.promo_id;
     const variantId = String(payload.data?.attributes?.first_order_item?.variant_id);
-    const creditsToAdd = VARIANT_TO_CREDITS[variantId];
+    const creditsToAdd = getVariantCredits(variantId);
     const orderId = String(payload.data?.id);
 
     console.log('[Lemon Webhook] Processing order:', { 
