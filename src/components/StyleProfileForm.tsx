@@ -2,7 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Ruler, User, Calendar, Shirt, Target } from "lucide-react";
+import { Ruler, User, Calendar, Shirt, Target, Globe } from "lucide-react";
 
 export type RunMode = "performance" | "quality";
 export type GarmentPhotoType = "flat-lay" | "model";
@@ -18,6 +18,7 @@ export interface StyleProfile {
   concerns: string;
   runMode: RunMode;
   garmentPhotoType: GarmentPhotoType;
+  country: string;
 }
 
 interface StyleProfileFormProps {
@@ -56,6 +57,14 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
     { key: "romantic", label: t("profile.style.romantic") },
     { key: "vintage", label: t("profile.style.vintage") },
     { key: "other", label: t("profile.other") },
+  ];
+
+  const countryOptions = [
+    { key: "kr", flag: "🇰🇷", label: t("profile.country.kr") },
+    { key: "us", flag: "🇺🇸", label: t("profile.country.us") },
+    { key: "jp", flag: "🇯🇵", label: t("profile.country.jp") },
+    { key: "cn", flag: "🇨🇳", label: t("profile.country.cn") },
+    { key: "eu", flag: "🇪🇺", label: t("profile.country.eu") },
   ];
 
   const toggleSelection = (
@@ -203,6 +212,28 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
             className="bg-card mt-2"
           />
         )}
+      </div>
+
+      {/* Country Selection */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Globe className="w-4 h-4 text-primary" />
+          <Label className="text-base font-semibold">{t("profile.country.label")}</Label>
+        </div>
+        <p className="text-xs text-muted-foreground -mt-1">
+          {t("profile.country.hint")}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {countryOptions.map((option) => (
+            <ChipButton
+              key={option.key}
+              selected={value.country === option.key}
+              onClick={() => onChange({ ...value, country: option.key })}
+            >
+              {option.flag} {option.label}
+            </ChipButton>
+          ))}
+        </div>
       </div>
 
       {/* Fashion Concerns / Goals */}

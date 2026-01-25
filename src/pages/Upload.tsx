@@ -62,6 +62,7 @@ const Upload = () => {
     concerns: "",
     runMode: "performance",
     garmentPhotoType: "flat-lay",
+    country: "",
   });
 
   // 로그인 상태 확인 - 로그인 안 된 경우 리다이렉트
