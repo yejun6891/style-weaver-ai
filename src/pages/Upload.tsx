@@ -409,9 +409,7 @@ const Upload = () => {
                 <ul className="space-y-1.5 text-xs text-muted-foreground">
                   <li>• {t("upload.guide.person.pose")}</li>
                   <li>• {t("upload.guide.person.attire")}</li>
-                  <li>• {t("upload.guide.person.angle")}</li>
                   <li>• {t("upload.guide.person.background")}</li>
-                  <li>• {t("upload.guide.person.objects")}</li>
                   <li>• {t("upload.guide.person.size")}</li>
                   <li>• {t("upload.guide.person.noGroup")}</li>
                   <li>• {t("upload.guide.person.noHolding")}</li>
@@ -425,28 +423,22 @@ const Upload = () => {
                   <li>• {t("upload.guide.garment.noOverlap")}</li>
                   <li>• {t("upload.guide.garment.frontView")}</li>
                   <li>• {t("upload.guide.garment.wrinkle")}</li>
-                  <li>• {t("upload.guide.garment.model")}</li>
                 </ul>
               </div>
             </CollapsibleContent>
           </Collapsible>
 
-          {/* Mode-specific Person Photo Guide */}
-          <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
-            <p className="text-sm text-foreground font-medium">
-              {mode === "top" && t("upload.person.guide.top")}
-              {mode === "bottom" && t("upload.person.guide.bottom")}
-              {mode === "full" && t("upload.person.guide.full")}
-            </p>
-          </div>
-
-          {/* Person Image */}
+          {/* Person Image with Mode-specific notice */}
           <ImageUploadZone
             label={t("upload.person.label")}
             description={t("upload.person.desc")}
             file={personFile}
             onFileChange={setPersonFile}
-            showPersonNotice
+            modeNotice={
+              mode === "top" ? t("upload.person.guide.top") :
+              mode === "bottom" ? t("upload.person.guide.bottom") :
+              t("upload.person.guide.full")
+            }
           />
 
           {/* Garment Photo Type Selection - Between person and garment photos */}
