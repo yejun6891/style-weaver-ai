@@ -147,6 +147,33 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_logs: {
+        Row: {
+          created_at: string | null
+          credits_added: number
+          id: string
+          lemon_order_id: string
+          user_id: string
+          variant_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          credits_added: number
+          id?: string
+          lemon_order_id: string
+          user_id: string
+          variant_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          credits_added?: number
+          id?: string
+          lemon_order_id?: string
+          user_id?: string
+          variant_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -403,6 +430,10 @@ export type Database = {
     }
     Functions: {
       add_credits: {
+        Args: { p_credits: number; p_user_id: string }
+        Returns: undefined
+      }
+      add_credits_admin: {
         Args: { p_credits: number; p_user_id: string }
         Returns: undefined
       }
