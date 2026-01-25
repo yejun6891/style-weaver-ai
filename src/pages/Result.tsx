@@ -64,6 +64,10 @@ const Result = () => {
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const analysisCalledRef = useRef(false);
   
+  // Track fitting completion separately from final status
+  const [fittingComplete, setFittingComplete] = useState(false);
+  const [fittingImageUrl, setFittingImageUrl] = useState<string | null>(null);
+  
   // Full mode state
   const mode = searchParams.get("mode") || sessionStorage.getItem("tryonMode") || "top";
   const isFullMode = mode === "full";
@@ -77,6 +81,12 @@ const Result = () => {
   const continueCalledRef = useRef(false);
   const [elapsedTime, setElapsedTime] = useState(0);
   const pollCountRef = useRef(0);
+
+  // Determine if user has filled out style profile (derived from state)
+  const hasStyleProfile = styleProfile.bodyTypes.length > 0 || 
+    styleProfile.occasions.length > 0 || 
+    styleProfile.styles.length > 0 || 
+    Boolean(styleProfile.concerns);
 
   useEffect(() => {
     // Load style profile from sessionStorage
@@ -94,8 +104,9 @@ const Result = () => {
     setStatusText(t("result.processing"));
   }, [t]);
 
-  // Elapsed time counter - runs while status is a loading state
-  const isLoadingState = status === "loading" || status === "step1-polling" || status === "step2-starting" || status === "step2-polling";
+  // Elapsed time counter - runs while status is a loading state (including style analysis wait)
+  const isLoadingState = status === "loading" || status === "step1-polling" || status === "step2-starting" || status === "step2-polling" || 
+    (fittingComplete && hasStyleProfile && analysisLoading);
   
   useEffect(() => {
     if (isLoadingState) {
@@ -271,9 +282,10 @@ const Result = () => {
       setStatus("loading");
       
       pollResult(taskId, (finalImageUrl) => {
+        console.log("[Result] Fitting complete, image received");
+        setFittingComplete(true);
+        setFittingImageUrl(finalImageUrl);
         setProgress(100);
-        setImageUrl(finalImageUrl);
-        setStatus("success");
         clearInterval(progressInterval);
       });
     }
@@ -322,18 +334,15 @@ const Result = () => {
     }
   };
 
-  const hasStyleProfile = styleProfile.bodyTypes.length > 0 || 
-    styleProfile.occasions.length > 0 || 
-    styleProfile.styles.length > 0 || 
-    styleProfile.concerns;
-
-  // Fetch style analysis when fitting is successful
+  // Fetch style analysis - called immediately when session is available and style profile exists
   const fetchStyleAnalysis = useCallback(async () => {
     if (!session?.access_token || !hasStyleProfile || analysisCalledRef.current) return;
     
     analysisCalledRef.current = true;
     setAnalysisLoading(true);
     setAnalysisError(null);
+    
+    console.log("[Result] Starting style analysis request...");
     
     try {
       const response = await fetch(
@@ -377,12 +386,31 @@ const Result = () => {
     }
   }, [session?.access_token, hasStyleProfile, styleProfile, language, t]);
 
-  // Trigger style analysis when fitting is successful
+  // Start style analysis immediately when session is ready (parallel with fitting)
   useEffect(() => {
-    if (status === "success" && hasStyleProfile && !styleAnalysis && !analysisLoading && !analysisCalledRef.current) {
+    if (session?.access_token && hasStyleProfile && !analysisCalledRef.current) {
       fetchStyleAnalysis();
     }
-  }, [status, hasStyleProfile, styleAnalysis, analysisLoading, fetchStyleAnalysis]);
+  }, [session?.access_token, hasStyleProfile, fetchStyleAnalysis]);
+
+  // Determine final success: fitting must be complete, and if style profile exists, analysis must also be complete
+  useEffect(() => {
+    if (fittingComplete && fittingImageUrl) {
+      if (hasStyleProfile) {
+        // Wait for style analysis to complete (success or error)
+        if (!analysisLoading) {
+          console.log("[Result] Both fitting and style analysis complete, showing results");
+          setImageUrl(fittingImageUrl);
+          setStatus("success");
+        }
+      } else {
+        // No style profile, show result immediately
+        console.log("[Result] No style profile, showing fitting result immediately");
+        setImageUrl(fittingImageUrl);
+        setStatus("success");
+      }
+    }
+  }, [fittingComplete, fittingImageUrl, hasStyleProfile, analysisLoading]);
 
   const isLoading = isLoadingState;
 
@@ -472,11 +500,13 @@ const Result = () => {
             </div>
 
             <h2 className="font-display text-2xl font-bold mb-2">
-              {isTwoStepFullMode 
-                ? (currentStep === 1 
-                    ? (t("result.step1Processing") || "상의 교체 중...") 
-                    : (t("result.step2Processing") || "하의 교체 중..."))
-                : statusText}
+              {fittingComplete && hasStyleProfile && analysisLoading
+                ? (language === "ko" ? "스타일 분석 중..." : "Analyzing your style...")
+                : isTwoStepFullMode 
+                  ? (currentStep === 1 
+                      ? (t("result.step1Processing") || "상의 교체 중...") 
+                      : (t("result.step2Processing") || "하의 교체 중..."))
+                  : statusText}
             </h2>
             
             {/* Elapsed time and estimated time */}
