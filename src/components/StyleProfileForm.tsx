@@ -59,13 +59,7 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
     { key: "other", label: t("profile.other") },
   ];
 
-  const countryOptions = [
-    { key: "kr", flag: "🇰🇷", label: t("profile.country.kr") },
-    { key: "us", flag: "🇺🇸", label: t("profile.country.us") },
-    { key: "jp", flag: "🇯🇵", label: t("profile.country.jp") },
-    { key: "cn", flag: "🇨🇳", label: t("profile.country.cn") },
-    { key: "eu", flag: "🇪🇺", label: t("profile.country.eu") },
-  ];
+  // Country is now a free-text input instead of predefined options
 
   const toggleSelection = (
     field: "bodyTypes" | "occasions" | "styles",
@@ -214,26 +208,23 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
         )}
       </div>
 
-      {/* Country Selection */}
+      {/* Country Input */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4 text-primary" />
           <Label className="text-base font-semibold">{t("profile.country.label")}</Label>
+          <span className="text-xs text-muted-foreground">({t("upload.optional")})</span>
         </div>
         <p className="text-xs text-muted-foreground -mt-1">
           {t("profile.country.hint")}
         </p>
-        <div className="flex flex-wrap gap-2">
-          {countryOptions.map((option) => (
-            <ChipButton
-              key={option.key}
-              selected={value.country === option.key}
-              onClick={() => onChange({ ...value, country: option.key })}
-            >
-              {option.flag} {option.label}
-            </ChipButton>
-          ))}
-        </div>
+        <Input
+          type="text"
+          placeholder={t("profile.country.placeholder")}
+          value={value.country}
+          onChange={(e) => onChange({ ...value, country: e.target.value })}
+          className="bg-card"
+        />
       </div>
 
       {/* Fashion Concerns / Goals */}

@@ -333,13 +333,9 @@ const translations = {
     "profile.concerns.placeholder": "예: 다리가 길어 보이면 좋겠어요, 어깨가 좁아 보이게 하고 싶어요...",
     
     // Country Selection
-    "profile.country.label": "선호 국가",
+    "profile.country.label": "선호 국가/지역",
     "profile.country.hint": "해당 국가에서 유행하는 스타일, 연예인, 브랜드를 기반으로 분석해드려요",
-    "profile.country.kr": "한국",
-    "profile.country.us": "미국",
-    "profile.country.jp": "일본",
-    "profile.country.cn": "중국",
-    "profile.country.eu": "유럽",
+    "profile.country.placeholder": "예: 한국, 미국, 일본...",
     
     // Fitting Options
     "profile.fittingOptions.title": "피팅 옵션",
@@ -753,13 +749,9 @@ const translations = {
     "profile.concerns.placeholder": "e.g., I want my legs to look longer, I want to balance my shoulders...",
     
     // Country Selection
-    "profile.country.label": "Preferred Country",
+    "profile.country.label": "Preferred Country/Region",
     "profile.country.hint": "Get analysis based on trending styles, celebrities, and brands from that country",
-    "profile.country.kr": "Korea",
-    "profile.country.us": "USA",
-    "profile.country.jp": "Japan",
-    "profile.country.cn": "China",
-    "profile.country.eu": "Europe",
+    "profile.country.placeholder": "e.g., Korea, USA, Japan...",
     
     // Fitting Options
     "profile.fittingOptions.title": "Fitting Options",
