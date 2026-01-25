@@ -304,6 +304,9 @@ const translations = {
     // Style Profile
     "profile.title": "스타일 프로필",
     "profile.subtitle": "더 정확한 스타일 분석을 위해 정보를 입력해주세요",
+    "profile.gender.label": "성별",
+    "profile.gender.male": "남성",
+    "profile.gender.female": "여성",
     "profile.height": "키",
     "profile.heightPlaceholder": "예: 170cm",
     "profile.multiSelect": "복수 선택 가능",
@@ -710,6 +713,9 @@ const translations = {
     // Style Profile
     "profile.title": "Style Profile",
     "profile.subtitle": "Enter info for more accurate style analysis",
+    "profile.gender.label": "Gender",
+    "profile.gender.male": "Male",
+    "profile.gender.female": "Female",
     "profile.height": "Height",
     "profile.heightPlaceholder": "e.g., 170cm or 5'7\"",
     "profile.multiSelect": "Select multiple",

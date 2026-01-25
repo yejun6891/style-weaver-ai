@@ -33,6 +33,7 @@ interface StyleAnalysisData {
 }
 
 const defaultStyleProfile: StyleProfile = {
+  gender: "",
   height: "",
   bodyTypes: [],
   bodyTypeOther: "",
