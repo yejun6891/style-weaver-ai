@@ -434,6 +434,7 @@ const Upload = () => {
             <div className="flex items-center gap-2 mb-3">
               <Image className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-foreground">{t("profile.garmentType.label")}</span>
+              <span className="text-xs font-medium text-destructive">*{t("upload.required.label")}</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {garmentPhotoOptions.map((option) => (
@@ -589,6 +590,7 @@ const Upload = () => {
             <div className="flex items-center gap-2">
               <Zap className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-foreground">{t("profile.runMode.label")}</span>
+              <span className="text-xs font-medium text-destructive">*{t("upload.required.label")}</span>
             </div>
             <RadioGroup
               value={runMode || ""}
