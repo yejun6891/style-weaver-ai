@@ -9,15 +9,10 @@ import Logo from "@/components/Logo";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle, Shirt, PanelBottom, Layers, Image, Zap, ChevronDown } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle, Shirt, PanelBottom, Layers, Image, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { preprocessPersonImage, preprocessTopGarment, preprocessBottomGarment } from "@/utils/imagePreprocess";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 
 import {
   Dialog,
@@ -38,16 +33,16 @@ import {
 } from "@/components/ui/alert-dialog";
 
 type TryonMode = "top" | "bottom" | "full";
-type GarmentPhotoType = "flat-lay" | "model";
-type RunMode = "performance" | "quality";
+type GarmentPhotoType = "flat-lay" | "model" | null;
+type RunMode = "performance" | "quality" | null;
 
 const Upload = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { session, profile, loading, refreshProfile } = useAuth();
   const [mode, setMode] = useState<TryonMode>("top");
-  const [garmentPhotoType, setGarmentPhotoType] = useState<GarmentPhotoType>("flat-lay");
-  const [runMode, setRunMode] = useState<RunMode>("performance");
+  const [garmentPhotoType, setGarmentPhotoType] = useState<GarmentPhotoType>(null);
+  const [runMode, setRunMode] = useState<RunMode>(null);
   const [personFile, setPersonFile] = useState<File | null>(null);
   const [topFile, setTopFile] = useState<File | null>(null);
   const [bottomFile, setBottomFile] = useState<File | null>(null);
@@ -239,6 +234,12 @@ const Upload = () => {
   const handleOpenConfirm = async () => {
     if (!canSubmit) return;
     
+    // Validate garmentPhotoType selection
+    if (!garmentPhotoType) {
+      toast.error(t("upload.validation.garmentPhotoType"));
+      return;
+    }
+    
     // Refresh profile to get latest credits
     await refreshProfile();
     
@@ -248,6 +249,16 @@ const Upload = () => {
     } else {
       setShowConfirmDialog(true);
     }
+  };
+  
+  // Handle confirm submit with runMode validation
+  const handleConfirmSubmitWithValidation = () => {
+    if (!runMode) {
+      toast.error(t("upload.validation.runMode"));
+      return;
+    }
+    setShowConfirmDialog(false);
+    handleSubmit();
   };
 
   // Determine if form can be submitted based on mode
@@ -279,10 +290,6 @@ const Upload = () => {
     styleProfile.styles.length > 0 ||
     styleProfile.concerns.trim() !== "";
 
-  const handleConfirmSubmit = () => {
-    setShowConfirmDialog(false);
-    handleSubmit();
-  };
 
   const CheckItem = ({ label, isReady, isOptional = false }: { label: string; isReady: boolean; isOptional?: boolean }) => (
     <div className="flex items-center justify-between py-3 border-b border-border last:border-b-0">
@@ -396,38 +403,6 @@ const Upload = () => {
         </div>
 
         <div className="space-y-6">
-          {/* Unified Photo Guide - Collapsible */}
-          <Collapsible>
-            <CollapsibleTrigger className="w-full p-4 rounded-xl bg-card border border-border hover:bg-accent/50 transition-colors flex items-center justify-between group">
-              <span className="text-sm font-semibold text-foreground">{t("upload.guide.title")}</span>
-              <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="mt-3 p-4 rounded-xl bg-accent/30 border border-border/50 space-y-4">
-              {/* Person Photo Tips */}
-              <div>
-                <p className="text-xs font-bold text-foreground mb-2">{t("upload.guide.personSection")}</p>
-                <ul className="space-y-1.5 text-xs text-muted-foreground">
-                  <li>• {t("upload.guide.person.pose")}</li>
-                  <li>• {t("upload.guide.person.attire")}</li>
-                  <li>• {t("upload.guide.person.background")}</li>
-                  <li>• {t("upload.guide.person.size")}</li>
-                  <li>• {t("upload.guide.person.noGroup")}</li>
-                  <li>• {t("upload.guide.person.noHolding")}</li>
-                </ul>
-              </div>
-              {/* Garment Photo Tips */}
-              <div className="pt-3 border-t border-border/50">
-                <p className="text-xs font-bold text-foreground mb-2">{t("upload.guide.garmentSection")}</p>
-                <ul className="space-y-1.5 text-xs text-muted-foreground">
-                  <li>• {t("upload.guide.garment.flatLay")}</li>
-                  <li>• {t("upload.guide.garment.noOverlap")}</li>
-                  <li>• {t("upload.guide.garment.frontView")}</li>
-                  <li>• {t("upload.guide.garment.wrinkle")}</li>
-                </ul>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-
           {/* Person Image with Mode-specific notice */}
           <ImageUploadZone
             label={t("upload.person.label")}
@@ -440,6 +415,19 @@ const Upload = () => {
               t("upload.person.guide.full")
             }
           />
+          
+          {/* Person Photo Tips - Visible directly */}
+          <div className="p-4 rounded-xl bg-accent/30 border border-border/50">
+            <p className="text-xs font-bold text-foreground mb-2">{t("upload.guide.personSection")}</p>
+            <ul className="space-y-1.5 text-xs text-muted-foreground">
+              <li>• {t("upload.guide.person.pose")}</li>
+              <li>• {t("upload.guide.person.attire")}</li>
+              <li>• {t("upload.guide.person.background")}</li>
+              <li>• {t("upload.guide.person.size")}</li>
+              <li>• {t("upload.guide.person.noGroup")}</li>
+              <li>• {t("upload.guide.person.noHolding")}</li>
+            </ul>
+          </div>
 
           {/* Garment Photo Type Selection - Between person and garment photos */}
           <div className="p-4 rounded-xl bg-card border border-border">
@@ -498,6 +486,17 @@ const Upload = () => {
               onFileChange={setOutfitFile}
             />
           )}
+          
+          {/* Garment Photo Tips - Visible directly after garment upload */}
+          <div className="p-4 rounded-xl bg-accent/30 border border-border/50">
+            <p className="text-xs font-bold text-foreground mb-2">{t("upload.guide.garmentSection")}</p>
+            <ul className="space-y-1.5 text-xs text-muted-foreground">
+              <li>• {t("upload.guide.garment.flatLay")}</li>
+              <li>• {t("upload.guide.garment.noOverlap")}</li>
+              <li>• {t("upload.guide.garment.frontView")}</li>
+              <li>• {t("upload.guide.garment.wrinkle")}</li>
+            </ul>
+          </div>
 
           {/* Divider */}
           <div className="relative py-4">
@@ -592,7 +591,7 @@ const Upload = () => {
               <span className="text-sm font-semibold text-foreground">{t("profile.runMode.label")}</span>
             </div>
             <RadioGroup
-              value={runMode}
+              value={runMode || ""}
               onValueChange={(val) => setRunMode(val as RunMode)}
               className="grid grid-cols-1 gap-2"
             >
@@ -635,19 +634,6 @@ const Upload = () => {
             </RadioGroup>
           </div>
           
-          {/* Accuracy Tips */}
-          {(mode === "top" || mode === "bottom") && (
-            <div className="bg-primary/10 rounded-lg p-3 text-xs text-foreground border border-primary/20 mb-3">
-              <p className="font-medium mb-1">💡 {t("upload.confirm.accuracyTitle")}</p>
-              {mode === "top" && (
-                <p>• {t("upload.confirm.topAccuracyTip")}</p>
-              )}
-              {mode === "bottom" && (
-                <p>• {t("upload.confirm.bottomAccuracyTip")}</p>
-              )}
-            </div>
-          )}
-          
           <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground mb-3">
             💡 {t("upload.confirm.qualityNotice")}
           </div>
@@ -658,7 +644,7 @@ const Upload = () => {
             <Button variant="outline" onClick={() => setShowConfirmDialog(false)}>
               {t("upload.confirm.cancel")}
             </Button>
-            <Button variant="gradient" onClick={handleConfirmSubmit}>
+            <Button variant="gradient" onClick={handleConfirmSubmitWithValidation}>
               {t("upload.confirm.start")}
               <ArrowRight className="w-4 h-4 ml-1" />
             </Button>

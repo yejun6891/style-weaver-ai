@@ -247,6 +247,10 @@ const translations = {
     "upload.confirm.bottomAccuracyTip": "상의가 보이지 않는 하의만 담긴 사진이 가장 정확해요",
     "upload.example": "예시",
     
+    // Upload Validation
+    "upload.validation.garmentPhotoType": "옷 사진 타입을 선택해주세요",
+    "upload.validation.runMode": "피팅 모드를 선택해주세요",
+    
     // Upload Mode Selection
     "upload.mode.title": "피팅 모드 선택",
     "upload.mode.top": "상의 피팅",
@@ -648,6 +652,10 @@ const translations = {
     "upload.confirm.topAccuracyTip": "Photos with only the top (no bottom visible) give the best results",
     "upload.confirm.bottomAccuracyTip": "Photos with only the bottom (no top visible) give the best results",
     "upload.example": "Example",
+    
+    // Upload Validation
+    "upload.validation.garmentPhotoType": "Please select a garment photo type",
+    "upload.validation.runMode": "Please select a fitting mode",
     
     // Upload Mode Selection
     "upload.mode.title": "Select Try-On Mode",
