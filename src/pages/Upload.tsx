@@ -552,7 +552,7 @@ const Upload = () => {
 
       {/* Confirmation Dialog with Fitting Mode Selection */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
           <DialogHeader>
             <DialogTitle>{t("upload.confirm.title")}</DialogTitle>
             <DialogDescription>
