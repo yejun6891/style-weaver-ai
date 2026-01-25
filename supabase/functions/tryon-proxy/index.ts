@@ -44,6 +44,8 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 // Valid try-on modes
 type TryonMode = "top" | "bottom" | "full";
 type FullModeType = "separate" | "single";
+type RunMode = "performance" | "quality";
+type GarmentPhotoType = "flat-lay" | "model";
 
 // Timeout settings (in milliseconds)
 const TIMEOUT_SINGLE_MODE = 30000;  // 30s for top/bottom
@@ -321,13 +323,24 @@ Deno.serve(async (req) => {
         ? fullModeTypeValue as FullModeType
         : "separate";
 
+      // Get runMode and garmentPhotoType from form data (Fashn.ai API parameters)
+      const runModeValue = formData.get("runMode") as string || "performance";
+      const runMode: RunMode = ["performance", "quality"].includes(runModeValue)
+        ? runModeValue as RunMode
+        : "performance";
+
+      const garmentPhotoTypeValue = formData.get("garmentPhotoType") as string || "flat-lay";
+      const garmentPhotoType: GarmentPhotoType = ["flat-lay", "model"].includes(garmentPhotoTypeValue)
+        ? garmentPhotoTypeValue as GarmentPhotoType
+        : "flat-lay";
+
       // Calculate required credits based on mode and fullModeType
       // full-separate: 2 credits (two API calls), full-single: 1 credit (one API call)
       const creditsRequired = mode === "full" 
         ? (fullModeType === "single" ? 1 : 2) 
         : 1;
 
-      console.log(`[tryon-proxy] Mode: ${mode}, FullModeType: ${fullModeType}, Credits required: ${creditsRequired}`);
+      console.log(`[tryon-proxy] Mode: ${mode}, FullModeType: ${fullModeType}, RunMode: ${runMode}, GarmentPhotoType: ${garmentPhotoType}, Credits required: ${creditsRequired}`);
 
       // Check credit BEFORE starting the upstream job
       const { data: profileRow, error: profileError } = await supabase
@@ -357,6 +370,10 @@ Deno.serve(async (req) => {
 
       const validatedFormData = new FormData();
       validatedFormData.append("mode", mode);
+      
+      // Add runMode and garmentPhotoType for Fashn.ai API
+      validatedFormData.append("runMode", runMode);
+      validatedFormData.append("garmentPhotoType", garmentPhotoType);
       
       // Add fullModeType when mode is "full"
       if (mode === "full") {
