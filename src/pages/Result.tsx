@@ -577,15 +577,16 @@ const Result = () => {
                 <RefreshCw className="w-5 h-5" />
                 {t("result.retry")}
               </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => navigate("/feedback")}
-                className="gap-2"
-              >
-                <MessageCircle className="w-5 h-5" />
-                {t("result.contactUs")}
-              </Button>
+              <Link to="/feedback">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="gap-2"
+                >
+                  <MessageCircle className="w-5 h-5" />
+                  {t("result.contactUs")}
+                </Button>
+              </Link>
             </div>
           </div>
         )}
