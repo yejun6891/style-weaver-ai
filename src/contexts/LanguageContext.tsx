@@ -185,8 +185,8 @@ const translations = {
     "upload.back": "돌아가기",
     "upload.title": "이미지 업로드",
     "upload.subtitle": "전신 사진과 입어보고 싶은 옷을 업로드하세요",
-    "upload.person.label": "전신 사진",
-    "upload.person.desc": "정면을 바라보는 전신 사진",
+    "upload.person.label": "내 사진",
+    "upload.person.desc": "정면을 바라보는 사진",
     "upload.person.req1": "정면 전신 (손이 보여야 함)",
     "upload.person.req2": "단체 사진 불가",
     "upload.person.req3": "측면/반신/앉은 자세 불가",
@@ -264,7 +264,7 @@ const translations = {
     // Common Person Photo Guidelines
     "upload.person.commonGuide.title": "공통 촬영 팁",
     "upload.person.commonGuide.pose": "포즈: 팔을 몸에 붙이지 말고 옆으로 살짝 벌려주세요 (A-Pose)",
-    "upload.person.commonGuide.attire": "복장: 너무 헐렁하거나 두꺼운 옷보다는 몸에 딱 붙는 얇은 옷 권장",
+    "upload.person.commonGuide.attire": "복장: 헐렁하거나 두꺼운 옷(패딩 등)을 입으면 체형 인식이 어려워 피팅 결과가 부정확해질 수 있어요",
     "upload.person.commonGuide.angle": "구도: 카메라를 정면으로 응시하고, 수평으로 촬영",
     
     // Garment Photo Guidelines based on type
@@ -572,8 +572,8 @@ const translations = {
     "upload.back": "Back",
     "upload.title": "Upload Images",
     "upload.subtitle": "Upload your photo and the clothes you want to try",
-    "upload.person.label": "Your Photo",
-    "upload.person.desc": "Front-facing full-body photo",
+    "upload.person.label": "My Photo",
+    "upload.person.desc": "Front-facing photo",
     "upload.person.req1": "Full body, front view (hands visible)",
     "upload.person.req2": "No group photos",
     "upload.person.req3": "No side/half body/sitting poses",
@@ -651,7 +651,7 @@ const translations = {
     // Common Person Photo Guidelines
     "upload.person.commonGuide.title": "Common Photo Tips",
     "upload.person.commonGuide.pose": "Pose: Spread arms slightly to the side, not against your body (A-Pose)",
-    "upload.person.commonGuide.attire": "Attire: Thin fitted clothes work better than loose or thick clothing",
+    "upload.person.commonGuide.attire": "Attire: Loose or thick clothing (like puffer jackets) may cause inaccurate fitting results due to body shape detection issues",
     "upload.person.commonGuide.angle": "Angle: Face the camera directly, shoot horizontally",
     
     // Garment Photo Guidelines based on type
