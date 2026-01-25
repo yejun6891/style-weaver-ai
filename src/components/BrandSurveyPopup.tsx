@@ -17,20 +17,17 @@ import { toast } from "sonner";
 
 const SURVEY_STORAGE_KEY = "brand_survey_completed";
 
-// Popular US fashion brands
+// Popular fashion brands
 const BRAND_OPTIONS = [
   "Nike",
   "Adidas",
   "Zara",
   "H&M",
   "Uniqlo",
-  "Levi's",
-  "Gap",
   "Ralph Lauren",
   "Tommy Hilfiger",
   "Calvin Klein",
   "Patagonia",
-  "The North Face",
   "Lululemon",
   "Anthropologie",
   "Urban Outfitters",
@@ -39,6 +36,9 @@ const BRAND_OPTIONS = [
   "J.Crew",
   "Everlane",
   "Aritzia",
+  "Aerie",
+  "Alo Yoga",
+  "Brandy Melville",
 ];
 
 const BrandSurveyPopup = () => {
