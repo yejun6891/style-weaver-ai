@@ -40,15 +40,14 @@ We automatically collect certain information when you use our service:
 • Detect and prevent fraud or abuse`
         },
         {
-          title: "4. Sharing of Information",
-          content: `We do not sell your personal information. We may share your information with:
-• Service providers who assist in our operations (e.g., payment processors, cloud storage)
-• Legal authorities when required by law
-• Business partners with your explicit consent`
+          title: "4. Information Sharing and Processing Delegation",
+          content: `We do not sell or share your personal information without authorization. However, to perform core service functions—such as virtual try-on image generation, AI-based style analysis reports, secure payment processing, and data storage—we delegate certain tasks to specialized external technology partners within the minimum necessary scope. Information provided in this process is used only for the limited purpose of achieving these objectives.`
         },
         {
-          title: "5. Data Retention",
-          content: `We retain your personal information for as long as your account is active or as needed to provide you services. Uploaded images for virtual try-on are automatically deleted within 72 hours after processing. You may request deletion of your data at any time by contacting us.`
+          title: "5. Data Retention and Deletion Policy",
+          content: `Original images for try-on: Photos used for virtual try-on processing are completely deleted from the processing engine within a maximum of 72 hours after completion, in accordance with the security policies of our specialized technology partners.
+
+Service usage records: Generated try-on results and analysis reports are retained until your account is maintained so you can continuously access them within the service. However, if you request deletion directly or withdraw your account, they will be destroyed without delay.`
         },
         {
           title: "6. Your Rights (California Residents - CCPA)",
@@ -74,9 +73,12 @@ To exercise these rights, contact us at admin@trukin.app`
         },
         {
           title: "10. Contact Us",
-          content: `If you have questions about this Privacy Policy, please contact us at:
+          content: `If you have questions about this policy or wish to exercise your privacy rights, you can reach us anytime through the following channels:
+
 Email: admin@trukin.app
-Company: Trukin (Korean business name: 트루킨)
+
+In-service inquiry: Click the 'Contact Us' button at the bottom of the website to leave a message in real-time.
+
 Owner: Yejoon Jeong`
         }
       ]
@@ -113,15 +115,14 @@ Owner: Yejoon Jeong`
 • 부정 행위 탐지 및 방지`
         },
         {
-          title: "4. 정보 공유",
-          content: `당사는 귀하의 개인정보를 판매하지 않습니다. 다음의 경우에만 정보를 공유할 수 있습니다:
-• 운영을 지원하는 서비스 제공업체 (결제 처리업체, 클라우드 스토리지 등)
-• 법률에 의해 요구되는 경우 법적 기관
-• 귀하의 명시적 동의가 있는 경우 비즈니스 파트너`
+          title: "4. 정보 공유 및 위탁",
+          content: `당사는 귀하의 개인정보를 외부에 판매하거나 무단으로 공유하지 않습니다. 다만, 가상 피팅 이미지 생성, AI 기반 스타일 분석 리포트 제공, 안전한 결제 처리 및 데이터 보관 등 서비스의 핵심 기능을 수행하기 위해 필요한 최소한의 범위 내에서 전문 외부 기술 협력사에 업무를 위탁하고 있습니다. 이 과정에서 제공되는 정보는 해당 목적을 달성하기 위한 용도로만 제한적으로 사용됩니다.`
         },
         {
-          title: "5. 데이터 보존",
-          content: `귀하의 개인정보는 계정이 활성화되어 있거나 서비스 제공에 필요한 기간 동안 보존됩니다. 가상 피팅을 위해 업로드된 이미지는 처리 후 72시간 이내에 자동 삭제됩니다. 언제든지 연락을 통해 데이터 삭제를 요청할 수 있습니다.`
+          title: "5. 데이터 보존 및 삭제 정책",
+          content: `피팅용 원본 이미지: 가상 피팅 처리를 위해 사용된 사진은 전문 기술 협력사의 보안 정책에 따라 처리 완료 후 최대 72시간 이내에 해당 엔진에서 완전히 삭제됩니다.
+
+서비스 이용 기록: 생성된 피팅 결과 및 분석 리포트는 사용자가 서비스 내에서 지속적으로 확인하실 수 있도록 계정 유지 시까지 보관됩니다. 단, 사용자가 직접 삭제를 요청하거나 계정을 탈퇴할 경우 지체 없이 파기합니다.`
         },
         {
           title: "6. 귀하의 권리 (캘리포니아 거주자 - CCPA)",
@@ -147,9 +148,12 @@ Owner: Yejoon Jeong`
         },
         {
           title: "10. 문의하기",
-          content: `본 개인정보처리방침에 관한 질문이 있으시면 다음으로 연락해 주세요:
+          content: `본 방침에 관한 질문이나 개인정보 관련 권리 행사는 다음 채널을 통해 언제든지 요청하실 수 있습니다.
+
 이메일: admin@trukin.app
-회사명: Trukin
+
+서비스 내 문의: 웹사이트 하단의 '문의하기' 버튼을 클릭하여 실시간으로 메시지를 남겨주세요.
+
 대표자: 정예준 (Yejoon Jeong)`
         }
       ]
