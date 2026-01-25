@@ -43,9 +43,9 @@ const Result = () => {
   
   // Full mode state
   const mode = searchParams.get("mode") || sessionStorage.getItem("tryonMode") || "top";
-  const fullModeType = searchParams.get("fullModeType") || sessionStorage.getItem("fullModeType") || "separate";
   const isFullMode = mode === "full";
-  const isTwoStepFullMode = isFullMode && fullModeType === "separate";
+  // Two-step full mode is no longer used - always single mode
+  const isTwoStepFullMode = false;
   const needsContinue = searchParams.get("needsContinue") === "true";
   const step1TaskIdParam = searchParams.get("step1TaskId") || taskId;
   

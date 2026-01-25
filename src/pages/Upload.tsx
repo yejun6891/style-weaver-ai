@@ -9,9 +9,10 @@ import Logo from "@/components/Logo";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle, Shirt, PanelBottom, Layers } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle, Shirt, PanelBottom, Layers, Image, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { preprocessPersonImage, preprocessTopGarment, preprocessBottomGarment } from "@/utils/imagePreprocess";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import {
   Dialog,
@@ -32,14 +33,16 @@ import {
 } from "@/components/ui/alert-dialog";
 
 type TryonMode = "top" | "bottom" | "full";
-type FullModeType = "separate" | "single";
+type GarmentPhotoType = "flat-lay" | "model";
+type RunMode = "performance" | "quality";
 
 const Upload = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { session, profile, loading, refreshProfile } = useAuth();
   const [mode, setMode] = useState<TryonMode>("top");
-  const [fullModeType, setFullModeType] = useState<FullModeType>("separate");
+  const [garmentPhotoType, setGarmentPhotoType] = useState<GarmentPhotoType>("flat-lay");
+  const [runMode, setRunMode] = useState<RunMode>("performance");
   const [personFile, setPersonFile] = useState<File | null>(null);
   const [topFile, setTopFile] = useState<File | null>(null);
   const [bottomFile, setBottomFile] = useState<File | null>(null);
@@ -69,12 +72,9 @@ const Upload = () => {
     }
   }, [loading, session, navigate]);
 
-  // Get required credits based on mode and fullModeType
+  // Get required credits based on mode
   const getRequiredCredits = () => {
-    if (mode === "full") {
-      return fullModeType === "single" ? 1 : 2;
-    }
-    return 1;
+    return 1; // All modes now cost 1 credit
   };
 
   const handleSubmit = async () => {
@@ -94,15 +94,9 @@ const Upload = () => {
       return;
     }
 
-    if (mode === "full") {
-      if (fullModeType === "separate" && (!topFile || !bottomFile)) {
-        toast.error(t("upload.fullModeRequired"));
-        return;
-      }
-      if (fullModeType === "single" && !outfitFile) {
-        toast.error(t("upload.outfitRequired"));
-        return;
-      }
+    if (mode === "full" && !outfitFile) {
+      toast.error(t("upload.outfitRequired"));
+      return;
     }
 
     setIsSubmitting(true);
@@ -160,25 +154,16 @@ const Upload = () => {
       formData.append("mode", mode);
       
       // Append runMode and garmentPhotoType for Fashn.ai API
-      formData.append("runMode", styleProfile.runMode);
-      formData.append("garmentPhotoType", styleProfile.garmentPhotoType);
+      formData.append("runMode", runMode);
+      formData.append("garmentPhotoType", garmentPhotoType);
       
       // Full mode handling
       if (mode === "full") {
-        formData.append("fullModeType", fullModeType);
+        formData.append("fullModeType", "single");
         
-        if (fullModeType === "single" && outfitFile) {
-          // Single outfit image mode
+        if (outfitFile) {
           const processedOutfit = await preprocessTopGarment(outfitFile);
           formData.append("top_garment", processedOutfit);
-        } else {
-          // Separate mode: top and bottom
-          if (processedTop) {
-            formData.append("top_garment", processedTop);
-          }
-          if (processedBottom) {
-            formData.append("bottom_garment", processedBottom);
-          }
         }
       } else {
         // Top or Bottom mode
@@ -191,7 +176,7 @@ const Upload = () => {
       }
 
       // ✅ 공식 SDK 호출 사용
-      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...", { mode, fullModeType, runMode: styleProfile.runMode, garmentPhotoType: styleProfile.garmentPhotoType });
+      console.log("[Upload] Calling tryon-proxy via supabase.functions.invoke()...", { mode, runMode, garmentPhotoType });
 
       supabase.functions.setAuth(freshSession.access_token);
 
@@ -231,18 +216,13 @@ const Upload = () => {
       }
 
       // Store style profile in sessionStorage for the result page
-      sessionStorage.setItem("styleProfile", JSON.stringify(styleProfile));
+      const updatedStyleProfile = { ...styleProfile, runMode, garmentPhotoType };
+      sessionStorage.setItem("styleProfile", JSON.stringify(updatedStyleProfile));
       sessionStorage.setItem("tryonMode", mode);
-      sessionStorage.setItem("fullModeType", fullModeType);
+      sessionStorage.setItem("fullModeType", "single");
 
-      // Full mode returns needsContinue: true from backend
       const responseData = data as any;
-      if (responseData.needsContinue && responseData.mode === "full") {
-        // Navigate with step1TaskId for 2-step flow
-        navigate(`/result/${responseData.taskId}?mode=full&needsContinue=true&step1TaskId=${responseData.taskId}`);
-      } else {
-        navigate(`/result/${responseData.taskId}?mode=${mode}`);
-      }
+      navigate(`/result/${responseData.taskId}?mode=${mode}`);
     } catch (err) {
       console.error("[Upload Error]", err);
       toast.error("Request failed. Please try again.");
@@ -271,10 +251,7 @@ const Upload = () => {
     
     if (mode === "top") return !!topFile;
     if (mode === "bottom") return !!bottomFile;
-    if (mode === "full") {
-      if (fullModeType === "single") return !!outfitFile;
-      return !!topFile && !!bottomFile;
-    }
+    if (mode === "full") return !!outfitFile;
     
     return false;
   };
@@ -342,9 +319,14 @@ const Upload = () => {
       id: "full" as TryonMode, 
       icon: Layers, 
       label: t("upload.mode.full"), 
-      credits: 2,
-      desc: t("upload.mode.fullDesc")
+      credits: 1,
+      desc: t("upload.mode.fullDescSingle") || t("upload.mode.fullDesc")
     },
+  ];
+
+  const garmentPhotoOptions = [
+    { value: "flat-lay" as GarmentPhotoType, label: t("profile.garmentType.flatLay"), desc: t("profile.garmentType.flatLayDesc") },
+    { value: "model" as GarmentPhotoType, label: t("profile.garmentType.model"), desc: t("profile.garmentType.modelDesc") },
   ];
 
   return (
@@ -365,7 +347,7 @@ const Upload = () => {
       </header>
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-4 py-8 pb-36">
+      <div className="max-w-2xl mx-auto px-4 py-8 pb-36" id="upload-section">
         <div className="text-center mb-10">
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2 tracking-tight">
             {t("upload.title")}
@@ -376,7 +358,7 @@ const Upload = () => {
         </div>
 
         {/* Mode Selection */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h3 className="text-base font-bold text-foreground mb-3 font-display">
             {t("upload.mode.title")}
           </h3>
@@ -403,6 +385,32 @@ const Upload = () => {
                 }`}>
                   {option.credits} {t("upload.mode.credit")}
                 </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Garment Photo Type Selection - Right after mode selection */}
+        <div className="mb-8 p-4 rounded-xl bg-card border border-border">
+          <div className="flex items-center gap-2 mb-3">
+            <Image className="w-4 h-4 text-primary" />
+            <span className="text-sm font-semibold text-foreground">{t("profile.garmentType.label")}</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {garmentPhotoOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setGarmentPhotoType(option.value)}
+                className={`p-3 rounded-lg border-2 transition-all text-left ${
+                  garmentPhotoType === option.value
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-background hover:border-primary/50"
+                }`}
+              >
+                <p className={`text-sm font-semibold ${garmentPhotoType === option.value ? "text-primary" : "text-foreground"}`}>
+                  {option.label}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">{option.desc}</p>
               </button>
             ))}
           </div>
@@ -457,102 +465,18 @@ const Upload = () => {
             />
           )}
 
-          {/* Full Mode - Sub-selection */}
+          {/* Full Mode - Single Outfit Image */}
           {mode === "full" && (
-            <>
-              {/* Full Mode Type Selection */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-foreground">
-                  {t("upload.fullMode.typeTitle")}
-                </h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    onClick={() => setFullModeType("separate")}
-                    className={`relative p-4 rounded-xl border-2 transition-all text-left ${
-                      fullModeType === "separate"
-                        ? "border-primary bg-primary/10"
-                        : "border-border bg-card hover:border-primary/50"
-                    }`}
-                  >
-                    <p className={`text-sm font-semibold ${fullModeType === "separate" ? "text-primary" : "text-foreground"}`}>
-                      {t("upload.fullMode.separate")}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {t("upload.fullMode.separateDesc")}
-                    </p>
-                    <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium ${
-                      fullModeType === "separate" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    }`}>
-                      2 {t("upload.mode.credit")}
-                    </div>
-                  </button>
-                  <button
-                    onClick={() => setFullModeType("single")}
-                    className={`relative p-4 rounded-xl border-2 transition-all text-left ${
-                      fullModeType === "single"
-                        ? "border-primary bg-primary/10"
-                        : "border-border bg-card hover:border-primary/50"
-                    }`}
-                  >
-                    <p className={`text-sm font-semibold ${fullModeType === "single" ? "text-primary" : "text-foreground"}`}>
-                      {t("upload.fullMode.single")}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {t("upload.fullMode.singleDesc")}
-                    </p>
-                    <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-full text-xs font-medium ${
-                      fullModeType === "single" ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    }`}>
-                      1 {t("upload.mode.credit")}
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Separate Mode: Top and Bottom */}
-              {fullModeType === "separate" && (
-                <>
-                  <ImageUploadZone
-                    label={t("upload.top.label")}
-                    description={t("upload.top.desc")}
-                    requirements={[
-                      t("upload.top.req1"),
-                      t("upload.top.req2"),
-                      t("upload.top.req3"),
-                      t("upload.top.req4"),
-                    ].filter(Boolean)}
-                    file={topFile}
-                    onFileChange={setTopFile}
-                    garmentType="top"
-                  />
-                  <ImageUploadZone
-                    label={t("upload.bottom.label")}
-                    description={t("upload.bottom.descFull")}
-                    requirements={[
-                      t("upload.bottom.req1"),
-                      t("upload.bottom.req2"),
-                    ]}
-                    file={bottomFile}
-                    onFileChange={setBottomFile}
-                    garmentType="bottom"
-                  />
-                </>
-              )}
-
-              {/* Single Mode: One Outfit Image */}
-              {fullModeType === "single" && (
-                <ImageUploadZone
-                  label={t("upload.outfit.label")}
-                  description={t("upload.outfit.desc")}
-                  requirements={[
-                    t("upload.outfit.req1"),
-                    t("upload.outfit.req2"),
-                  ]}
-                  file={outfitFile}
-                  onFileChange={setOutfitFile}
-                />
-              )}
-            </>
+            <ImageUploadZone
+              label={t("upload.outfit.label")}
+              description={t("upload.outfit.desc")}
+              requirements={[
+                t("upload.outfit.req1"),
+                t("upload.outfit.req2"),
+              ]}
+              file={outfitFile}
+              onFileChange={setOutfitFile}
+            />
           )}
 
           {/* Divider */}
@@ -599,15 +523,15 @@ const Upload = () => {
           </Button>
           {!canSubmit && !isSubmitting && (
             <p className="text-center text-xs text-muted-foreground mt-2">
-              {mode === "full" ? t("upload.fullModeRequired") : t("upload.required")}
+              {t("upload.required")}
             </p>
           )}
         </div>
       </div>
 
-      {/* Confirmation Dialog */}
+      {/* Confirmation Dialog with Fitting Mode Selection */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t("upload.confirm.title")}</DialogTitle>
             <DialogDescription>
@@ -633,30 +557,72 @@ const Upload = () => {
               <CheckItem label={t("upload.confirm.bottom")} isReady={!!bottomFile} />
             )}
             
-            {/* Full Mode - Separate */}
-            {mode === "full" && fullModeType === "separate" && (
-              <>
-                <CheckItem label={t("upload.confirm.top")} isReady={!!topFile} />
-                <CheckItem label={t("upload.confirm.bottom")} isReady={!!bottomFile} />
-              </>
-            )}
-            
-            {/* Full Mode - Single Outfit */}
-            {mode === "full" && fullModeType === "single" && (
+            {/* Full Mode */}
+            {mode === "full" && (
               <CheckItem label={t("upload.confirm.outfit")} isReady={!!outfitFile} />
             )}
             
             <CheckItem label={t("upload.confirm.profile")} isReady={isProfileFilled} isOptional />
           </div>
           
-          {/* Accuracy Tips - Show for top/bottom/separate modes */}
-          {(mode === "top" || mode === "bottom" || (mode === "full" && fullModeType === "separate")) && (
+          {/* Fitting Mode Selection in Dialog */}
+          <div className="space-y-3 py-3 border-t border-border">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-foreground">{t("profile.runMode.label")}</span>
+            </div>
+            <RadioGroup
+              value={runMode}
+              onValueChange={(val) => setRunMode(val as RunMode)}
+              className="grid grid-cols-1 gap-2"
+            >
+              <label
+                htmlFor="dialog-mode-performance"
+                className={`relative flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                  runMode === "performance"
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-card hover:border-primary/50"
+                }`}
+              >
+                <RadioGroupItem value="performance" id="dialog-mode-performance" />
+                <div className="flex-1 flex items-center justify-between">
+                  <span className={`text-sm font-semibold ${runMode === "performance" ? "text-primary" : "text-foreground"}`}>
+                    {t("profile.runMode.performance")}
+                  </span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
+                    ~10s
+                  </span>
+                </div>
+              </label>
+              <label
+                htmlFor="dialog-mode-quality"
+                className={`relative flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                  runMode === "quality"
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-card hover:border-primary/50"
+                }`}
+              >
+                <RadioGroupItem value="quality" id="dialog-mode-quality" />
+                <div className="flex-1 flex items-center justify-between">
+                  <span className={`text-sm font-semibold ${runMode === "quality" ? "text-primary" : "text-foreground"}`}>
+                    {t("profile.runMode.quality")}
+                  </span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent text-muted-foreground font-medium">
+                    ~20s
+                  </span>
+                </div>
+              </label>
+            </RadioGroup>
+          </div>
+          
+          {/* Accuracy Tips */}
+          {(mode === "top" || mode === "bottom") && (
             <div className="bg-primary/10 rounded-lg p-3 text-xs text-foreground border border-primary/20 mb-3">
               <p className="font-medium mb-1">💡 {t("upload.confirm.accuracyTitle")}</p>
-              {(mode === "top" || (mode === "full" && fullModeType === "separate")) && (
+              {mode === "top" && (
                 <p>• {t("upload.confirm.topAccuracyTip")}</p>
               )}
-              {(mode === "bottom" || (mode === "full" && fullModeType === "separate")) && (
+              {mode === "bottom" && (
                 <p>• {t("upload.confirm.bottomAccuracyTip")}</p>
               )}
             </div>

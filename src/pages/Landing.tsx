@@ -244,7 +244,10 @@ const Landing = () => {
           <Button 
             variant="gradient" 
             size="xl"
-            onClick={() => navigate("/upload")}
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              navigate("/upload");
+            }}
             className="group"
           >
             {t("cta.button")}
