@@ -335,7 +335,7 @@ const translations = {
     // Country Selection
     "profile.country.label": "선호 국가/지역",
     "profile.country.hint": "해당 국가에서 유행하는 스타일, 연예인, 브랜드를 기반으로 분석해드려요",
-    "profile.country.placeholder": "예: 한국, 미국, 일본...",
+    "profile.country.placeholder": "예: 미국, 한국, 일본...",
     
     // Fitting Options
     "profile.fittingOptions.title": "피팅 옵션",
@@ -751,7 +751,7 @@ const translations = {
     // Country Selection
     "profile.country.label": "Preferred Country/Region",
     "profile.country.hint": "Get analysis based on trending styles, celebrities, and brands from that country",
-    "profile.country.placeholder": "e.g., Korea, USA, Japan...",
+    "profile.country.placeholder": "e.g., USA, Korea, Japan...",
     
     // Fitting Options
     "profile.fittingOptions.title": "Fitting Options",
