@@ -13,11 +13,11 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// Variant ID → Credits mapping (update with your actual variant IDs from Lemon Squeezy)
+// Variant ID → Credits mapping (using environment variables from Render)
 const VARIANT_TO_CREDITS = {
-  '594336': 8,   // 8 credits package
-  '594337': 18,  // 18 credits package
-  '594338': 30,  // 30 credits package
+  [process.env.LEMONSQUEEZY_VARIANT_ID_STARTER]: 8,   // 8 credits package
+  [process.env.LEMONSQUEEZY_VARIANT_ID_PLUS]: 18,     // 18 credits package
+  [process.env.LEMONSQUEEZY_VARIANT_ID_PRO]: 30,      // 30 credits package
 };
 
 /**
