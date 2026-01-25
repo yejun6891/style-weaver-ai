@@ -16,6 +16,22 @@ import { ArrowLeft, Download, RefreshCw, Sparkles, Share2, Image, FileText, Chec
 
 type Status = "loading" | "step1-polling" | "step2-starting" | "step2-polling" | "success" | "error";
 
+interface StyleAnalysisData {
+  celebrityMatch: {
+    name: string;
+    reason: string;
+    styleTip: string;
+  };
+  brandCuration: Array<{
+    name: string;
+    priceRange: string;
+    reason: string;
+  }>;
+  actionPlan: string[];
+  fittingGuide: string;
+  styleTags: string[];
+}
+
 const defaultStyleProfile: StyleProfile = {
   height: "",
   bodyTypes: [],
@@ -34,13 +50,19 @@ const Result = () => {
   const { taskId } = useParams<{ taskId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { session } = useAuth();
   const [status, setStatus] = useState<Status>("loading");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [statusText, setStatusText] = useState("");
   const [progress, setProgress] = useState(0);
   const [styleProfile, setStyleProfile] = useState<StyleProfile>(defaultStyleProfile);
+  
+  // Style analysis state
+  const [styleAnalysis, setStyleAnalysis] = useState<StyleAnalysisData | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const analysisCalledRef = useRef(false);
   
   // Full mode state
   const mode = searchParams.get("mode") || sessionStorage.getItem("tryonMode") || "top";
@@ -305,6 +327,54 @@ const Result = () => {
     styleProfile.styles.length > 0 || 
     styleProfile.concerns;
 
+  // Fetch style analysis when fitting is successful
+  const fetchStyleAnalysis = useCallback(async () => {
+    if (!session?.access_token || !hasStyleProfile || analysisCalledRef.current) return;
+    
+    analysisCalledRef.current = true;
+    setAnalysisLoading(true);
+    setAnalysisError(null);
+    
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=style-analysis`,
+        {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${session.access_token}`,
+            "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            styleProfile,
+            language,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("[Result] Style analysis received:", data);
+      setStyleAnalysis(data);
+    } catch (err) {
+      console.error("[Result] Style analysis error:", err);
+      setAnalysisError(t("report.noData"));
+    } finally {
+      setAnalysisLoading(false);
+    }
+  }, [session?.access_token, hasStyleProfile, styleProfile, language, t]);
+
+  // Trigger style analysis when fitting is successful
+  useEffect(() => {
+    if (status === "success" && hasStyleProfile && !styleAnalysis && !analysisLoading && !analysisCalledRef.current) {
+      fetchStyleAnalysis();
+    }
+  }, [status, hasStyleProfile, styleAnalysis, analysisLoading, fetchStyleAnalysis]);
+
   const isLoading = isLoadingState;
 
   return (
@@ -492,7 +562,12 @@ const Result = () => {
                 </TabsContent>
 
                 <TabsContent value="report">
-                  <StyleAnalysisReport profile={styleProfile} />
+                  <StyleAnalysisReport 
+                    profile={styleProfile}
+                    analysisData={styleAnalysis}
+                    isLoading={analysisLoading}
+                    error={analysisError}
+                  />
                 </TabsContent>
               </Tabs>
             ) : (
