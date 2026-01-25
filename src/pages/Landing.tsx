@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
 import Logo from "@/components/Logo";
+import BrandSurveyPopup from "@/components/BrandSurveyPopup";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Sparkles, ArrowRight, Check, Zap, User, FileText } from "lucide-react";
 
@@ -279,7 +280,7 @@ const Landing = () => {
           </div>
           
           {/* Copyright */}
-          <p className="text-center text-sm text-muted-foreground mb-3">© 2026 Trukin. All rights reserved.</p>
+          <p className="text-center text-sm text-muted-foreground mb-3">© 2025 Trukin. All rights reserved.</p>
           
           {/* Company Info */}
           <p className="text-center text-xs text-muted-foreground/70">
@@ -287,6 +288,9 @@ const Landing = () => {
           </p>
         </div>
       </footer>
+
+      {/* Brand Survey Popup */}
+      <BrandSurveyPopup />
     </main>
   );
 };
