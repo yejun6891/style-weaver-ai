@@ -27,6 +27,7 @@ const defaultStyleProfile: StyleProfile = {
   concerns: "",
   runMode: "performance",
   garmentPhotoType: "flat-lay",
+  country: "",
 };
 
 const Result = () => {
