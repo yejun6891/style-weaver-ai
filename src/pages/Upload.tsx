@@ -552,17 +552,7 @@ const Upload = () => {
 
       {/* Confirmation Dialog with Fitting Mode Selection */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto relative">
-          {/* Loading overlay inside dialog */}
-          {isSubmitting && (
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-lg">
-              <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
-              <p className="text-sm font-medium text-foreground">{t("upload.submitting")}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {t("result.wait")}
-              </p>
-            </div>
-          )}
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t("upload.confirm.title")}</DialogTitle>
             <DialogDescription>
