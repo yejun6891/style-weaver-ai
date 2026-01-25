@@ -19,9 +19,9 @@ const RefundPolicy = () => {
         {
           title: "2. Credit Packages",
           content: `Our credit packages and pricing:
-• 8 Credits: $9.99 (Starter)
-• 18 Credits: $19.99 (Plus)
-• 30 Credits: $29.99 (Pro)
+• 8 Credits: $7.99 (Starter)
+• 18 Credits: $14.99 (Plus)
+• 30 Credits: $24.99 (Pro)
 
 All payments are processed securely through Lemon Squeezy. Apple Pay, Cash App Pay, and all major cards are accepted.`
         },
@@ -95,9 +95,9 @@ We aim to respond to all inquiries within 24-48 hours.`
         {
           title: "2. 크레딧 패키지",
           content: `크레딧 패키지 및 가격:
-• 8 크레딧: $9.99 (Starter)
-• 18 크레딧: $19.99 (Plus)
-• 30 크레딧: $29.99 (Pro)
+• 8 크레딧: $7.99 (Starter)
+• 18 크레딧: $14.99 (Plus)
+• 30 크레딧: $24.99 (Pro)
 
 모든 결제는 Lemon Squeezy를 통해 안전하게 처리됩니다. Apple Pay, Cash App Pay 및 모든 주요 카드가 지원됩니다.`
         },
