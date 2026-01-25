@@ -125,8 +125,8 @@ const BrandSurveyPopup = () => {
           </div>
           <DialogDescription className="text-left">
             {language === "ko" 
-              ? "여러분이 좋아하는 브랜드와 협업하여, 해당 브랜드의 옷을 바로 가상 피팅할 수 있도록 준비 중입니다. 30초만 투자해주세요!"
-              : "We're partnering with your favorite brands so you can virtually try on their clothes directly. Take 30 seconds to help us!"}
+              ? "어떤 브랜드 옷을 가상 피팅해 보고 싶으세요? 여러분의 의견이 향후 서비스 방향에 반영됩니다!"
+              : "Which brands would you love to try on virtually? Your votes will help shape our roadmap!"}
           </DialogDescription>
         </DialogHeader>
 
