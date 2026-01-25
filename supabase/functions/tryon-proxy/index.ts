@@ -559,8 +559,8 @@ Deno.serve(async (req) => {
       console.log(`[tryon-proxy] Style analysis request for user ${user.id}, language: ${language}`);
 
       try {
-        const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
-          `${BACKEND_BASE_URL}/api/style-analysis`,
+    const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
+      `${BACKEND_BASE_URL}/api/style-analysis/analyze`,
           {
             method: "POST",
             headers: {
