@@ -404,6 +404,16 @@ const Upload = () => {
           </div>
         </div>
 
+        {/* Dress/One-piece Notice - Show only for top/bottom modes */}
+        {(mode === "top" || mode === "bottom") && (
+          <div className="mb-6 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-blue-700 dark:text-blue-300">
+              {t("upload.mode.dressNotice")}
+            </p>
+          </div>
+        )}
+
         <div className="space-y-6">
           {/* Person Image with Mode-specific notice */}
           <ImageUploadZone
