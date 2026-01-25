@@ -31,9 +31,9 @@ const TermsOfService = () => {
         {
           title: "4. Credits and Payments",
           content: `Our Service operates on a credit-based system:
-• 8 Credits: $9.99 (Starter)
-• 18 Credits: $19.99 (Plus)
-• 30 Credits: $29.99 (Pro)
+• 8 Credits: $7.99 (Starter)
+• 18 Credits: $14.99 (Plus)
+• 30 Credits: $24.99 (Pro)
 
 Each virtual try-on uses 1 credit. Payments are processed securely through Lemon Squeezy. Apple Pay, Cash App Pay, and all major cards are accepted. All prices are in USD.`
         },
@@ -118,9 +118,9 @@ Owner: Yejoon Jeong`
         {
           title: "4. 크레딧 및 결제",
           content: `서비스는 크레딧 기반 시스템으로 운영됩니다:
-• 8 크레딧: $9.99 (Starter)
-• 18 크레딧: $19.99 (Plus)
-• 30 크레딧: $29.99 (Pro)
+• 8 크레딧: $7.99 (Starter)
+• 18 크레딧: $14.99 (Plus)
+• 30 크레딧: $24.99 (Pro)
 
 각 가상 피팅은 1 크레딧을 사용합니다. 결제는 Lemon Squeezy를 통해 안전하게 처리됩니다. Apple Pay, Cash App Pay 및 모든 주요 카드가 지원됩니다. 모든 가격은 USD 기준입니다.`
         },

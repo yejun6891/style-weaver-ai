@@ -30,9 +30,9 @@ interface CreditPackage {
 }
 
 const creditPackages: CreditPackage[] = [
-  { credits: 8, price: 9.99, name: 'Starter' },
-  { credits: 18, price: 19.99, popular: true, name: 'Plus' },
-  { credits: 30, price: 29.99, name: 'Pro' },
+  { credits: 8, price: 7.99, name: 'Starter' },
+  { credits: 18, price: 14.99, popular: true, name: 'Plus' },
+  { credits: 30, price: 24.99, name: 'Pro' },
 ];
 
 interface PurchaseFlowProps {

@@ -7,6 +7,7 @@ import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
 import Logo from "@/components/Logo";
 import PromoCodeSection from "@/components/PromoCodeSection";
+import UsageHistoryItem from "@/components/dashboard/UsageHistoryItem";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Image, Plus, CreditCard } from "lucide-react";
 
@@ -204,54 +205,13 @@ const Dashboard = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {usageHistory.map((item) => {
-                  // Calculate remaining time until expiration (72 hours from creation with Fashn.ai)
-                  const createdAt = new Date(item.created_at);
-                  const expiresAt = new Date(createdAt.getTime() + 72 * 60 * 60 * 1000);
-                  const now = new Date();
-                  const hoursLeft = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / (60 * 60 * 1000)));
-                  const isExpired = hoursLeft <= 0;
-                  
-                  return (
-                    <div 
-                      key={item.id}
-                      className={`flex items-center gap-4 p-4 rounded-xl bg-background border border-border transition-colors ${
-                        item.task_id && !isExpired ? 'hover:border-primary/30 cursor-pointer' : 'opacity-60'
-                      }`}
-                      onClick={() => item.task_id && !isExpired && navigate(`/result/${item.task_id}`)}
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center flex-shrink-0">
-                        <Image className="w-6 h-6 text-accent-foreground" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-foreground truncate">
-                          {item.action_type === 'virtual_tryon' ? t("dashboard.tryonAction") : 
-                           item.action_type === 'credit_purchase' ? t("dashboard.purchaseAction") : 
-                           item.action_type}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(item.created_at).toLocaleDateString()} • 
-                          {item.credits_used < 0 ? ` +${Math.abs(item.credits_used)}` : ` -${item.credits_used}`} {t("dashboard.credit")}
-                          {item.task_id && !isExpired && (
-                            <span className="ml-2 text-primary">
-                              ({hoursLeft}h 남음)
-                            </span>
-                          )}
-                          {item.task_id && isExpired && (
-                            <span className="ml-2 text-destructive">
-                              (만료됨)
-                            </span>
-                          )}
-                        </p>
-                      </div>
-                      {item.task_id && !isExpired && (
-                        <Button variant="outline" size="sm">
-                          {t("dashboard.view")}
-                        </Button>
-                      )}
-                    </div>
-                  );
-                })}
+                {usageHistory.map((item) => (
+                  <UsageHistoryItem 
+                    key={item.id} 
+                    item={item} 
+                    userId={user.id} 
+                  />
+                ))}
               </div>
             )}
           </div>
