@@ -265,6 +265,7 @@ const translations = {
     "upload.mode.full": "전체 코디",
     "upload.mode.fullDesc": "상의 + 하의 모두 교체",
     "upload.mode.fullDescSingle": "한 장의 코디 사진으로 피팅",
+    "upload.mode.dressNotice": "원피스/드레스는 '전체 코디' 모드를 이용해주세요.",
     "upload.mode.credit": "크레딧",
     
     // Full Mode Sub-selection
@@ -675,6 +676,7 @@ const translations = {
     "upload.mode.full": "Full Outfit",
     "upload.mode.fullDesc": "Change both top + bottom",
     "upload.mode.fullDescSingle": "Single outfit photo fitting",
+    "upload.mode.dressNotice": "For dresses and one-pieces, please use 'Full Outfit' mode.",
     "upload.mode.credit": "credit",
     
     // Full Mode Sub-selection
