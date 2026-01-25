@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      brand_surveys: {
+        Row: {
+          created_at: string
+          favorite_brands: string[]
+          id: string
+          ip_address: string | null
+          other_brand: string | null
+          session_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          favorite_brands?: string[]
+          id?: string
+          ip_address?: string | null
+          other_brand?: string | null
+          session_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          favorite_brands?: string[]
+          id?: string
+          ip_address?: string | null
+          other_brand?: string | null
+          session_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       feedback_attachments: {
         Row: {
           created_at: string

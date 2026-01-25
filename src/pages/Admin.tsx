@@ -8,9 +8,10 @@ import { UsageTypeChart } from '@/components/admin/UsageTypeChart';
 import { UserListTable } from '@/components/admin/UserListTable';
 import { PromoCodeManagement } from '@/components/admin/PromoCodeManagement';
 import FeedbackManagement from '@/components/admin/FeedbackManagement';
+import BrandSurveyResults from '@/components/admin/BrandSurveyResults';
 import Logo from '@/components/Logo';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Shield } from 'lucide-react';
+import { Shield, ClipboardList } from 'lucide-react';
 
 interface DailyUsage {
   date: string;
@@ -242,6 +243,15 @@ const Admin = () => {
             <PromoCodeManagement />
 
             <FeedbackManagement />
+
+            {/* Brand Survey Results */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <ClipboardList className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-semibold">브랜드 선호도 조사 결과</h2>
+              </div>
+              <BrandSurveyResults />
+            </div>
 
             <UserListTable users={users} onUserUpdated={fetchAllData} />
           </>
