@@ -359,7 +359,16 @@ const Result = () => {
       
       const data = await response.json();
       console.log("[Result] Style analysis received:", data);
-      setStyleAnalysis(data);
+      
+      // Backend response structure: { success: true, analysis: {...} }
+      if (data.success && data.analysis) {
+        setStyleAnalysis(data.analysis);
+      } else if (data.celebrityMatch) {
+        // Direct analysis object (fallback)
+        setStyleAnalysis(data);
+      } else {
+        throw new Error(data.error || "Analysis data not found");
+      }
     } catch (err) {
       console.error("[Result] Style analysis error:", err);
       setAnalysisError(t("report.noData"));
