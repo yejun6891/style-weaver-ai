@@ -11,19 +11,21 @@ interface UsageTypeChartProps {
   data: UsageTypeData[];
 }
 
+// Vibrant, distinct colors for each action type
 const COLORS = [
-  'hsl(var(--primary))',
-  'hsl(var(--secondary))',
-  'hsl(var(--accent))',
-  'hsl(142.1 76.2% 36.3%)', // green
-  'hsl(47.9 95.8% 53.1%)', // yellow
+  'hsl(265 84% 58%)', // vibrant purple - 상의 피팅
+  'hsl(199 89% 48%)', // bright blue - 하의 피팅  
+  'hsl(145 80% 42%)', // vivid green - 전체 코디
+  'hsl(340 82% 52%)', // bright pink - 기본 피팅
+  'hsl(39 100% 50%)', // bright orange/yellow
 ];
 
+// User-friendly labels matching the UI terminology
 const ACTION_TYPE_LABELS: Record<string, string> = {
-  virtual_tryon: '기본 트라이온',
-  virtual_tryon_top: '상의 트라이온',
-  virtual_tryon_bottom: '하의 트라이온',
-  virtual_tryon_full: '전신 트라이온',
+  virtual_tryon: '👕 기본 피팅',
+  virtual_tryon_top: '👔 상의 피팅',
+  virtual_tryon_bottom: '👖 하의 피팅',
+  virtual_tryon_full: '👗 전체 코디',
 };
 
 export const UsageTypeChart = ({ data }: UsageTypeChartProps) => {
@@ -36,9 +38,14 @@ export const UsageTypeChart = ({ data }: UsageTypeChartProps) => {
   const totalUsage = data.reduce((sum, item) => sum + item.count, 0);
 
   return (
-    <Card>
+<Card>
       <CardHeader>
-        <CardTitle>사용 유형별 분석</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          📊 피팅 모드별 사용량
+          <span className="text-xs font-normal text-muted-foreground">
+            (어떤 피팅을 가장 많이 사용했는지)
+          </span>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-[300px]">
