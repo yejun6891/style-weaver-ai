@@ -2,12 +2,14 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Ruler, User, Calendar, Shirt, Target, Globe } from "lucide-react";
+import { Ruler, User, Calendar, Shirt, Target, Globe, Users } from "lucide-react";
 
 export type RunMode = "performance" | "quality";
 export type GarmentPhotoType = "flat-lay" | "model";
+export type Gender = "male" | "female";
 
 export interface StyleProfile {
+  gender: Gender | "";
   height: string;
   bodyTypes: string[];
   bodyTypeOther: string;
@@ -104,6 +106,28 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
         <p className="text-sm text-muted-foreground">
           {t("profile.subtitle")}
         </p>
+      </div>
+
+      {/* Gender Selection */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Users className="w-4 h-4 text-primary" />
+          <Label className="text-base font-semibold">{t("profile.gender.label")}</Label>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <ChipButton
+            selected={value.gender === "male"}
+            onClick={() => onChange({ ...value, gender: "male" })}
+          >
+            {t("profile.gender.male")}
+          </ChipButton>
+          <ChipButton
+            selected={value.gender === "female"}
+            onClick={() => onChange({ ...value, gender: "female" })}
+          >
+            {t("profile.gender.female")}
+          </ChipButton>
+        </div>
       </div>
 
       {/* Height */}

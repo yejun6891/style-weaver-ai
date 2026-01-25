@@ -52,6 +52,7 @@ const Upload = () => {
   const [showNoCreditsDialog, setShowNoCreditsDialog] = useState(false);
   
   const [styleProfile, setStyleProfile] = useState<StyleProfile>({
+    gender: "",
     height: "",
     bodyTypes: [],
     bodyTypeOther: "",
