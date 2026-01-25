@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.share-click]
 verify_jwt = false
+
+[functions.lemon-webhook]
+verify_jwt = false
