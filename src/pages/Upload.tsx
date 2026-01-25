@@ -9,10 +9,15 @@ import Logo from "@/components/Logo";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle, Shirt, PanelBottom, Layers, Image, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Check, X, AlertCircle, Shirt, PanelBottom, Layers, Image, Zap, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { preprocessPersonImage, preprocessTopGarment, preprocessBottomGarment } from "@/utils/imagePreprocess";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 import {
   Dialog,
@@ -390,43 +395,59 @@ const Upload = () => {
           </div>
         </div>
 
-        <div className="space-y-8">
-          {/* Person Image - Always shown with mode-specific guide */}
-          <div className="space-y-4">
-            {/* Mode-specific Person Photo Guide */}
-            <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
-              <p className="text-sm text-foreground font-medium">
-                {mode === "top" && t("upload.person.guide.top")}
-                {mode === "bottom" && t("upload.person.guide.bottom")}
-                {mode === "full" && t("upload.person.guide.full")}
-              </p>
-            </div>
-            
-            {/* Common Guidelines */}
-            <div className="p-4 rounded-xl bg-accent/50 border border-border">
-              <p className="text-xs font-semibold text-foreground mb-2">{t("upload.person.commonGuide.title")}</p>
-              <ul className="space-y-1 text-xs text-muted-foreground">
-                <li>• {t("upload.person.commonGuide.pose")}</li>
-                <li>• {t("upload.person.commonGuide.attire")}</li>
-                <li>• {t("upload.person.commonGuide.angle")}</li>
-              </ul>
-            </div>
-            
-            <ImageUploadZone
-              label={t("upload.person.label")}
-              description={t("upload.person.desc")}
-              requirements={[
-                t("upload.person.req1"),
-                t("upload.person.req2"),
-                t("upload.person.req3"),
-                t("upload.person.req4"),
-                t("upload.person.req5"),
-              ]}
-              file={personFile}
-              onFileChange={setPersonFile}
-              showPersonNotice
-            />
+        <div className="space-y-6">
+          {/* Unified Photo Guide - Collapsible */}
+          <Collapsible>
+            <CollapsibleTrigger className="w-full p-4 rounded-xl bg-card border border-border hover:bg-accent/50 transition-colors flex items-center justify-between group">
+              <span className="text-sm font-semibold text-foreground">{t("upload.guide.title")}</span>
+              <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-3 p-4 rounded-xl bg-accent/30 border border-border/50 space-y-4">
+              {/* Person Photo Tips */}
+              <div>
+                <p className="text-xs font-bold text-foreground mb-2">{t("upload.guide.personSection")}</p>
+                <ul className="space-y-1.5 text-xs text-muted-foreground">
+                  <li>• {t("upload.guide.person.pose")}</li>
+                  <li>• {t("upload.guide.person.attire")}</li>
+                  <li>• {t("upload.guide.person.angle")}</li>
+                  <li>• {t("upload.guide.person.background")}</li>
+                  <li>• {t("upload.guide.person.objects")}</li>
+                  <li>• {t("upload.guide.person.size")}</li>
+                  <li>• {t("upload.guide.person.noGroup")}</li>
+                  <li>• {t("upload.guide.person.noHolding")}</li>
+                </ul>
+              </div>
+              {/* Garment Photo Tips */}
+              <div className="pt-3 border-t border-border/50">
+                <p className="text-xs font-bold text-foreground mb-2">{t("upload.guide.garmentSection")}</p>
+                <ul className="space-y-1.5 text-xs text-muted-foreground">
+                  <li>• {t("upload.guide.garment.flatLay")}</li>
+                  <li>• {t("upload.guide.garment.noOverlap")}</li>
+                  <li>• {t("upload.guide.garment.frontView")}</li>
+                  <li>• {t("upload.guide.garment.wrinkle")}</li>
+                  <li>• {t("upload.guide.garment.model")}</li>
+                </ul>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Mode-specific Person Photo Guide */}
+          <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+            <p className="text-sm text-foreground font-medium">
+              {mode === "top" && t("upload.person.guide.top")}
+              {mode === "bottom" && t("upload.person.guide.bottom")}
+              {mode === "full" && t("upload.person.guide.full")}
+            </p>
           </div>
+
+          {/* Person Image */}
+          <ImageUploadZone
+            label={t("upload.person.label")}
+            description={t("upload.person.desc")}
+            file={personFile}
+            onFileChange={setPersonFile}
+            showPersonNotice
+          />
 
           {/* Garment Photo Type Selection - Between person and garment photos */}
           <div className="p-4 rounded-xl bg-card border border-border">
@@ -454,43 +475,11 @@ const Upload = () => {
             </div>
           </div>
 
-          {/* Garment Photo Guidelines based on type */}
-          <div className="p-4 rounded-xl bg-accent/50 border border-border">
-            {garmentPhotoType === "flat-lay" ? (
-              <>
-                <p className="text-sm font-semibold text-foreground mb-2">
-                  💡 {t("upload.garment.flatLay.main")}
-                </p>
-                <ul className="space-y-1 text-xs text-muted-foreground">
-                  <li>• {t("upload.garment.flatLay.tip1")}</li>
-                  <li>• {t("upload.garment.flatLay.tip2")}</li>
-                  <li>• {t("upload.garment.flatLay.tip3")}</li>
-                </ul>
-              </>
-            ) : (
-              <>
-                <p className="text-sm font-semibold text-foreground mb-2">
-                  💡 {t("upload.garment.model.main")}
-                </p>
-                <ul className="space-y-1 text-xs text-muted-foreground">
-                  <li>• {t("upload.garment.model.tip1")}</li>
-                  <li>• {t("upload.garment.model.tip2")}</li>
-                </ul>
-              </>
-            )}
-          </div>
-
           {/* Top Garment - Show for "top" mode only */}
           {mode === "top" && (
             <ImageUploadZone
               label={t("upload.top.label")}
               description={t("upload.top.desc")}
-              requirements={[
-                t("upload.top.req1"),
-                t("upload.top.req2"),
-                t("upload.top.req3"),
-                t("upload.top.req4"),
-              ].filter(Boolean)}
               file={topFile}
               onFileChange={setTopFile}
               garmentType="top"
@@ -502,10 +491,6 @@ const Upload = () => {
             <ImageUploadZone
               label={t("upload.bottom.label")}
               description={t("upload.bottom.descFull")}
-              requirements={[
-                t("upload.bottom.req1"),
-                t("upload.bottom.req2"),
-              ]}
               file={bottomFile}
               onFileChange={setBottomFile}
               garmentType="bottom"
@@ -517,10 +502,6 @@ const Upload = () => {
             <ImageUploadZone
               label={t("upload.outfit.label")}
               description={t("upload.outfit.desc")}
-              requirements={[
-                t("upload.outfit.req1"),
-                t("upload.outfit.req2"),
-              ]}
               file={outfitFile}
               onFileChange={setOutfitFile}
             />
