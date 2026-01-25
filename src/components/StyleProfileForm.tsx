@@ -6,7 +6,7 @@ import { Ruler, User, Calendar, Shirt, Target, Globe, Users } from "lucide-react
 
 export type RunMode = "performance" | "quality";
 export type GarmentPhotoType = "flat-lay" | "model";
-export type Gender = "male" | "female";
+export type Gender = "male" | "female" | "other";
 
 export interface StyleProfile {
   gender: Gender | "";
@@ -126,6 +126,12 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
             onClick={() => onChange({ ...value, gender: "female" })}
           >
             {t("profile.gender.female")}
+          </ChipButton>
+          <ChipButton
+            selected={value.gender === "other"}
+            onClick={() => onChange({ ...value, gender: "other" })}
+          >
+            {t("profile.gender.other")}
           </ChipButton>
         </div>
       </div>
