@@ -1,10 +1,8 @@
-import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Ruler, User, Calendar, Shirt, Target, Zap, Image } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Ruler, User, Calendar, Shirt, Target } from "lucide-react";
 
 export type RunMode = "performance" | "quality";
 export type GarmentPhotoType = "flat-lay" | "model";
@@ -220,128 +218,6 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
           onChange={(e) => onChange({ ...value, concerns: e.target.value })}
           className="bg-card resize-none min-h-[100px]"
         />
-      </div>
-
-      {/* Fitting Options Section */}
-      <div className="space-y-6 pt-6 border-t border-border">
-        <div className="text-center">
-          <h3 className="font-display text-xl font-bold text-foreground mb-2">
-            {t("profile.fittingOptions.title")}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {t("profile.fittingOptions.subtitle")}
-          </p>
-        </div>
-
-        {/* Run Mode Selection */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-primary" />
-            <Label className="text-base font-semibold">{t("profile.runMode.label")}</Label>
-          </div>
-          <RadioGroup
-            value={value.runMode}
-            onValueChange={(val) => onChange({ ...value, runMode: val as RunMode })}
-            className="grid grid-cols-1 gap-3"
-          >
-            <label
-              htmlFor="mode-performance"
-              className={`relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                value.runMode === "performance"
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-card hover:border-primary/50"
-              }`}
-            >
-              <RadioGroupItem value="performance" id="mode-performance" className="mt-1" />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className={`font-semibold ${value.runMode === "performance" ? "text-primary" : "text-foreground"}`}>
-                    {t("profile.runMode.performance")}
-                  </span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary font-medium">
-                    ~10s
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {t("profile.runMode.performanceDesc")}
-                </p>
-              </div>
-            </label>
-            <label
-              htmlFor="mode-quality"
-              className={`relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                value.runMode === "quality"
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-card hover:border-primary/50"
-              }`}
-            >
-              <RadioGroupItem value="quality" id="mode-quality" className="mt-1" />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className={`font-semibold ${value.runMode === "quality" ? "text-primary" : "text-foreground"}`}>
-                    {t("profile.runMode.quality")}
-                  </span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-accent text-muted-foreground font-medium">
-                    ~20s
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {t("profile.runMode.qualityDesc")}
-                </p>
-              </div>
-            </label>
-          </RadioGroup>
-        </div>
-
-        {/* Garment Photo Type Selection */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Image className="w-4 h-4 text-primary" />
-            <Label className="text-base font-semibold">{t("profile.garmentType.label")}</Label>
-          </div>
-          <RadioGroup
-            value={value.garmentPhotoType}
-            onValueChange={(val) => onChange({ ...value, garmentPhotoType: val as GarmentPhotoType })}
-            className="grid grid-cols-1 gap-3"
-          >
-            <label
-              htmlFor="garment-flat-lay"
-              className={`relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                value.garmentPhotoType === "flat-lay"
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-card hover:border-primary/50"
-              }`}
-            >
-              <RadioGroupItem value="flat-lay" id="garment-flat-lay" className="mt-1" />
-              <div className="flex-1">
-                <span className={`font-semibold ${value.garmentPhotoType === "flat-lay" ? "text-primary" : "text-foreground"}`}>
-                  {t("profile.garmentType.flatLay")}
-                </span>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {t("profile.garmentType.flatLayDesc")}
-                </p>
-              </div>
-            </label>
-            <label
-              htmlFor="garment-model"
-              className={`relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                value.garmentPhotoType === "model"
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-card hover:border-primary/50"
-              }`}
-            >
-              <RadioGroupItem value="model" id="garment-model" className="mt-1" />
-              <div className="flex-1">
-                <span className={`font-semibold ${value.garmentPhotoType === "model" ? "text-primary" : "text-foreground"}`}>
-                  {t("profile.garmentType.model")}
-                </span>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {t("profile.garmentType.modelDesc")}
-                </p>
-              </div>
-            </label>
-          </RadioGroup>
-        </div>
       </div>
     </div>
   );
