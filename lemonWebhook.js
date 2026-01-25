@@ -1,9 +1,9 @@
 // lemonWebhook.js - Lemon Squeezy Webhook Handler for Render Backend
 // Add this file to your Tyron-backend repository
 
-const express = require('express');
-const crypto = require('crypto');
-const { createClient } = require('@supabase/supabase-js');
+import express from 'express';
+import crypto from 'crypto';
+import { createClient } from '@supabase/supabase-js';
 
 const router = express.Router();
 
@@ -36,13 +36,13 @@ function verifySignature(payload, signature, secret) {
  * POST /api/lemon-webhook
  * Handles Lemon Squeezy webhook events
  */
-router.post('/lemon-webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+router.post('/lemon-webhook', express.text({ type: '*/*' }), async (req, res) => {
   try {
     const signature = req.headers['x-signature'];
     const webhookSecret = process.env.LEMON_SQUEEZY_WEBHOOK_SECRET;
     
     // Get raw body for signature verification
-    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    const rawBody = req.body;
     
     // Verify HMAC signature
     if (!verifySignature(rawBody, signature, webhookSecret)) {
@@ -50,7 +50,7 @@ router.post('/lemon-webhook', express.raw({ type: 'application/json' }), async (
       return res.status(401).json({ error: 'Invalid signature' });
     }
 
-    const payload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const payload = JSON.parse(rawBody);
     const eventName = payload.meta?.event_name;
     
     console.log('[Lemon Webhook] Received event:', eventName);
@@ -152,4 +152,4 @@ router.post('/lemon-webhook', express.raw({ type: 'application/json' }), async (
   }
 });
 
-module.exports = router;
+export default router;
