@@ -23,6 +23,7 @@ import FloatingFeedbackButton from "./components/FloatingFeedbackButton";
 
 const queryClient = new QueryClient();
 
+// App component with providers
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
