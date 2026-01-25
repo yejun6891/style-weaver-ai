@@ -107,27 +107,7 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
         </div>
       )}
 
-      {/* Garment Notice */}
-      {garmentType === "top" && (
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
-          <span className="text-xs">💡</span>
-          <p className="text-xs text-foreground font-medium">
-            {language === "ko" 
-              ? "하의가 보이지 않는 상의만 담긴 사진이 가장 정확도가 높아요" 
-              : "Photos with only the top (no bottom visible) give the highest accuracy"}
-          </p>
-        </div>
-      )}
-      {garmentType === "bottom" && (
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
-          <span className="text-xs">💡</span>
-          <p className="text-xs text-foreground font-medium">
-            {language === "ko" 
-              ? "상의가 보이지 않는 하의만 담긴 사진이 가장 정확도가 높아요" 
-              : "Photos with only the bottom (no top visible) give the highest accuracy"}
-          </p>
-        </div>
-      )}
+      {/* Legacy Garment Notice - kept for backwards compatibility but may be removed */}
 
       {/* Main Content: Upload Zone + Example Image */}
       <div className={cn("grid gap-4", exampleImage ? "grid-cols-2" : "grid-cols-1")}>

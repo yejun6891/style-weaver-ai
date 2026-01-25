@@ -234,9 +234,9 @@ const translations = {
     
     // Upload Mode Selection
     "upload.mode.title": "피팅 모드 선택",
-    "upload.mode.top": "상의만",
+    "upload.mode.top": "상의 피팅",
     "upload.mode.topDesc": "하의는 그대로 유지",
-    "upload.mode.bottom": "하의만",
+    "upload.mode.bottom": "하의 피팅",
     "upload.mode.bottomDesc": "상의는 그대로 유지",
     "upload.mode.full": "전체 코디",
     "upload.mode.fullDesc": "상의 + 하의 모두 교체",
@@ -255,6 +255,26 @@ const translations = {
     "upload.outfit.req1": "상의와 하의가 모두 보여야 해요",
     "upload.outfit.req2": "정면 촬영 권장",
     "upload.outfitRequired": "전체 코디 사진이 필요합니다",
+    
+    // Mode-specific Person Photo Guidelines
+    "upload.person.guide.top": "상반신 사진만으로도 충분해요! 허리 라인까지만 명확하게 보이면 자연스럽게 입혀집니다. (물론 전신 사진도 가능합니다.)",
+    "upload.person.guide.bottom": "반드시 골반부터 발끝(신발)까지 다 나온 사진을 사용해 주세요. 얼굴은 나오지 않아도 괜찮지만, 하체 라인이 잘리면 바지 핏이 어색해질 수 있습니다.",
+    "upload.person.guide.full": "머리부터 발끝까지 모두 포함된 전신 사진이 필수입니다. 상·하의의 조화로운 실루엣을 위해 전신 구도가 가장 정확합니다.",
+    
+    // Common Person Photo Guidelines
+    "upload.person.commonGuide.title": "공통 촬영 팁",
+    "upload.person.commonGuide.pose": "포즈: 팔을 몸에 붙이지 말고 옆으로 살짝 벌려주세요 (A-Pose)",
+    "upload.person.commonGuide.attire": "복장: 너무 헐렁하거나 두꺼운 옷보다는 몸에 딱 붙는 얇은 옷 권장",
+    "upload.person.commonGuide.angle": "구도: 카메라를 정면으로 응시하고, 수평으로 촬영",
+    
+    // Garment Photo Guidelines based on type
+    "upload.garment.flatLay.main": "옷만 단독으로 나온 깨끗한 사진이 가장 좋아요.",
+    "upload.garment.flatLay.tip1": "바닥에 평평하게 펴서 찍은 사진",
+    "upload.garment.flatLay.tip2": "배경에 다른 물건이나 손가락이 나오지 않아야 함",
+    "upload.garment.flatLay.tip3": "옷의 주름을 최대한 펴서 촬영",
+    "upload.garment.model.main": "다른 모델이 입고 있는 화보 사진도 괜찮아요!",
+    "upload.garment.model.tip1": "옷의 형태가 명확히 보이는 사진 (가방/손/머리카락이 옷을 가리지 않는 사진)",
+    "upload.garment.model.tip2": "단순한 포즈 (너무 꼬인 포즈는 결과가 깨질 수 있음)",
     
     // Style Profile
     "profile.title": "스타일 프로필",
@@ -601,9 +621,9 @@ const translations = {
     
     // Upload Mode Selection
     "upload.mode.title": "Select Try-On Mode",
-    "upload.mode.top": "Top Only",
+    "upload.mode.top": "Top Fitting",
     "upload.mode.topDesc": "Keep your current bottom",
-    "upload.mode.bottom": "Bottom Only",
+    "upload.mode.bottom": "Bottom Fitting",
     "upload.mode.bottomDesc": "Keep your current top",
     "upload.mode.full": "Full Outfit",
     "upload.mode.fullDesc": "Change both top + bottom",
@@ -622,6 +642,26 @@ const translations = {
     "upload.outfit.req1": "Both top and bottom must be visible",
     "upload.outfit.req2": "Front view recommended",
     "upload.outfitRequired": "Full outfit photo is required",
+    
+    // Mode-specific Person Photo Guidelines
+    "upload.person.guide.top": "Upper body photo is enough! As long as your waist line is clearly visible, it will work naturally. (Full body photo is also fine.)",
+    "upload.person.guide.bottom": "You must use a photo showing from hips to feet (shoes). Your face doesn't need to show, but if the lower body line is cut off, the pants fit may look awkward.",
+    "upload.person.guide.full": "A full-body photo from head to toe is required. For harmonious silhouette of top and bottom, full body framing is most accurate.",
+    
+    // Common Person Photo Guidelines
+    "upload.person.commonGuide.title": "Common Photo Tips",
+    "upload.person.commonGuide.pose": "Pose: Spread arms slightly to the side, not against your body (A-Pose)",
+    "upload.person.commonGuide.attire": "Attire: Thin fitted clothes work better than loose or thick clothing",
+    "upload.person.commonGuide.angle": "Angle: Face the camera directly, shoot horizontally",
+    
+    // Garment Photo Guidelines based on type
+    "upload.garment.flatLay.main": "Clean photos showing only the garment work best.",
+    "upload.garment.flatLay.tip1": "Photo laid flat on the floor",
+    "upload.garment.flatLay.tip2": "No other objects or fingers in the background",
+    "upload.garment.flatLay.tip3": "Smooth out wrinkles as much as possible",
+    "upload.garment.model.main": "Photos of other models wearing the clothes also work!",
+    "upload.garment.model.tip1": "Photos where garment shape is clearly visible (bags/hands/hair not covering the clothing)",
+    "upload.garment.model.tip2": "Simple poses (twisted poses may cause poor results)",
     
     // Style Profile
     "profile.title": "Style Profile",

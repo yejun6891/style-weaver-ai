@@ -390,48 +390,95 @@ const Upload = () => {
           </div>
         </div>
 
-        {/* Garment Photo Type Selection - Right after mode selection */}
-        <div className="mb-8 p-4 rounded-xl bg-card border border-border">
-          <div className="flex items-center gap-2 mb-3">
-            <Image className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">{t("profile.garmentType.label")}</span>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {garmentPhotoOptions.map((option) => (
-              <button
-                key={option.value}
-                onClick={() => setGarmentPhotoType(option.value)}
-                className={`p-3 rounded-lg border-2 transition-all text-left ${
-                  garmentPhotoType === option.value
-                    ? "border-primary bg-primary/10"
-                    : "border-border bg-background hover:border-primary/50"
-                }`}
-              >
-                <p className={`text-sm font-semibold ${garmentPhotoType === option.value ? "text-primary" : "text-foreground"}`}>
-                  {option.label}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">{option.desc}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-
         <div className="space-y-8">
-          {/* Person Image - Always shown */}
-          <ImageUploadZone
-            label={t("upload.person.label")}
-            description={t("upload.person.desc")}
-            requirements={[
-              t("upload.person.req1"),
-              t("upload.person.req2"),
-              t("upload.person.req3"),
-              t("upload.person.req4"),
-              t("upload.person.req5"),
-            ]}
-            file={personFile}
-            onFileChange={setPersonFile}
-            showPersonNotice
-          />
+          {/* Person Image - Always shown with mode-specific guide */}
+          <div className="space-y-4">
+            {/* Mode-specific Person Photo Guide */}
+            <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+              <p className="text-sm text-foreground font-medium">
+                {mode === "top" && t("upload.person.guide.top")}
+                {mode === "bottom" && t("upload.person.guide.bottom")}
+                {mode === "full" && t("upload.person.guide.full")}
+              </p>
+            </div>
+            
+            {/* Common Guidelines */}
+            <div className="p-4 rounded-xl bg-accent/50 border border-border">
+              <p className="text-xs font-semibold text-foreground mb-2">{t("upload.person.commonGuide.title")}</p>
+              <ul className="space-y-1 text-xs text-muted-foreground">
+                <li>• {t("upload.person.commonGuide.pose")}</li>
+                <li>• {t("upload.person.commonGuide.attire")}</li>
+                <li>• {t("upload.person.commonGuide.angle")}</li>
+              </ul>
+            </div>
+            
+            <ImageUploadZone
+              label={t("upload.person.label")}
+              description={t("upload.person.desc")}
+              requirements={[
+                t("upload.person.req1"),
+                t("upload.person.req2"),
+                t("upload.person.req3"),
+                t("upload.person.req4"),
+                t("upload.person.req5"),
+              ]}
+              file={personFile}
+              onFileChange={setPersonFile}
+              showPersonNotice
+            />
+          </div>
+
+          {/* Garment Photo Type Selection - Between person and garment photos */}
+          <div className="p-4 rounded-xl bg-card border border-border">
+            <div className="flex items-center gap-2 mb-3">
+              <Image className="w-4 h-4 text-primary" />
+              <span className="text-sm font-semibold text-foreground">{t("profile.garmentType.label")}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {garmentPhotoOptions.map((option) => (
+                <button
+                  key={option.value}
+                  onClick={() => setGarmentPhotoType(option.value)}
+                  className={`p-3 rounded-lg border-2 transition-all text-left ${
+                    garmentPhotoType === option.value
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-background hover:border-primary/50"
+                  }`}
+                >
+                  <p className={`text-sm font-semibold ${garmentPhotoType === option.value ? "text-primary" : "text-foreground"}`}>
+                    {option.label}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">{option.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Garment Photo Guidelines based on type */}
+          <div className="p-4 rounded-xl bg-accent/50 border border-border">
+            {garmentPhotoType === "flat-lay" ? (
+              <>
+                <p className="text-sm font-semibold text-foreground mb-2">
+                  💡 {t("upload.garment.flatLay.main")}
+                </p>
+                <ul className="space-y-1 text-xs text-muted-foreground">
+                  <li>• {t("upload.garment.flatLay.tip1")}</li>
+                  <li>• {t("upload.garment.flatLay.tip2")}</li>
+                  <li>• {t("upload.garment.flatLay.tip3")}</li>
+                </ul>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-foreground mb-2">
+                  💡 {t("upload.garment.model.main")}
+                </p>
+                <ul className="space-y-1 text-xs text-muted-foreground">
+                  <li>• {t("upload.garment.model.tip1")}</li>
+                  <li>• {t("upload.garment.model.tip2")}</li>
+                </ul>
+              </>
+            )}
+          </div>
 
           {/* Top Garment - Show for "top" mode only */}
           {mode === "top" && (
@@ -454,7 +501,7 @@ const Upload = () => {
           {mode === "bottom" && (
             <ImageUploadZone
               label={t("upload.bottom.label")}
-              description={t("upload.bottom.desc")}
+              description={t("upload.bottom.descFull")}
               requirements={[
                 t("upload.bottom.req1"),
                 t("upload.bottom.req2"),
