@@ -15,6 +15,7 @@ interface ImageUploadZoneProps {
   exampleLabel?: string;
   garmentType?: "top" | "bottom";
   showPersonNotice?: boolean;
+  modeNotice?: string;
 }
 
 const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
@@ -28,6 +29,7 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
   exampleLabel,
   garmentType,
   showPersonNotice = false,
+  modeNotice,
 }) => {
   const { t, language } = useLanguage();
   const [isDragActive, setIsDragActive] = useState(false);
@@ -95,14 +97,12 @@ const ImageUploadZone: React.FC<ImageUploadZoneProps> = ({
         <p className="text-sm text-muted-foreground">{description}</p>
       )}
 
-      {/* Person Photo Notice */}
-      {showPersonNotice && (
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-accent/50 border border-border">
-          <span className="text-xs">📸</span>
-          <p className="text-xs text-foreground font-medium">
-            {language === "ko" 
-              ? "예시일 뿐! 어떤 배경에서 찍은 사진이든 괜찮아요" 
-              : "Just an example! Any background works fine"}
+      {/* Mode-specific Person Photo Notice */}
+      {modeNotice && (
+        <div className="flex items-start gap-2 p-3 rounded-xl bg-primary/10 border border-primary/20">
+          <span className="text-xs mt-0.5">📸</span>
+          <p className="text-xs text-foreground font-medium leading-relaxed">
+            {modeNotice}
           </p>
         </div>
       )}
