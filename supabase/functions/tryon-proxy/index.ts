@@ -533,8 +533,61 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Handle "style-analysis" action - forward to backend style analysis API
+    if (action === "style-analysis") {
+      if (req.method !== "POST") {
+        return new Response(
+          JSON.stringify({ error: "Method not allowed" }),
+          { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      let body: { styleProfile?: any; language?: string } | null = null;
+      if (contentType.includes("application/json")) {
+        try {
+          body = await req.json();
+        } catch {
+          return new Response(
+            JSON.stringify({ error: "Invalid JSON body" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+
+      const { styleProfile, language } = body || {};
+
+      console.log(`[tryon-proxy] Style analysis request for user ${user.id}, language: ${language}`);
+
+      try {
+        const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
+          `${BACKEND_BASE_URL}/api/style-analysis`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": userBearer,
+            },
+            body: JSON.stringify({ styleProfile, language }),
+          },
+          30000, // 30s timeout
+        );
+
+        return new Response(JSON.stringify(responseData), {
+          status: backendRes.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (e) {
+        const isTimeout = (e as any)?.name === "AbortError";
+        console.error("[tryon-proxy] Style analysis fetch failed:", e);
+        return new Response(
+          JSON.stringify({ error: isTimeout ? "Upstream timeout" : "Upstream request failed" }),
+          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     return new Response(
-      JSON.stringify({ error: "Invalid action. Use 'start', 'result', or 'continue-full'" }),
+      JSON.stringify({ error: "Invalid action. Use 'start', 'result', 'continue-full', or 'style-analysis'" }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
