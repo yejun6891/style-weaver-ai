@@ -139,6 +139,10 @@ const Result = () => {
       return;
     }
 
+    // Prevent re-running if already completed or in error state
+    if (status === "success" || status === "error" || fittingComplete) {
+      return;
+    }
 
     let isCancelled = false;
     let progressInterval: ReturnType<typeof setInterval>;
@@ -296,7 +300,7 @@ const Result = () => {
       isCancelled = true;
       clearInterval(progressInterval);
     };
-  }, [taskId, navigate, t, session, isTwoStepFullMode, needsContinue, step1TaskIdParam, status]);
+  }, [taskId, navigate, t, session, isTwoStepFullMode, needsContinue, step1TaskIdParam, fittingComplete]);
 
   const handleDownload = async () => {
     if (!imageUrl) return;
