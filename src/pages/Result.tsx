@@ -48,7 +48,7 @@ const defaultStyleProfile: StyleProfile = {
 };
 
 const Result = () => {
-  const { taskId } = useParams<{ taskId: string }>();
+  const { taskId: taskIdParam } = useParams<{ taskId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -58,6 +58,11 @@ const Result = () => {
   const [statusText, setStatusText] = useState("");
   const [progress, setProgress] = useState(0);
   const [styleProfile, setStyleProfile] = useState<StyleProfile>(defaultStyleProfile);
+  
+  // Actual taskId (pending will be replaced with real one after upload)
+  const [taskId, setTaskId] = useState<string | null>(taskIdParam === "pending" ? null : taskIdParam || null);
+  const [isUploading, setIsUploading] = useState(taskIdParam === "pending");
+  const uploadStartedRef = useRef(false);
   
   // Style analysis state
   const [styleAnalysis, setStyleAnalysis] = useState<StyleAnalysisData | null>(null);
@@ -105,8 +110,118 @@ const Result = () => {
     setStatusText(t("result.processing"));
   }, [t]);
 
+  // Handle pending upload - process images and get real taskId
+  useEffect(() => {
+    if (!isUploading || uploadStartedRef.current) return;
+    if (!session?.access_token) {
+      navigate("/auth");
+      return;
+    }
+    
+    uploadStartedRef.current = true;
+    
+    const processUpload = async () => {
+      try {
+        console.log("[Result] Processing pending upload...");
+        
+        // Get files from global storage
+        const files = (window as any).__pendingFiles;
+        if (!files || !files.personFile) {
+          console.error("[Result] No pending files found");
+          navigate("/upload");
+          return;
+        }
+        
+        const { personFile, topFile, bottomFile, outfitFile } = files;
+        const pendingData = JSON.parse(sessionStorage.getItem("pendingUpload") || "{}");
+        const { mode: uploadMode, runMode, garmentPhotoType } = pendingData;
+        
+        // Refresh session
+        const { data: { session: freshSession }, error: refreshError } = 
+          await supabase.auth.refreshSession();
+        
+        if (refreshError || !freshSession?.access_token) {
+          console.error("[Result] Session refresh failed");
+          navigate("/auth");
+          return;
+        }
+        
+        // Import preprocessing functions dynamically to avoid circular deps
+        const { preprocessPersonImage, preprocessTopGarment, preprocessBottomGarment } = 
+          await import("@/utils/imagePreprocess");
+        
+        console.log("[Result] Preprocessing images...");
+        const [processedPerson, processedTop, processedBottom] = await Promise.all([
+          preprocessPersonImage(personFile),
+          topFile ? preprocessTopGarment(topFile) : Promise.resolve(null),
+          bottomFile ? preprocessBottomGarment(bottomFile) : Promise.resolve(null),
+        ]);
+        
+        const formData = new FormData();
+        formData.append("person_image", processedPerson);
+        formData.append("mode", uploadMode);
+        formData.append("runMode", runMode);
+        formData.append("garmentPhotoType", garmentPhotoType);
+        
+        if (uploadMode === "full") {
+          formData.append("fullModeType", "single");
+          if (outfitFile) {
+            const processedOutfit = await preprocessTopGarment(outfitFile);
+            formData.append("top_garment", processedOutfit);
+          }
+        } else {
+          if (processedTop) formData.append("top_garment", processedTop);
+          if (processedBottom) formData.append("bottom_garment", processedBottom);
+        }
+        
+        console.log("[Result] Calling tryon-proxy...");
+        supabase.functions.setAuth(freshSession.access_token);
+        
+        const { data, error } = await supabase.functions.invoke("tryon-proxy", {
+          body: formData,
+          headers: {
+            "x-user-token": freshSession.access_token,
+          },
+        });
+        
+        // Clean up global files
+        delete (window as any).__pendingFiles;
+        sessionStorage.removeItem("pendingUpload");
+        
+        if (error) {
+          console.error("[Result] Upload error:", error);
+          setStatus("error");
+          setStatusText(t("result.error"));
+          return;
+        }
+        
+        if ((data as any)?.error) {
+          console.error("[Result] Upload response error:", data);
+          setStatus("error");
+          setStatusText(t("result.error"));
+          return;
+        }
+        
+        const responseData = data as any;
+        console.log("[Result] Got taskId:", responseData.taskId);
+        setTaskId(responseData.taskId);
+        setIsUploading(false);
+        
+        // Update URL without triggering navigation
+        window.history.replaceState(null, "", `/result/${responseData.taskId}?mode=${uploadMode}`);
+        
+      } catch (err) {
+        console.error("[Result] Upload processing error:", err);
+        setStatus("error");
+        setStatusText(t("result.error"));
+      }
+    };
+    
+    processUpload();
+  }, [isUploading, session?.access_token, navigate, t]);
+
   // Elapsed time counter - runs while status is a loading state (including style analysis wait)
-  const isLoadingState = status === "loading" || status === "step1-polling" || status === "step2-starting" || status === "step2-polling" || 
+  const isLoadingState = isUploading || status === "loading" || status === "step1-polling" || status === "step2-starting" || status === "step2-polling" || 
     (fittingComplete && hasStyleProfile && analysisLoading);
   
   useEffect(() => {
@@ -129,8 +244,8 @@ const Result = () => {
 
   // Main polling and flow logic
   useEffect(() => {
-    if (!taskId) {
-      navigate("/upload");
+    // Wait for upload to complete and get real taskId
+    if (!taskId || isUploading) {
       return;
     }
 
@@ -300,7 +415,7 @@ const Result = () => {
       isCancelled = true;
       clearInterval(progressInterval);
     };
-  }, [taskId, navigate, t, session, isTwoStepFullMode, needsContinue, step1TaskIdParam, fittingComplete]);
+  }, [taskId, navigate, t, session, isTwoStepFullMode, needsContinue, step1TaskIdParam, fittingComplete, isUploading]);
 
   const handleDownload = async () => {
     if (!imageUrl) return;
