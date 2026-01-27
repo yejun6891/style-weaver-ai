@@ -108,6 +108,13 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
         </p>
       </div>
 
+      {/* Style Report Notice */}
+      <div className="bg-accent border border-border rounded-xl p-4">
+        <p className="text-sm text-muted-foreground">
+          ⚠️ {t("profile.reportNotice")}
+        </p>
+      </div>
+
       {/* Gender Selection */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
