@@ -260,7 +260,35 @@ const Upload = () => {
       return;
     }
     setShowConfirmDialog(false);
-    handleSubmit();
+    
+    // Store data in sessionStorage and navigate to result page immediately
+    const updatedStyleProfile = { ...styleProfile, runMode, garmentPhotoType };
+    sessionStorage.setItem("styleProfile", JSON.stringify(updatedStyleProfile));
+    sessionStorage.setItem("tryonMode", mode);
+    sessionStorage.setItem("fullModeType", "single");
+    
+    // Store upload data for processing on result page
+    const uploadData = {
+      mode,
+      runMode,
+      garmentPhotoType,
+      personFileData: personFile ? URL.createObjectURL(personFile) : null,
+      topFileData: topFile ? URL.createObjectURL(topFile) : null,
+      bottomFileData: bottomFile ? URL.createObjectURL(bottomFile) : null,
+      outfitFileData: outfitFile ? URL.createObjectURL(outfitFile) : null,
+    };
+    sessionStorage.setItem("pendingUpload", JSON.stringify(uploadData));
+    
+    // Store actual files in a temporary global for the result page to use
+    (window as any).__pendingFiles = {
+      personFile,
+      topFile,
+      bottomFile,
+      outfitFile,
+    };
+    
+    // Navigate to result page immediately with pending status
+    navigate(`/result/pending?mode=${mode}`);
   };
 
   // Determine if form can be submitted based on mode
