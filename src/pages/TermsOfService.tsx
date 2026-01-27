@@ -62,32 +62,54 @@ We do not claim ownership of your uploaded content.`
           content: `The Service, including its original content, features, and functionality, is owned by Trukin and is protected by international copyright, trademark, and other intellectual property laws. Virtual try-on results are provided for personal, non-commercial use, and Trukin retains rights related to the operation of the Service.`
         },
         {
-          title: "8. Disclaimer of Warranties",
+          title: "8. AI-Generated Content Disclaimer",
+          content: `This Service uses artificial intelligence (AI) technology to generate virtual try-on images. By using this Service, you acknowledge and agree that:
+
+• All virtual try-on results are AI-generated synthetic images and do not represent actual photographs
+• AI-generated images may differ significantly from the actual fit, appearance, and proportions when wearing the actual clothing
+• These images are provided for reference purposes only and should NOT be used as the sole basis for purchasing decisions
+• Results may vary based on image quality, lighting conditions, body positioning, and other factors
+• The AI system may produce unexpected or inaccurate results in certain cases
+
+We strongly recommend trying on actual clothing before making purchase decisions when possible.`
+        },
+        {
+          title: "9. AI Watermark and Content Integrity",
+          content: `All AI-generated images produced by this Service contain visible watermarks and/or digital metadata identifying them as AI-generated content. You agree that:
+
+• You will NOT remove, alter, obscure, or tamper with any AI identification watermarks on generated images
+• You will NOT use any technical means to strip or modify embedded metadata that identifies content as AI-generated
+• You are solely responsible for any consequences arising from the removal or alteration of AI identification markers
+• Violation of this provision may result in immediate termination of your account and may constitute a violation of applicable laws and regulations
+
+These measures are implemented in compliance with AI transparency regulations and industry best practices.`
+        },
+        {
+          title: "10. Disclaimer of Warranties",
           content: `THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. We do not guarantee that:
 • The Service will meet your specific requirements
-• Virtual try-on results will be 100% accurate
+• Virtual try-on results will be 100% accurate or realistic
 • The Service will be uninterrupted or error-free
-
-IMPORTANT: AI-generated virtual try-on images may differ from actual fit and appearance when wearing the clothing. These images should not be used as the sole basis for purchasing decisions. Results may vary based on image quality, lighting, and other factors.`
+• AI-generated content will be free from errors or artifacts`
         },
         {
-          title: "9. Limitation of Liability",
-          content: `TO THE MAXIMUM EXTENT PERMITTED BY LAW, TRUKIN SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, OR OTHER INTANGIBLE LOSSES, RESULTING FROM YOUR USE OF THE SERVICE.`
+          title: "11. Limitation of Liability",
+          content: `TO THE MAXIMUM EXTENT PERMITTED BY LAW, TRUKIN SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOSS OF PROFITS, DATA, OR OTHER INTANGIBLE LOSSES, RESULTING FROM YOUR USE OF THE SERVICE. This includes, but is not limited to, any reliance on AI-generated content for purchasing decisions.`
         },
         {
-          title: "10. Termination",
+          title: "12. Termination",
           content: `We may terminate or suspend your account immediately, without prior notice, for any reason, including breach of these Terms. Upon termination, your right to use the Service will cease immediately. Unused credits may be forfeited upon termination for Terms violations.`
         },
         {
-          title: "11. Governing Law",
+          title: "13. Governing Law",
           content: `These Terms shall be governed by and construed in accordance with the laws of the Republic of Korea, without regard to its conflict of law provisions.`
         },
         {
-          title: "12. Changes to Terms",
+          title: "14. Changes to Terms",
           content: `We reserve the right to modify these Terms at any time. We will notify users of significant changes by posting the updated Terms on this page. Continued use of the Service after changes constitutes acceptance of the new Terms.`
         },
         {
-          title: "13. Contact Us",
+          title: "15. Contact Us",
           content: `If you have questions about these Terms of Service, please contact us at:
 Email: admin@trukin.app
 Company: Trukin (Korean business name: 트루킨)
@@ -149,32 +171,54 @@ Owner: Yejoon Jeong`
           content: `서비스 및 원본 콘텐츠, 기능은 트루킨이 소유하며 국제 저작권, 상표권 및 기타 지적 재산권 법률에 의해 보호됩니다. AI 기술 및 가상 피팅 결과는 당사의 지적 재산으로 유지됩니다.`
         },
         {
-          title: "8. 보증 부인",
+          title: "8. AI 생성 콘텐츠 면책",
+          content: `본 서비스는 인공지능(AI) 기술을 사용하여 가상 피팅 이미지를 생성합니다. 서비스를 이용함으로써 귀하는 다음 사항을 인정하고 동의합니다:
+
+• 모든 가상 피팅 결과물은 AI가 생성한 합성 이미지이며 실제 사진이 아닙니다
+• AI 생성 이미지는 실제 의류 착용 시의 핏, 외관, 비율과 상당히 다를 수 있습니다
+• 이러한 이미지는 참고용으로만 제공되며 구매 결정의 유일한 근거로 사용되어서는 안 됩니다
+• 결과는 이미지 품질, 조명 조건, 자세 등 다양한 요인에 따라 달라질 수 있습니다
+• AI 시스템은 특정 상황에서 예상치 못한 결과나 부정확한 결과를 생성할 수 있습니다
+
+가능한 경우 구매 결정 전 실제 의류를 착용해 보시기를 강력히 권장합니다.`
+        },
+        {
+          title: "9. AI 워터마크 및 콘텐츠 무결성",
+          content: `본 서비스가 생성하는 모든 AI 생성 이미지에는 AI 생성 콘텐츠임을 나타내는 가시적 워터마크 및/또는 디지털 메타데이터가 포함됩니다. 귀하는 다음에 동의합니다:
+
+• 생성된 이미지의 AI 식별 워터마크를 제거, 변경, 가리거나 조작하지 않을 것
+• 콘텐츠를 AI 생성물로 식별하는 내장 메타데이터를 제거하거나 수정하기 위해 기술적 수단을 사용하지 않을 것
+• AI 식별 표시의 제거 또는 변경으로 인해 발생하는 모든 결과에 대해 전적으로 책임질 것
+• 본 조항 위반 시 계정이 즉시 해지될 수 있으며 관련 법률 및 규정 위반에 해당할 수 있음
+
+이러한 조치는 AI 투명성 규정 및 업계 모범 사례를 준수하여 시행됩니다.`
+        },
+        {
+          title: "10. 보증 부인",
           content: `서비스는 명시적이든 묵시적이든 어떠한 종류의 보증 없이 "있는 그대로" 및 "이용 가능한 대로" 제공됩니다. 당사는 다음을 보장하지 않습니다:
 • 서비스가 귀하의 특정 요구 사항을 충족할 것
-• 가상 피팅 결과가 100% 정확할 것
+• 가상 피팅 결과가 100% 정확하거나 사실적일 것
 • 서비스가 중단 없이 또는 오류 없이 제공될 것
-
-중요: AI가 생성한 가상 피팅 이미지는 실제 착용 시 핏과 외관과 다를 수 있습니다. 이러한 이미지는 구매 결정의 유일한 근거로 사용되어서는 안 됩니다. 이미지 품질, 조명 등 다양한 요인에 따라 결과가 달라질 수 있습니다.`
+• AI 생성 콘텐츠에 오류나 아티팩트가 없을 것`
         },
         {
-          title: "9. 책임 제한",
-          content: `법률이 허용하는 최대 범위 내에서, 트루킨은 서비스 이용으로 인한 간접적, 우발적, 특별, 결과적 또는 징벌적 손해(이익, 데이터 또는 기타 무형의 손실 포함)에 대해 책임을 지지 않습니다.`
+          title: "11. 책임 제한",
+          content: `법률이 허용하는 최대 범위 내에서, 트루킨은 서비스 이용으로 인한 간접적, 우발적, 특별, 결과적 또는 징벌적 손해(이익, 데이터 또는 기타 무형의 손실 포함)에 대해 책임을 지지 않습니다. 이에는 AI 생성 콘텐츠에 기반한 구매 결정에 대한 의존이 포함되지만 이에 국한되지 않습니다.`
         },
         {
-          title: "10. 계약 해지",
+          title: "12. 계약 해지",
           content: `당사는 본 약관 위반을 포함한 어떤 이유로든 사전 통지 없이 귀하의 계정을 즉시 해지하거나 정지할 수 있습니다. 해지 시 서비스 이용 권한은 즉시 종료됩니다. 약관 위반으로 인한 해지 시 미사용 이용권은 몰수될 수 있습니다.`
         },
         {
-          title: "11. 준거법",
+          title: "13. 준거법",
           content: `본 약관은 대한민국 법률에 따라 해석되고 적용됩니다.`
         },
         {
-          title: "12. 약관 변경",
+          title: "14. 약관 변경",
           content: `당사는 언제든지 본 약관을 수정할 권리를 보유합니다. 중요한 변경 사항이 있을 경우 이 페이지에 업데이트된 약관을 게시하여 사용자에게 알립니다. 변경 후 서비스를 계속 이용하면 새로운 약관에 동의하는 것으로 간주됩니다.`
         },
         {
-          title: "13. 문의하기",
+          title: "15. 문의하기",
           content: `본 이용약관에 관한 질문이 있으시면 다음으로 연락해 주세요:
 이메일: admin@trukin.app
 회사명: Trukin
