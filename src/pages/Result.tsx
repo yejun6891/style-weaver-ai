@@ -139,16 +139,6 @@ const Result = () => {
       return;
     }
 
-    // Warn user about leaving page during processing
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (status === "loading" || status === "step1-polling" || status === "step2-starting" || status === "step2-polling") {
-        e.preventDefault();
-        e.returnValue = t("result.leaveWarning");
-        return e.returnValue;
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
 
     let isCancelled = false;
     let progressInterval: ReturnType<typeof setInterval>;
@@ -305,7 +295,6 @@ const Result = () => {
     return () => {
       isCancelled = true;
       clearInterval(progressInterval);
-      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [taskId, navigate, t, session, isTwoStepFullMode, needsContinue, step1TaskIdParam, status]);
 
@@ -552,6 +541,13 @@ const Result = () => {
             </div>
             {/* Fashion Tips */}
             <LoadingTips intervalMs={4000} />
+            
+            {/* Page leave warning notice */}
+            <div className="mt-6 p-3 bg-destructive/10 border border-destructive/20 rounded-lg max-w-xs mx-auto">
+              <p className="text-xs text-destructive text-center">
+                {t("result.leaveWarningNotice")}
+              </p>
+            </div>
           </div>
         )}
 

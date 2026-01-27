@@ -387,7 +387,7 @@ const translations = {
     "result.estimatedTime": "예상 소요: 10~20초",
     "result.estimatedTimeFull": "예상 소요: 25~35초",
     "result.stepLabel": "단계",
-    "result.leaveWarning": "피팅이 진행 중입니다. 페이지를 떠나면 결과를 받지 못할 수 있습니다.",
+    "result.leaveWarningNotice": "페이지를 떠나면 결과를 받지 못할 수 있습니다.",
     "result.reportDashboardNotice": "스타일 리포트는 이 화면에서만 확인 가능합니다. 대시보드에서는 다시 볼 수 없으니 캡쳐해두세요!",
     
     // Style Report
@@ -810,7 +810,7 @@ const translations = {
     "result.estimatedTime": "Est. time: 10~20 sec",
     "result.estimatedTimeFull": "Est. time: 25~35 sec",
     "result.stepLabel": " step",
-    "result.leaveWarning": "Fitting is in progress. Leaving the page may result in losing your results.",
+    "result.leaveWarningNotice": "Leaving the page may result in losing your results.",
     "result.reportDashboardNotice": "Style reports can only be viewed on this screen. Take a screenshot as you won't be able to access it from the dashboard!",
     
     // Style Report
