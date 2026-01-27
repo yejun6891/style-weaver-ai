@@ -26,6 +26,9 @@ const translations = {
     "auth.benefits.2": "모든 결과물 저장 및 관리",
     "auth.benefits.3": "맞춤형 스타일 분석 리포트",
     "auth.terms": "로그인 시 서비스 이용약관에 동의하게 됩니다",
+    "auth.agreeToTerms": "이용약관에 동의합니다",
+    "auth.termsLink": "이용약관",
+    "auth.agreeRequired": "로그인하려면 이용약관에 동의해주세요",
     
     // Dashboard
     "dashboard.welcome": "안녕하세요",
@@ -437,6 +440,9 @@ const translations = {
     "auth.benefits.2": "Save and manage all results",
     "auth.benefits.3": "Personalized style analysis reports",
     "auth.terms": "By signing in, you agree to our Terms of Service",
+    "auth.agreeToTerms": "I agree to the Terms of Service",
+    "auth.termsLink": "Terms of Service",
+    "auth.agreeRequired": "Please agree to the Terms of Service to continue",
     
     // Dashboard
     "dashboard.welcome": "Hello",

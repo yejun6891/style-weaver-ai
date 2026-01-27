@@ -1,6 +1,8 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import LanguageSwitch from "@/components/LanguageSwitch";
@@ -11,6 +13,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, loading, signInWithGoogle } = useAuth();
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   useEffect(() => {
     if (!loading && user) {
@@ -69,12 +72,34 @@ const Auth = () => {
               {t("auth.subtitle")}
             </p>
 
+            {/* Terms Agreement Checkbox */}
+            <div className="flex items-start gap-3 mb-6">
+              <Checkbox 
+                id="terms" 
+                checked={agreedToTerms}
+                onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                className="mt-0.5"
+              />
+              <Label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                <Link 
+                  to="/terms" 
+                  className="text-primary hover:underline font-medium"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {t("auth.termsLink")}
+                </Link>
+                {" "}
+                {t("auth.agreeToTerms").replace(t("auth.termsLink"), "").trim()}
+              </Label>
+            </div>
+
             {/* Google Login Button */}
             <Button 
               onClick={handleGoogleLogin}
               variant="outline"
               size="lg"
               className="w-full flex items-center justify-center gap-3 h-14 text-base"
+              disabled={!agreedToTerms}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -96,6 +121,12 @@ const Auth = () => {
               </svg>
               {t("auth.google")}
             </Button>
+            
+            {!agreedToTerms && (
+              <p className="text-xs text-muted-foreground text-center mt-2">
+                {t("auth.agreeRequired")}
+              </p>
+            )}
 
             {/* Benefits */}
             <div className="mt-8 space-y-3">
