@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Image, FileText, Share2 } from "lucide-react";
+import { Image, Share2 } from "lucide-react";
 
 interface UsageHistory {
   id: string;
@@ -31,7 +31,6 @@ const UsageHistoryItem = ({ item, userId }: UsageHistoryItemProps) => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const [shareLink, setShareLink] = useState<ShareLink | null>(null);
-  const [hasStyleReport, setHasStyleReport] = useState(false);
 
   // Calculate expiration
   const createdAt = new Date(item.created_at);
@@ -56,20 +55,8 @@ const UsageHistoryItem = ({ item, userId }: UsageHistoryItemProps) => {
       }
     };
 
-    // Check if style report exists in session storage for this task
-    const checkStyleReport = () => {
-      if (!item.task_id) return;
-      
-      // Style reports are generated when user has style profile data
-      // We can check by looking at the usage_history action_type patterns
-      // or by checking if the result page would show a report tab
-      const hasReport = item.action_type.includes('virtual_tryon');
-      setHasStyleReport(hasReport);
-    };
-
     fetchShareLink();
-    checkStyleReport();
-  }, [item.task_id, userId, item.action_type]);
+  }, [item.task_id, userId]);
 
   const getActionLabel = () => {
     if (item.action_type === 'virtual_tryon') return t("dashboard.tryonAction");
@@ -120,32 +107,22 @@ const UsageHistoryItem = ({ item, userId }: UsageHistoryItemProps) => {
         )}
       </div>
 
-      {/* Badges Row */}
-      {item.task_id && !isExpired && (
+      {/* Badges Row - Only share status, no style report badge */}
+      {item.task_id && !isExpired && shareLink && (
         <div className="flex flex-wrap gap-2 ml-16">
-          {/* Style Report Badge */}
-          {hasStyleReport && (
-            <Badge variant="secondary" className="gap-1 text-xs">
-              <FileText className="w-3 h-3" />
-              {t("dashboard.hasStyleReport")}
-            </Badge>
-          )}
-
           {/* Share Status Badge */}
-          {shareLink && (
-            <Badge 
-              variant={shareLink.reward_given ? "default" : "outline"} 
-              className={`gap-1 text-xs ${shareLink.reward_given ? 'bg-green-500/90 hover:bg-green-500' : ''}`}
-            >
-              <Share2 className="w-3 h-3" />
-              {shareLink.reward_given 
-                ? t("dashboard.shareRewardEarned")
-                : t("dashboard.shareProgress")
-                    .replace("{n}", String(shareLink.click_count))
-                    .replace("{total}", String(REWARD_THRESHOLD))
-              }
-            </Badge>
-          )}
+          <Badge 
+            variant={shareLink.reward_given ? "default" : "outline"} 
+            className={`gap-1 text-xs ${shareLink.reward_given ? 'bg-green-500/90 hover:bg-green-500' : ''}`}
+          >
+            <Share2 className="w-3 h-3" />
+            {shareLink.reward_given 
+              ? t("dashboard.shareRewardEarned")
+              : t("dashboard.shareProgress")
+                  .replace("{n}", String(shareLink.click_count))
+                  .replace("{total}", String(REWARD_THRESHOLD))
+            }
+          </Badge>
         </div>
       )}
     </div>

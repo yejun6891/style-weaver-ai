@@ -139,6 +139,17 @@ const Result = () => {
       return;
     }
 
+    // Warn user about leaving page during processing
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (status === "loading" || status === "step1-polling" || status === "step2-starting" || status === "step2-polling") {
+        e.preventDefault();
+        e.returnValue = t("result.leaveWarning");
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     let isCancelled = false;
     let progressInterval: ReturnType<typeof setInterval>;
 
@@ -294,8 +305,9 @@ const Result = () => {
     return () => {
       isCancelled = true;
       clearInterval(progressInterval);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [taskId, navigate, t, session, isTwoStepFullMode, needsContinue, step1TaskIdParam]);
+  }, [taskId, navigate, t, session, isTwoStepFullMode, needsContinue, step1TaskIdParam, status]);
 
   const handleDownload = async () => {
     if (!imageUrl) return;
@@ -602,6 +614,12 @@ const Result = () => {
                 </TabsContent>
 
                 <TabsContent value="report">
+                  {/* Style Report Dashboard Notice */}
+                  <div className="bg-accent border border-border rounded-xl p-4 mb-6">
+                    <p className="text-sm text-muted-foreground">
+                      ⚠️ {t("result.reportDashboardNotice")}
+                    </p>
+                  </div>
                   <StyleAnalysisReport 
                     profile={styleProfile}
                     analysisData={styleAnalysis}

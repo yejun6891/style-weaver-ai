@@ -25,10 +25,16 @@ const translations = {
     "auth.benefits.1": "가입 시 무료 피팅 제공",
     "auth.benefits.2": "모든 결과물 저장 및 관리",
     "auth.benefits.3": "맞춤형 스타일 분석 리포트",
-    "auth.terms": "로그인 시 서비스 이용약관에 동의하게 됩니다",
+    "auth.terms": "로그인 시 이용약관 및 개인정보처리방침에 동의하게 됩니다",
     "auth.agreeToTerms": "이용약관에 동의합니다",
     "auth.termsLink": "이용약관",
+    "auth.privacyLink": "개인정보처리방침",
     "auth.agreeRequired": "로그인하려면 이용약관에 동의해주세요",
+    "auth.agreeRequiredBoth": "로그인하려면 이용약관과 개인정보처리방침에 모두 동의해주세요",
+    "auth.readAndAgree": "확인하기",
+    "auth.readCarefully": "아래 내용을 읽고 동의해주세요",
+    "auth.agreeAndContinue": "동의합니다",
+    "auth.cancel": "취소",
     
     // Dashboard
     "dashboard.welcome": "안녕하세요",
@@ -340,6 +346,7 @@ const translations = {
     "profile.style.vintage": "빈티지",
     "profile.concerns.label": "패션 고민 / 목표",
     "profile.concerns.placeholder": "예: 다리가 길어 보이면 좋겠어요, 어깨가 좁아 보이게 하고 싶어요...",
+    "profile.reportNotice": "스타일 리포트는 이 결과 화면에서만 확인 가능하며, 대시보드에서는 다시 볼 수 없습니다.",
     
     // Country Selection
     "profile.country.label": "선호 국가/지역",
@@ -380,6 +387,8 @@ const translations = {
     "result.estimatedTime": "예상 소요: 10~20초",
     "result.estimatedTimeFull": "예상 소요: 25~35초",
     "result.stepLabel": "단계",
+    "result.leaveWarning": "피팅이 진행 중입니다. 페이지를 떠나면 결과를 받지 못할 수 있습니다.",
+    "result.reportDashboardNotice": "스타일 리포트는 이 화면에서만 확인 가능합니다. 대시보드에서는 다시 볼 수 없으니 캡쳐해두세요!",
     
     // Style Report
     "report.title": "스타일 분석 리포트",
@@ -439,10 +448,16 @@ const translations = {
     "auth.benefits.1": "Free try-on credits on signup",
     "auth.benefits.2": "Save and manage all results",
     "auth.benefits.3": "Personalized style analysis reports",
-    "auth.terms": "By signing in, you agree to our Terms of Service",
+    "auth.terms": "By signing in, you agree to our Terms of Service and Privacy Policy",
     "auth.agreeToTerms": "I agree to the Terms of Service",
     "auth.termsLink": "Terms of Service",
+    "auth.privacyLink": "Privacy Policy",
     "auth.agreeRequired": "Please agree to the Terms of Service to continue",
+    "auth.agreeRequiredBoth": "Please agree to both Terms of Service and Privacy Policy to continue",
+    "auth.readAndAgree": "View",
+    "auth.readCarefully": "Please read and agree to the following",
+    "auth.agreeAndContinue": "I Agree",
+    "auth.cancel": "Cancel",
     
     // Dashboard
     "dashboard.welcome": "Hello",
@@ -754,6 +769,7 @@ const translations = {
     "profile.style.vintage": "Vintage",
     "profile.concerns.label": "Fashion Goals",
     "profile.concerns.placeholder": "e.g., I want my legs to look longer, I want to balance my shoulders...",
+    "profile.reportNotice": "Style reports can only be viewed on this result screen and cannot be accessed again from the dashboard.",
     
     // Country Selection
     "profile.country.label": "Preferred Country/Region",
@@ -794,6 +810,8 @@ const translations = {
     "result.estimatedTime": "Est. time: 10~20 sec",
     "result.estimatedTimeFull": "Est. time: 25~35 sec",
     "result.stepLabel": " step",
+    "result.leaveWarning": "Fitting is in progress. Leaving the page may result in losing your results.",
+    "result.reportDashboardNotice": "Style reports can only be viewed on this screen. Take a screenshot as you won't be able to access it from the dashboard!",
     
     // Style Report
     "report.title": "Style Analysis Report",
