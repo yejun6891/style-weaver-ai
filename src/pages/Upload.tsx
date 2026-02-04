@@ -434,7 +434,7 @@ const Upload = () => {
 
         {/* Dress/One-piece Notice - Show only for top/bottom modes */}
         {(mode === "top" || mode === "bottom") && (
-          <div className="mb-6 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 flex items-start gap-2">
+          <div className="mb-4 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
             <p className="text-sm text-blue-700 dark:text-blue-300">
               {t("upload.mode.dressNotice")}
@@ -442,15 +442,25 @@ const Upload = () => {
           </div>
         )}
 
-        {/* Full Outfit Warning - Show only for full mode */}
-        {mode === "full" && (
-          <div className="mb-6 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-            <p className="text-sm text-amber-700 dark:text-amber-300">
-              {t("upload.mode.fullWarning")}
-            </p>
+        {/* Length Match Guide - Mode-specific prominent box (below mode selection) */}
+        <div className="mb-6 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-700">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div className="space-y-2">
+              <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                {t("upload.guide.lengthMatch.title")}
+              </p>
+              <p className="text-sm text-amber-700 dark:text-amber-300 whitespace-pre-line leading-relaxed">
+                {mode === "top" && t("upload.guide.lengthMatch.top.desc")}
+                {mode === "bottom" && t("upload.guide.lengthMatch.bottom.desc")}
+                {mode === "full" && t("upload.guide.lengthMatch.full.desc")}
+              </p>
+              <p className="text-xs text-amber-600/80 dark:text-amber-400/80">
+                {t("upload.guide.lengthMatch.reason")}
+              </p>
+            </div>
           </div>
-        )}
+        </div>
 
         <div className="space-y-6">
           {/* Person Image with Mode-specific notice */}
@@ -547,26 +557,6 @@ const Upload = () => {
               <li>• {t("upload.guide.garment.frontView")}</li>
               <li>• {t("upload.guide.garment.wrinkle")}</li>
             </ul>
-          </div>
-
-          {/* Length Match Guide - Mode-specific prominent box */}
-          <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-700">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-              <div className="space-y-2">
-                <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
-                  {t("upload.guide.lengthMatch.title")}
-                </p>
-                <p className="text-sm text-amber-700 dark:text-amber-300 whitespace-pre-line leading-relaxed">
-                  {mode === "top" && t("upload.guide.lengthMatch.top.desc")}
-                  {mode === "bottom" && t("upload.guide.lengthMatch.bottom.desc")}
-                  {mode === "full" && t("upload.guide.lengthMatch.full.desc")}
-                </p>
-                <p className="text-xs text-amber-600/80 dark:text-amber-400/80">
-                  {t("upload.guide.lengthMatch.reason")}
-                </p>
-              </div>
-            </div>
           </div>
 
           {/* Divider */}
