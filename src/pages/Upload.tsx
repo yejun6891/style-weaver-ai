@@ -546,8 +546,27 @@ const Upload = () => {
               <li>• {t("upload.guide.garment.noOverlap")}</li>
               <li>• {t("upload.guide.garment.frontView")}</li>
               <li>• {t("upload.guide.garment.wrinkle")}</li>
-              <li className="text-amber-600 dark:text-amber-400 font-medium">• {t("upload.guide.garment.lengthMatch")}</li>
             </ul>
+          </div>
+
+          {/* Length Match Guide - Mode-specific prominent box */}
+          <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-700">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="space-y-2">
+                <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                  {t("upload.guide.lengthMatch.title")}
+                </p>
+                <p className="text-sm text-amber-700 dark:text-amber-300 whitespace-pre-line leading-relaxed">
+                  {mode === "top" && t("upload.guide.lengthMatch.top.desc")}
+                  {mode === "bottom" && t("upload.guide.lengthMatch.bottom.desc")}
+                  {mode === "full" && t("upload.guide.lengthMatch.full.desc")}
+                </p>
+                <p className="text-xs text-amber-600/80 dark:text-amber-400/80">
+                  {t("upload.guide.lengthMatch.reason")}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Divider */}
