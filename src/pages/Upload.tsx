@@ -546,6 +546,7 @@ const Upload = () => {
               <li>• {t("upload.guide.garment.noOverlap")}</li>
               <li>• {t("upload.guide.garment.frontView")}</li>
               <li>• {t("upload.guide.garment.wrinkle")}</li>
+              <li className="text-amber-600 dark:text-amber-400 font-medium">• {t("upload.guide.garment.lengthMatch")}</li>
             </ul>
           </div>
 
