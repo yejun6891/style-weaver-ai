@@ -275,6 +275,7 @@ const translations = {
     "upload.mode.fullDesc": "상의 + 하의 모두 교체",
     "upload.mode.fullDescSingle": "한 장의 코디 사진으로 피팅",
     "upload.mode.dressNotice": "원피스/드레스는 '전체 코디' 모드를 이용해주세요.",
+    "upload.mode.fullWarning": "⚠️ 전체 코디 모드는 옷 사진의 상의+하의 전체를 복사합니다. 예: 반팔 티+반바지 사진 → 결과도 반팔+반바지. 상의만 바꾸려면 '상의 피팅'을 선택하세요.",
     "upload.mode.credit": "크레딧",
     
     // Full Mode Sub-selection
@@ -698,6 +699,7 @@ const translations = {
     "upload.mode.fullDesc": "Change both top + bottom",
     "upload.mode.fullDescSingle": "Single outfit photo fitting",
     "upload.mode.dressNotice": "For dresses and one-pieces, please use 'Full Outfit' mode.",
+    "upload.mode.fullWarning": "⚠️ Full Outfit mode copies the entire outfit (top+bottom) from the photo. E.g., T-shirt + shorts photo → result also shows T-shirt + shorts. To change only the top, select 'Top Fitting'.",
     "upload.mode.credit": "credit",
     
     // Full Mode Sub-selection

@@ -442,6 +442,16 @@ const Upload = () => {
           </div>
         )}
 
+        {/* Full Outfit Warning - Show only for full mode */}
+        {mode === "full" && (
+          <div className="mb-6 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+            <p className="text-sm text-amber-700 dark:text-amber-300">
+              {t("upload.mode.fullWarning")}
+            </p>
+          </div>
+        )}
+
         <div className="space-y-6">
           {/* Person Image with Mode-specific notice */}
           <ImageUploadZone
