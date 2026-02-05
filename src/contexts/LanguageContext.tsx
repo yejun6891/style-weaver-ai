@@ -110,9 +110,9 @@ const translations = {
     
     // Landing
     "hero.badge": "AI 가상 피팅 + 스타일 분석",
-    "hero.title1": "옷을 입어보지 않아도",
-    "hero.title2": "내 모습을 확인하세요",
-    "hero.subtitle": "미리 입어보고, 실패 없이 구매하세요.",
+    "hero.title1": "고민은 그만,",
+    "hero.title2": "직접 입어보세요",
+    "hero.subtitle": "달라진 내 모습을 미리 만나보세요.",
     "hero.cta": "시작하기",
     "feature.speed": "30초 만에 완성",
     "feature.face": "얼굴 그대로 유지",
@@ -539,9 +539,9 @@ const translations = {
     
     // Landing
     "hero.badge": "AI Virtual Try-On + Style Analysis",
-    "hero.title1": "See yourself in any outfit",
-    "hero.title2": "without trying it on",
-    "hero.subtitle": "Try First, Buy Better.",
+    "hero.title1": "Stop guessing.",
+    "hero.title2": "Try it on.",
+    "hero.subtitle": "See your new look before you buy.",
     "hero.cta": "Get Started",
     "feature.speed": "Done in 30 seconds",
     "feature.face": "Keep your real face",
