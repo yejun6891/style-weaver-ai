@@ -13,6 +13,14 @@ import Logo from '@/components/Logo';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Shield, ClipboardList } from 'lucide-react';
 
+// Helper: get today's date in YYYY-MM-DD format (Korea time)
+const getTodayKST = () => {
+  const now = new Date();
+  const kstOffset = 9 * 60; // Korea is UTC+9
+  const kst = new Date(now.getTime() + (kstOffset + now.getTimezoneOffset()) * 60000);
+  return kst.toISOString().split('T')[0];
+};
+
 interface DailyUsage {
   date: string;
   usage_count: number;
@@ -43,6 +51,8 @@ const Admin = () => {
     activeUsers: 0,
     totalUsage: 0,
     totalCreditsRemaining: 0,
+    todayVisitors: 0,
+    totalVisitors: 0,
   });
   const [dailyUsage, setDailyUsage] = useState<DailyUsage[]>([]);
   const [usageByType, setUsageByType] = useState<UsageTypeData[]>([]);
@@ -69,12 +79,37 @@ const Admin = () => {
         fetchDailyUsage(),
         fetchUsageByType(),
         fetchUsersWithUsage(),
+        fetchVisitorStats(),
       ]);
     } catch (error) {
       console.error('Error fetching admin data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchVisitorStats = async () => {
+    const today = getTodayKST();
+    
+    // Fetch today's unique visitors
+    const { data: todayData } = await supabase
+      .from('visitor_logs')
+      .select('session_id')
+      .gte('created_at', `${today}T00:00:00+09:00`);
+    
+    // Count unique sessions for today
+    const todayUniqueSessions = new Set(todayData?.map(v => v.session_id) || []);
+    
+    // Fetch total visitor count
+    const { count: totalCount } = await supabase
+      .from('visitor_logs')
+      .select('*', { count: 'exact', head: true });
+    
+    setStats(prev => ({
+      ...prev,
+      todayVisitors: todayUniqueSessions.size,
+      totalVisitors: totalCount || 0,
+    }));
   };
 
   const fetchStats = async () => {
@@ -87,12 +122,13 @@ const Admin = () => {
       .select('credits_used');
 
     if (profiles) {
-      setStats({
+      setStats(prev => ({
+        ...prev,
         totalUsers: profiles.length,
         activeUsers: profiles.filter((p) => p.credits > 0).length,
         totalUsage: usage?.length || 0,
         totalCreditsRemaining: profiles.reduce((sum, p) => sum + p.credits, 0),
-      });
+      }));
     }
   };
 
@@ -233,6 +269,8 @@ const Admin = () => {
               activeUsers={stats.activeUsers}
               totalUsage={stats.totalUsage}
               totalCreditsRemaining={stats.totalCreditsRemaining}
+              todayVisitors={stats.todayVisitors}
+              totalVisitors={stats.totalVisitors}
             />
 
             <div className="grid gap-4 md:grid-cols-2">

@@ -6,6 +6,7 @@ import Logo from "@/components/Logo";
 import BrandSurveyPopup from "@/components/BrandSurveyPopup";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Sparkles, ArrowRight, Check, Zap, User, FileText } from "lucide-react";
+import { useVisitorLog } from "@/hooks/useVisitorLog";
 
 // Before/After images
 import beforeMale from "@/assets/before-male.png";
@@ -16,6 +17,9 @@ import afterFemale from "@/assets/after-female.jpg";
 const Landing = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  
+  // Log visitor on landing page
+  useVisitorLog("/");
 
   const features = [
     { icon: Zap, text: t("feature.speed") },
