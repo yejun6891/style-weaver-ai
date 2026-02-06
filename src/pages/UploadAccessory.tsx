@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles, Info, AlertCircle } from "lucide-react";
+import { ArrowLeft, Sparkles, AlertCircle, User, Package } from "lucide-react";
 import Logo from "@/components/Logo";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
@@ -9,122 +9,230 @@ import ImageUploadZone from "@/components/ImageUploadZone";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
-import { FITTING_CATEGORIES, FittingCategory } from "@/config/featureFlags";
 import { useVisitorLog } from "@/hooks/useVisitorLog";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+// 악세서리 카테고리 정의
+const ACCESSORY_CATEGORIES = [
+  {
+    id: "hat",
+    emoji: "🧢",
+    label: { ko: "모자", en: "Hats" },
+  },
+  {
+    id: "shoes",
+    emoji: "👟",
+    label: { ko: "신발", en: "Shoes" },
+  },
+  {
+    id: "bag",
+    emoji: "👜",
+    label: { ko: "가방", en: "Bags" },
+  },
+  {
+    id: "jewelry",
+    emoji: "💎",
+    label: { ko: "쥬얼리", en: "Jewelry" },
+  },
+];
 
 // 악세서리 카테고리별 가이드 정보
 const ACCESSORY_GUIDES: Record<string, {
   personGuide: { ko: string; en: string };
   productGuide: { ko: string; en: string };
-  tips: { ko: string[]; en: string[] };
+  personRequirements: { ko: string[]; en: string[] };
+  productRequirements: { ko: string[]; en: string[] };
+  warnings: { ko: string[]; en: string[] };
 }> = {
   hat: {
     personGuide: {
-      ko: "얼굴과 머리가 잘 보이는 정면 또는 약간 측면 사진이 좋아요. 현재 모자를 쓰고 있지 않은 사진을 권장합니다.",
-      en: "A front or slightly angled photo showing your face and head clearly works best. We recommend a photo without a hat.",
+      ko: "머리와 얼굴이 잘 보이는 정면 사진을 업로드하세요",
+      en: "Upload a front photo showing your head and face clearly",
     },
     productGuide: {
-      ko: "모자 단독 사진을 업로드하세요. 정면에서 촬영한 깨끗한 상품 사진이 가장 좋습니다.",
-      en: "Upload a standalone hat photo. A clean product shot from the front works best.",
+      ko: "피팅하고 싶은 모자의 정면 사진을 업로드하세요",
+      en: "Upload a front photo of the hat you want to try on",
     },
-    tips: {
+    personRequirements: {
       ko: [
-        "캡, 비니, 버킷햇, 페도라 등 다양한 모자 지원",
-        "모자의 앞면이 잘 보이는 사진 권장",
+        "얼굴과 머리 전체가 보여야 함",
+        "현재 모자를 쓰지 않은 사진 권장",
+        "정면 또는 약간 측면 각도",
+      ],
+      en: [
+        "Full face and head must be visible",
+        "Photos without hats recommended",
+        "Front or slightly angled view",
+      ],
+    },
+    productRequirements: {
+      ko: [
+        "모자만 단독으로 촬영된 사진",
+        "정면에서 촬영한 깨끗한 상품 사진",
         "배경이 단순할수록 정확도 상승",
       ],
       en: [
-        "Supports caps, beanies, bucket hats, fedoras, etc.",
-        "Photos showing the front of the hat recommended",
+        "Photo of hat alone",
+        "Clean product shot from the front",
         "Simpler backgrounds improve accuracy",
       ],
+    },
+    warnings: {
+      ko: ["머리가 가려진 사진은 정확도가 낮아질 수 있습니다"],
+      en: ["Photos with covered heads may reduce accuracy"],
     },
   },
   shoes: {
     personGuide: {
-      ko: "발이 보이는 전신 또는 하반신 사진이 필요해요. 신발이 잘 보이도록 서 있는 자세가 좋습니다.",
-      en: "A full body or lower body photo showing your feet is needed. Standing poses that show shoes clearly work best.",
+      ko: "발이 보이는 전신 사진을 업로드하세요 (필수)",
+      en: "Upload a full body photo showing your feet (required)",
     },
     productGuide: {
-      ko: "신발 단독 사진을 업로드하세요. 한 켤레 또는 한 짝의 측면 사진이 가장 좋습니다.",
-      en: "Upload a standalone shoe photo. Side view of a pair or single shoe works best.",
+      ko: "피팅하고 싶은 신발의 측면 사진을 업로드하세요",
+      en: "Upload a side view photo of the shoes you want to try on",
     },
-    tips: {
+    personRequirements: {
       ko: [
-        "스니커즈, 구두, 부츠, 힐 등 다양한 신발 지원",
-        "신발의 측면이 잘 보이는 사진 권장",
-        "발목까지 보이는 전신 사진 사용",
+        "⚠️ 발이 반드시 보여야 함 (필수)",
+        "머리부터 발끝까지 전신 사진",
+        "서 있는 자세가 가장 좋음",
       ],
       en: [
-        "Supports sneakers, dress shoes, boots, heels, etc.",
-        "Side view photos of shoes recommended",
-        "Use full body photos showing ankles",
+        "⚠️ Feet must be visible (required)",
+        "Full body from head to toe",
+        "Standing pose works best",
       ],
+    },
+    productRequirements: {
+      ko: [
+        "신발만 단독으로 촬영된 사진",
+        "측면이 잘 보이는 사진 권장",
+        "한 켤레 또는 한 짝 모두 가능",
+      ],
+      en: [
+        "Photo of shoes alone",
+        "Side view recommended",
+        "Pair or single shoe both work",
+      ],
+    },
+    warnings: {
+      ko: ["발이 보이지 않는 사진은 신발 피팅이 불가능합니다"],
+      en: ["Shoe fitting is not possible without visible feet"],
     },
   },
   bag: {
     personGuide: {
-      ko: "상반신 또는 전신 사진이 좋아요. 가방을 들거나 메는 위치가 잘 보이면 더 자연스러운 결과를 얻을 수 있습니다.",
-      en: "Upper body or full body photos work well. Results are more natural when the bag carrying position is visible.",
+      ko: "상반신 또는 전신이 보이는 자연스러운 사진을 업로드하세요",
+      en: "Upload a natural photo showing your upper or full body",
     },
     productGuide: {
-      ko: "가방 단독 사진을 업로드하세요. 정면 또는 약간 측면에서 촬영한 상품 사진이 좋습니다.",
-      en: "Upload a standalone bag photo. Front or slightly angled product shots work well.",
+      ko: "피팅하고 싶은 가방의 전체 사진을 업로드하세요",
+      en: "Upload a full photo of the bag you want to try on",
     },
-    tips: {
+    personRequirements: {
       ko: [
-        "백팩, 숄더백, 크로스백, 클러치 등 지원",
-        "가방의 전체 형태가 보이는 사진 권장",
-        "손잡이/스트랩이 잘 보이면 더 자연스러움",
+        "상반신 또는 전신이 보이는 사진",
+        "팔이 자연스럽게 보이는 포즈",
+        "가방 착용 위치가 예상되는 포즈",
       ],
       en: [
-        "Supports backpacks, shoulder bags, crossbody, clutches, etc.",
-        "Photos showing full bag shape recommended",
-        "Visible handles/straps create more natural results",
+        "Upper body or full body visible",
+        "Natural pose with visible arms",
+        "Pose suggesting bag placement",
       ],
+    },
+    productRequirements: {
+      ko: [
+        "가방만 단독으로 촬영된 사진",
+        "가방의 전체 형태가 보여야 함",
+        "손잡이/스트랩이 보이면 더 자연스러움",
+      ],
+      en: [
+        "Photo of bag alone",
+        "Full bag shape must be visible",
+        "Visible handles/straps improve results",
+      ],
+    },
+    warnings: {
+      ko: ["가방 종류(백팩, 숄더백 등)에 맞는 포즈가 결과에 영향을 줍니다"],
+      en: ["Pose matching bag type (backpack, shoulder) affects results"],
     },
   },
   jewelry: {
     personGuide: {
-      ko: "목걸이는 목이 보이는 사진, 귀걸이는 귀가 보이는 사진, 반지는 손이 보이는 사진이 필요합니다.",
-      en: "For necklaces, neck should be visible. For earrings, ears should show. For rings, hands should be visible.",
+      ko: "착용 부위가 잘 보이는 사진을 업로드하세요",
+      en: "Upload a photo clearly showing the wearing area",
     },
     productGuide: {
-      ko: "쥬얼리 단독 사진을 업로드하세요. 제품이 선명하게 보이는 클로즈업 사진이 좋습니다.",
-      en: "Upload a standalone jewelry photo. Clear close-up product shots work best.",
+      ko: "피팅하고 싶은 쥬얼리의 선명한 사진을 업로드하세요",
+      en: "Upload a clear photo of the jewelry you want to try on",
     },
-    tips: {
+    personRequirements: {
       ko: [
-        "목걸이, 귀걸이, 반지, 팔찌 등 지원",
-        "쥬얼리가 선명하게 보이는 사진 권장",
-        "착용 부위가 잘 보이는 사람 사진 필요",
+        "목걸이: 목이 잘 보이는 사진",
+        "귀걸이: 귀가 잘 보이는 사진",
+        "반지/팔찌: 손이 잘 보이는 사진",
       ],
       en: [
-        "Supports necklaces, earrings, rings, bracelets, etc.",
-        "Clear jewelry photos recommended",
-        "Person photos should show wearing area clearly",
+        "Necklaces: Photo showing neck clearly",
+        "Earrings: Photo showing ears clearly",
+        "Rings/Bracelets: Photo showing hands clearly",
       ],
+    },
+    productRequirements: {
+      ko: [
+        "쥬얼리만 단독으로 촬영된 사진",
+        "제품이 선명하게 보이는 클로즈업",
+        "복잡한 배경 피하기",
+      ],
+      en: [
+        "Photo of jewelry alone",
+        "Clear close-up of the product",
+        "Avoid complex backgrounds",
+      ],
+    },
+    warnings: {
+      ko: ["착용 부위가 가려진 사진은 피팅이 어렵습니다"],
+      en: ["Fitting is difficult when wearing area is covered"],
     },
   },
 };
 
 const UploadAccessory = () => {
-  const { category } = useParams<{ category: string }>();
+  const { category: urlCategory } = useParams<{ category: string }>();
   const navigate = useNavigate();
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const { isEnabled, loading: featureLoading } = useFeatureFlag("ACCESSORY_FITTING");
   
-  useVisitorLog(`/upload-accessory/${category}`);
+  // 현재 선택된 카테고리 (URL 또는 기본값)
+  const [selectedCategory, setSelectedCategory] = useState<string>(urlCategory || "hat");
+  
+  useVisitorLog(`/upload-accessory/${selectedCategory}`);
 
   const [personFile, setPersonFile] = useState<File | null>(null);
   const [productFile, setProductFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 유효한 카테고리인지 확인
-  const categoryInfo = FITTING_CATEGORIES.find(c => c.id === category);
-  const accessoryGuide = category ? ACCESSORY_GUIDES[category] : null;
+  // URL 카테고리 변경 시 동기화
+  useEffect(() => {
+    if (urlCategory && ACCESSORY_CATEGORIES.find(c => c.id === urlCategory)) {
+      setSelectedCategory(urlCategory);
+    }
+  }, [urlCategory]);
+
+  // 카테고리 변경 시 URL 업데이트
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
+    navigate(`/upload-accessory/${categoryId}`, { replace: true });
+    // 카테고리 변경 시 업로드된 파일 초기화 (선택사항)
+    // setPersonFile(null);
+    // setProductFile(null);
+  };
+
+  const accessoryGuide = ACCESSORY_GUIDES[selectedCategory];
+  const categoryInfo = ACCESSORY_CATEGORIES.find(c => c.id === selectedCategory);
 
   // 권한 체크
   useEffect(() => {
@@ -138,12 +246,8 @@ const UploadAccessory = () => {
         navigate("/");
         return;
       }
-      if (!categoryInfo || category === "clothing") {
-        navigate("/upload");
-        return;
-      }
     }
-  }, [user, authLoading, isEnabled, featureLoading, categoryInfo, category, navigate, language]);
+  }, [user, authLoading, isEnabled, featureLoading, navigate, language]);
 
   const handleSubmit = async () => {
     if (!personFile || !productFile) {
@@ -169,7 +273,7 @@ const UploadAccessory = () => {
     );
   }
 
-  if (!categoryInfo || !accessoryGuide) {
+  if (!accessoryGuide || !categoryInfo) {
     return null;
   }
 
@@ -191,32 +295,81 @@ const UploadAccessory = () => {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto px-4 py-6">
         {/* Title */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
-            <span className="text-2xl">{categoryInfo.icon}</span>
-            <span className="font-semibold">
-              {categoryInfo.label[language]}
-            </span>
-          </div>
+        <div className="text-center mb-6">
           <h1 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2">
-            {language === "ko" 
-              ? `${categoryInfo.label.ko} 피팅` 
-              : `${categoryInfo.label.en} Fitting`}
+            {language === "ko" ? "악세서리 피팅" : "Accessory Fitting"}
           </h1>
-          <p className="text-muted-foreground">
-            {categoryInfo.description[language]}
+          <p className="text-muted-foreground text-sm">
+            {language === "ko" 
+              ? "AI가 악세서리를 자연스럽게 착용한 모습을 생성합니다"
+              : "AI generates natural try-on results for accessories"}
           </p>
         </div>
 
+        {/* Category Tabs */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          {ACCESSORY_CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => handleCategoryChange(cat.id)}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-full border transition-all whitespace-nowrap",
+                selectedCategory === cat.id
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background border-border hover:border-primary/50 hover:bg-accent/50"
+              )}
+            >
+              <span className="text-lg">{cat.emoji}</span>
+              <span className="font-medium text-sm">{cat.label[language]}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Development Notice */}
+        <div className="mb-6 p-3 rounded-xl bg-warning/10 border border-warning/20">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-warning">
+              {language === "ko" 
+                ? "관리자 전용 테스트 기능입니다. Fashn.ai API 연동 후 실제 피팅이 가능합니다."
+                : "Admin-only test feature. Real fitting available after Fashn.ai API integration."}
+            </p>
+          </div>
+        </div>
+
         {/* Upload Sections */}
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Person Photo */}
-          <div className="bg-card rounded-2xl border border-border p-6">
+          <div className="bg-card rounded-2xl border border-border p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+                <User className="w-4 h-4 text-blue-500" />
+              </div>
+              <h3 className="font-semibold text-foreground">
+                {language === "ko" ? "내 사진" : "My Photo"}
+              </h3>
+            </div>
+
+            {/* Person Requirements Box */}
+            <div className="mb-4 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+              <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">
+                {accessoryGuide.personGuide[language]}
+              </p>
+              <ul className="space-y-1">
+                {accessoryGuide.personRequirements[language].map((req, idx) => (
+                  <li key={idx} className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="text-blue-500">•</span>
+                    {req}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <ImageUploadZone
-              label={language === "ko" ? "내 사진" : "My Photo"}
-              description={accessoryGuide.personGuide[language]}
+              label=""
+              description=""
               file={personFile}
               onFileChange={setPersonFile}
               requirements={[]}
@@ -224,52 +377,55 @@ const UploadAccessory = () => {
           </div>
 
           {/* Product Photo */}
-          <div className="bg-card rounded-2xl border border-border p-6">
+          <div className="bg-card rounded-2xl border border-border p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-full bg-green-500/10 flex items-center justify-center">
+                <Package className="w-4 h-4 text-green-500" />
+              </div>
+              <h3 className="font-semibold text-foreground">
+                {language === "ko" ? `${categoryInfo.label.ko} 사진` : `${categoryInfo.label.en} Photo`}
+              </h3>
+            </div>
+
+            {/* Product Requirements Box */}
+            <div className="mb-4 p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+              <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-2">
+                {accessoryGuide.productGuide[language]}
+              </p>
+              <ul className="space-y-1">
+                {accessoryGuide.productRequirements[language].map((req, idx) => (
+                  <li key={idx} className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="text-green-500">•</span>
+                    {req}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
             <ImageUploadZone
-              label={language === "ko" ? `${categoryInfo.label.ko} 사진` : `${categoryInfo.label.en} Photo`}
-              description={accessoryGuide.productGuide[language]}
+              label=""
+              description=""
               file={productFile}
               onFileChange={setProductFile}
-              requirements={accessoryGuide.tips[language]}
+              requirements={[]}
             />
           </div>
 
-          {/* Tips Section */}
-          <div className="p-4 rounded-xl bg-accent/50 border border-border">
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-              <div>
-                <h4 className="font-semibold text-foreground mb-2">
-                  {language === "ko" ? "피팅 팁" : "Fitting Tips"}
-                </h4>
-                <ul className="space-y-1">
-                  {accessoryGuide.tips[language].map((tip, index) => (
-                    <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                      <span className="text-primary">•</span>
-                      {tip}
-                    </li>
+          {/* Warning Section */}
+          {accessoryGuide.warnings[language].length > 0 && (
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  {accessoryGuide.warnings[language].map((warning, idx) => (
+                    <p key={idx} className="text-sm text-amber-600 dark:text-amber-400">
+                      {warning}
+                    </p>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Development Notice */}
-          <div className="p-4 rounded-xl bg-warning/10 border border-warning/20">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
-              <div>
-                <h4 className="font-semibold text-warning mb-1">
-                  {language === "ko" ? "개발 중인 기능" : "Feature in Development"}
-                </h4>
-                <p className="text-sm text-warning/80">
-                  {language === "ko" 
-                    ? "이 기능은 현재 개발 중이며, 관리자 전용으로 테스트 중입니다. Fashn.ai Product to Model API가 연동되면 실제 피팅이 가능합니다."
-                    : "This feature is currently under development and being tested by admins only. Real fitting will be available once Fashn.ai Product to Model API is integrated."}
-                </p>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* Submit Button */}
           <Button
@@ -287,7 +443,7 @@ const UploadAccessory = () => {
             ) : (
               <>
                 <Sparkles className="w-5 h-5 mr-2" />
-                {language === "ko" ? "피팅 시작하기" : "Start Fitting"}
+                {language === "ko" ? `${categoryInfo.label.ko} 피팅 시작` : `Start ${categoryInfo.label.en} Fitting`}
               </>
             )}
           </Button>
