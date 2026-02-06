@@ -37,7 +37,7 @@ const FittingCategoryDialog: React.FC<FittingCategoryDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {language === "ko" ? "피팅 유형 선택" : "Select Fitting Type"}
