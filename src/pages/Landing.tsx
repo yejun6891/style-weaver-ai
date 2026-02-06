@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
 import Logo from "@/components/Logo";
 import BrandSurveyPopup from "@/components/BrandSurveyPopup";
+import FittingCategoryDialog from "@/components/FittingCategoryDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { Sparkles, ArrowRight, Check, Zap, User, FileText } from "lucide-react";
 import { useVisitorLog } from "@/hooks/useVisitorLog";
 
@@ -17,6 +20,8 @@ import afterFemale from "@/assets/after-female.jpg";
 const Landing = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { isEnabled: isAccessoryFittingEnabled, loading: featureLoading } = useFeatureFlag("ACCESSORY_FITTING");
+  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   
   // Log visitor on landing page
   useVisitorLog("/");
@@ -80,7 +85,14 @@ const Landing = () => {
             <Button 
               variant="gradient" 
               size="xl"
-              onClick={() => navigate("/upload")}
+              onClick={() => {
+                // 관리자이고 악세서리 피팅이 활성화되어 있으면 다이얼로그 표시
+                if (isAccessoryFittingEnabled && !featureLoading) {
+                  setShowCategoryDialog(true);
+                } else {
+                  navigate("/upload");
+                }
+              }}
               className="group"
             >
               {t("hero.cta")}
@@ -251,7 +263,12 @@ const Landing = () => {
             size="xl"
             onClick={() => {
               window.scrollTo({ top: 0, behavior: 'smooth' });
-              navigate("/upload");
+              // 관리자이고 악세서리 피팅이 활성화되어 있으면 다이얼로그 표시
+              if (isAccessoryFittingEnabled && !featureLoading) {
+                setShowCategoryDialog(true);
+              } else {
+                navigate("/upload");
+              }
             }}
             className="group"
           >
@@ -295,6 +312,12 @@ const Landing = () => {
 
       {/* Brand Survey Popup */}
       <BrandSurveyPopup />
+
+      {/* Fitting Category Dialog (Admin Only) */}
+      <FittingCategoryDialog 
+        open={showCategoryDialog} 
+        onOpenChange={setShowCategoryDialog} 
+      />
     </main>
   );
 };
