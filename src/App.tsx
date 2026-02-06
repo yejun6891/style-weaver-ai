@@ -7,6 +7,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/hooks/useAuth";
 import Landing from "./pages/Landing";
 import Upload from "./pages/Upload";
+import UploadAccessory from "./pages/UploadAccessory";
 import Result from "./pages/Result";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/mypage" element={<MyPage />} />
               <Route path="/upload" element={<Upload />} />
+              <Route path="/upload-accessory/:category" element={<UploadAccessory />} />
               <Route path="/result/:taskId" element={<Result />} />
               <Route path="/share/:code" element={<Share />} />
               <Route path="/feedback" element={<Feedback />} />
