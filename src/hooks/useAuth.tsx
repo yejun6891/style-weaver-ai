@@ -12,6 +12,7 @@ interface Profile {
   credits: number;
   created_at: string;
   updated_at: string;
+  terms_agreed_at: string | null;
 }
 
 interface AuthContextType {
