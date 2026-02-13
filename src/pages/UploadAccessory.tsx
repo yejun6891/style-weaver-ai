@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Sparkles, AlertCircle, User, Package } from "lucide-react";
+import { ArrowLeft, Sparkles, AlertCircle, User, Package, Info } from "lucide-react";
 import Logo from "@/components/Logo";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
@@ -10,6 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 import { useVisitorLog } from "@/hooks/useVisitorLog";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -203,7 +204,7 @@ const UploadAccessory = () => {
   const { category: urlCategory } = useParams<{ category: string }>();
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { user, loading: authLoading } = useAuth();
+  const { user, session, loading: authLoading } = useAuth();
   const { isEnabled, loading: featureLoading } = useFeatureFlag("ACCESSORY_FITTING");
   
   // 현재 선택된 카테고리 (URL 또는 기본값)
@@ -255,14 +256,68 @@ const UploadAccessory = () => {
       return;
     }
 
+    if (!session?.access_token) {
+      toast.error(language === "ko" ? "로그인이 필요합니다" : "Login required");
+      navigate("/auth");
+      return;
+    }
+
     setIsSubmitting(true);
     
-    // TODO: Fashn.ai Product to Model API 연동
-    toast.info(language === "ko" 
-      ? "악세서리 피팅 기능은 개발 중입니다" 
-      : "Accessory fitting is under development");
-    
-    setIsSubmitting(false);
+    try {
+      // Refresh session
+      const { data: { session: freshSession }, error: refreshError } = 
+        await supabase.auth.refreshSession();
+      
+      if (refreshError || !freshSession?.access_token) {
+        toast.error(language === "ko" ? "세션이 만료되었습니다. 다시 로그인해주세요." : "Session expired. Please login again.");
+        navigate("/auth");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("person_image", personFile);
+      formData.append("product_image", productFile);
+      formData.append("category", selectedCategory);
+
+      supabase.functions.setAuth(freshSession.access_token);
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=accessory-start`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Authorization": `Bearer ${freshSession.access_token}`,
+            "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+            "x-user-token": freshSession.access_token,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 402) {
+          toast.error(language === "ko" ? "이용권이 부족합니다" : "Insufficient credits");
+        } else {
+          toast.error(data.error || (language === "ko" ? "오류가 발생했습니다" : "An error occurred"));
+        }
+        return;
+      }
+
+      if (data.taskId) {
+        // Navigate to result page
+        navigate(`/result/${data.taskId}?mode=accessory&category=${selectedCategory}`);
+      } else {
+        toast.error(language === "ko" ? "작업 생성에 실패했습니다" : "Failed to create task");
+      }
+    } catch (err) {
+      console.error("[UploadAccessory] Submit error:", err);
+      toast.error(language === "ko" ? "서버 연결에 실패했습니다" : "Server connection failed");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (authLoading || featureLoading) {
@@ -327,15 +382,18 @@ const UploadAccessory = () => {
           ))}
         </div>
 
-        {/* Development Notice */}
-        <div className="mb-6 p-3 rounded-xl bg-warning/10 border border-warning/20">
+        {/* Image Requirements Notice */}
+        <div className="mb-6 p-3 rounded-xl bg-muted/50 border border-border">
           <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-warning">
-              {language === "ko" 
-                ? "관리자 전용 테스트 기능입니다. Fashn.ai API 연동 후 실제 피팅이 가능합니다."
-                : "Admin-only test feature. Real fitting available after Fashn.ai API integration."}
-            </p>
+            <Info className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p className="font-medium">
+                {language === "ko" ? "이미지 요구사항" : "Image Requirements"}
+              </p>
+              <p>• {language === "ko" ? "형식: JPG, PNG (5MB 이하)" : "Format: JPG, PNG (under 5MB)"}</p>
+              <p>• {language === "ko" ? "제품 사진: 배경이 깨끗할수록 정확도 ↑" : "Product photo: cleaner background = better accuracy"}</p>
+              <p>• {language === "ko" ? "처리 시간: 약 12초" : "Processing time: ~12 seconds"}</p>
+            </div>
           </div>
         </div>
 

@@ -47,6 +47,9 @@ type FullModeType = "separate" | "single";
 type RunMode = "performance" | "quality";
 type GarmentPhotoType = "flat-lay" | "model";
 
+// Valid accessory categories
+type AccessoryCategory = "hat" | "shoes" | "bag" | "jewelry";
+
 // Timeout settings (in milliseconds)
 const TIMEOUT_SINGLE_MODE = 30000;  // 30s for top/bottom
 const TIMEOUT_CONTINUE = 30000;     // 30s for continue-full (single API call)
@@ -613,8 +616,162 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Handle "accessory-start" action - Product to Model for accessories
+    if (action === "accessory-start") {
+      if (req.method !== "POST") {
+        return new Response(
+          JSON.stringify({ error: "Method not allowed" }),
+          { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const formData = await req.formData();
+
+      // Get accessory category
+      const categoryValue = formData.get("category") as string || "";
+      const category: AccessoryCategory = ["hat", "shoes", "bag", "jewelry"].includes(categoryValue)
+        ? categoryValue as AccessoryCategory
+        : "hat";
+
+      console.log(`[tryon-proxy] Accessory start: category=${category}, user=${user.id}`);
+
+      // Credit check (1 credit per accessory fitting)
+      const creditsRequired = 1;
+      const { data: profileRow, error: profileError } = await supabase
+        .from("profiles")
+        .select("credits")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("[tryon-proxy] Credit pre-check failed:", profileError.message);
+        return new Response(
+          JSON.stringify({ error: "Failed to verify credits" }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+
+      const currentCredits = profileRow?.credits ?? 0;
+      if (currentCredits < creditsRequired) {
+        return new Response(
+          JSON.stringify({ error: "Insufficient credits", required: creditsRequired, current: currentCredits }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+
+      // Validate files: person_image and product_image
+      const requiredFields = ["person_image", "product_image"];
+      const validatedFormData = new FormData();
+      validatedFormData.append("category", category);
+
+      for (const fieldName of requiredFields) {
+        const file = formData.get(fieldName) as File | null;
+        if (!file) {
+          return new Response(
+            JSON.stringify({ error: `Missing required field: ${fieldName}` }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        if (file.size > MAX_FILE_SIZE) {
+          return new Response(
+            JSON.stringify({ error: `File ${fieldName} exceeds 5MB limit` }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+          return new Response(
+            JSON.stringify({ error: `Invalid file type for ${fieldName}. Allowed: JPEG, PNG, GIF, WebP` }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const buffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(buffer.slice(0, 12));
+        if (!isValidImageMagicBytes(bytes)) {
+          return new Response(
+            JSON.stringify({ error: `File ${fieldName} is not a valid image` }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        const validatedFile = new File([buffer], file.name, { type: file.type });
+        validatedFormData.append(fieldName, validatedFile);
+      }
+
+      console.log(`[tryon-proxy] Forwarding accessory request to backend for user ${user.id}, category=${category}`);
+
+      try {
+        const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
+          `${BACKEND_BASE_URL}/api/accessory/start`,
+          {
+            method: "POST",
+            body: validatedFormData,
+            headers: {
+              "Authorization": userBearer,
+            },
+          },
+          TIMEOUT_SINGLE_MODE,
+        );
+
+        if (backendRes.ok && responseData.taskId) {
+          // Deduct credit
+          const { error: creditError } = await supabase
+            .from("profiles")
+            .update({ credits: currentCredits - creditsRequired })
+            .eq("user_id", user.id);
+
+          if (creditError) {
+            console.error("[tryon-proxy] Credit deduction error:", creditError.message);
+          }
+
+          // Store task ownership
+          await supabase.from("task_ownership").insert({
+            task_id: responseData.taskId,
+            user_id: user.id,
+          });
+
+          // Clean up expired history
+          const expirationTime = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+          const { data: expiredHistory } = await supabase
+            .from("usage_history")
+            .select("id")
+            .eq("user_id", user.id)
+            .not("task_id", "is", null)
+            .lt("created_at", expirationTime);
+
+          if (expiredHistory && expiredHistory.length > 0) {
+            await supabase.from("usage_history").delete().in("id", expiredHistory.map(h => h.id));
+          }
+
+          // Log usage
+          await supabase.from("usage_history").insert({
+            user_id: user.id,
+            action_type: `virtual_tryon_accessory_${category}`,
+            credits_used: creditsRequired,
+            task_id: responseData.taskId,
+          });
+
+          console.log(`[tryon-proxy] Accessory task ${responseData.taskId} created for user ${user.id}`);
+        }
+
+        return new Response(JSON.stringify(responseData), {
+          status: backendRes.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (e) {
+        const isTimeout = (e as any)?.name === "AbortError";
+        console.error("[tryon-proxy] Accessory backend fetch failed:", e);
+        return new Response(
+          JSON.stringify({ error: isTimeout ? "Upstream timeout" : "Upstream request failed" }),
+          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     return new Response(
-      JSON.stringify({ error: "Invalid action. Use 'start', 'result', 'continue-full', or 'style-analysis'" }),
+      JSON.stringify({ error: "Invalid action. Use 'start', 'result', 'continue-full', 'style-analysis', or 'accessory-start'" }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
