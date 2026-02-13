@@ -21,6 +21,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import FloatingFeedbackButton from "./components/FloatingFeedbackButton";
+import TermsConsentDialog from "./components/TermsConsentDialog";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
             <FloatingFeedbackButton />
+            <TermsConsentDialog />
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
