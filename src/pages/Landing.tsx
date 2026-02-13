@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
 import Logo from "@/components/Logo";
+import { useAuth } from "@/hooks/useAuth";
 import BrandSurveyPopup from "@/components/BrandSurveyPopup";
 import FittingCategoryDialog from "@/components/FittingCategoryDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -21,6 +22,7 @@ const Landing = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { isEnabled: isAccessoryFittingEnabled, loading: featureLoading } = useFeatureFlag("ACCESSORY_FITTING");
+  const { user } = useAuth();
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   
   // Log visitor on landing page
@@ -310,8 +312,8 @@ const Landing = () => {
         </div>
       </footer>
 
-      {/* Brand Survey Popup */}
-      <BrandSurveyPopup />
+      {/* Brand Survey Popup - only for logged-in users */}
+      {user && <BrandSurveyPopup />}
 
       {/* Fitting Category Dialog (Admin Only) */}
       <FittingCategoryDialog 
