@@ -15,9 +15,25 @@ serve(async (req) => {
   try {
     const { share_code, visitor_fingerprint } = await req.json();
 
-    if (!share_code) {
+    // Validate share_code
+    if (!share_code || typeof share_code !== 'string' || share_code.length > 50) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Share code is required' }),
+        JSON.stringify({ success: false, error: 'Invalid share code' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!/^[a-zA-Z0-9_-]+$/.test(share_code)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid share code format' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate visitor_fingerprint if provided
+    if (visitor_fingerprint && (typeof visitor_fingerprint !== 'string' || visitor_fingerprint.length > 200)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid fingerprint' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -38,7 +54,7 @@ serve(async (req) => {
     if (error) {
       console.error('Error processing share click:', error);
       return new Response(
-        JSON.stringify({ success: false, error: error.message }),
+        JSON.stringify({ success: false, error: 'Failed to process click' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

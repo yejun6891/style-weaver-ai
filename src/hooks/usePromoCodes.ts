@@ -157,33 +157,24 @@ export const usePromoCodes = () => {
     if (!user) return { success: false, message: '로그인이 필요합니다' };
 
     try {
-      // Mark promo code as used
-      const { error: updateError } = await (supabase
-        .from('user_promo_codes' as any)
-        .update({ used: true, used_at: new Date().toISOString() })
-        .eq('id', userPromoCodeId) as any);
+      // Use atomic server-side RPC for promo code redemption
+      const { data, error } = await (supabase.rpc as any)('redeem_credits_promo', {
+        p_user_promo_code_id: userPromoCodeId,
+        p_promo_code_id: promoCodeId
+      });
 
-      if (updateError) {
-        console.error('Error updating promo code usage:', updateError);
+      if (error) {
+        console.error('Error redeeming promo code:', error);
         return { success: false, message: '프로모션 코드 사용에 실패했습니다' };
       }
 
-      // Add credits using RPC function
-      const { error: creditsError } = await (supabase.rpc as any)('add_credits', {
-        p_user_id: user.id,
-        p_credits: creditsToAdd
-      });
-
-      if (creditsError) {
-        console.error('Error adding credits:', creditsError);
-        return { success: false, message: '크레딧 추가에 실패했습니다' };
+      if (data && !data.success) {
+        return { success: false, message: data.error === 'Already used' ? '이미 사용된 프로모션 코드입니다' : '프로모션 코드 사용에 실패했습니다' };
       }
 
-      // Update promo code usage count
-      await (supabase.rpc as any)('increment_promo_usage', { p_promo_id: promoCodeId });
-
+      const addedCredits = data?.credits_added || creditsToAdd;
       await fetchUserPromoCodes();
-      return { success: true, message: `${creditsToAdd}개의 크레딧이 추가되었습니다!` };
+      return { success: true, message: `${addedCredits}개의 크레딧이 추가되었습니다!` };
     } catch (err) {
       console.error('Error using credits promo code:', err);
       return { success: false, message: '오류가 발생했습니다' };
