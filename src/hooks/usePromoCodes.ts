@@ -176,19 +176,7 @@ export const usePromoCodes = () => {
 
       if (creditsError) {
         console.error('Error adding credits:', creditsError);
-        // Fallback: try direct update
-        const { data: currentProfile } = await supabase
-          .from('profiles')
-          .select('credits')
-          .eq('user_id', user.id)
-          .single();
-
-        if (currentProfile) {
-          await supabase
-            .from('profiles')
-            .update({ credits: currentProfile.credits + creditsToAdd })
-            .eq('user_id', user.id);
-        }
+        return { success: false, message: '크레딧 추가에 실패했습니다' };
       }
 
       // Update promo code usage count
