@@ -53,7 +53,7 @@ const Upload = () => {
   
   const [styleProfile, setStyleProfile] = useState<StyleProfile>({
     gender: "",
-    height: "",
+    
     bodyTypes: [],
     bodyTypeOther: "",
     occasions: [],
@@ -314,7 +314,7 @@ const Upload = () => {
   }
 
   const isProfileFilled = 
-    styleProfile.height.trim() !== "" ||
+    styleProfile.bodyTypes.length > 0 ||
     styleProfile.bodyTypes.length > 0 ||
     styleProfile.occasions.length > 0 ||
     styleProfile.styles.length > 0 ||
