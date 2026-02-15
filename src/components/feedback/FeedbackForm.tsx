@@ -121,13 +121,9 @@ const FeedbackForm = ({ onSuccess }: FeedbackFormProps) => {
             continue;
           }
 
-          const { data: publicUrl } = supabase.storage
-            .from("feedback-attachments")
-            .getPublicUrl(fileName);
-
           await supabase.from("feedback_attachments").insert({
             ticket_id: ticket.id,
-            file_url: publicUrl.publicUrl,
+            file_url: fileName,
             file_name: file.name,
           });
         }

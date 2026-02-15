@@ -121,7 +121,17 @@ const FeedbackManagement = () => {
       ]);
 
       setReplies(repliesData || []);
-      setAttachments(attachmentsData || []);
+
+      // Generate signed URLs for attachments (bucket is private)
+      const attachmentsWithSignedUrls = await Promise.all(
+        (attachmentsData || []).map(async (att) => {
+          const { data } = await supabase.storage
+            .from("feedback-attachments")
+            .createSignedUrl(att.file_url, 3600);
+          return { ...att, file_url: data?.signedUrl || att.file_url };
+        })
+      );
+      setAttachments(attachmentsWithSignedUrls);
     } catch (error) {
       console.error("Error fetching ticket details:", error);
     }

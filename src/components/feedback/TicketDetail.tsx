@@ -78,13 +78,22 @@ const TicketDetail = () => {
       if (ticketError) throw ticketError;
       setTicket(ticketData);
 
-      // Fetch attachments
+      // Fetch attachments and generate signed URLs
       const { data: attachmentData } = await supabase
         .from("feedback_attachments")
         .select("*")
         .eq("ticket_id", ticketId);
 
-      setAttachments(attachmentData || []);
+      // Generate signed URLs for each attachment
+      const attachmentsWithSignedUrls = await Promise.all(
+        (attachmentData || []).map(async (att) => {
+          const { data } = await supabase.storage
+            .from("feedback-attachments")
+            .createSignedUrl(att.file_url, 3600);
+          return { ...att, file_url: data?.signedUrl || att.file_url };
+        })
+      );
+      setAttachments(attachmentsWithSignedUrls);
 
       // Fetch replies
       const { data: replyData } = await supabase
