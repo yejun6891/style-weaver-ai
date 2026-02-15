@@ -91,10 +91,23 @@ const Result = () => {
   const pollCountRef = useRef(0);
 
   // Determine if user has filled out style profile (derived from state)
-  const hasStyleProfile = styleProfile.bodyTypes.length > 0 || 
-    styleProfile.occasions.length > 0 || 
-    styleProfile.styles.length > 0 || 
-    Boolean(styleProfile.concerns);
+  const hasStyleProfile = (() => {
+    if (isAccessoryMode) {
+      // Check accessory-specific fields based on category
+      const p = styleProfile as any;
+      const hasCommon = (p.occasions?.length > 0) || Boolean(p.concerns);
+      const hasCategoryFields = 
+        (p.faceShape?.length > 0) || (p.hatStyles?.length > 0) ||
+        (p.legShape?.length > 0) || (p.shoeStyles?.length > 0) ||
+        (p.bagUsage?.length > 0) || (p.bagStyles?.length > 0) ||
+        Boolean(p.skinTone) || (p.jewelryStyles?.length > 0);
+      return hasCommon || hasCategoryFields;
+    }
+    return styleProfile.bodyTypes.length > 0 || 
+      styleProfile.occasions.length > 0 || 
+      styleProfile.styles.length > 0 || 
+      Boolean(styleProfile.concerns);
+  })();
 
   useEffect(() => {
     // Load style profile from sessionStorage
