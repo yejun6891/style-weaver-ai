@@ -23,6 +23,7 @@ export interface AccessoryStyleProfile {
   bagStyles: string[];
   bagStyleOther: string;
   // Jewelry-specific
+  jewelryType: string;
   skinTone: string;
   jewelryStyles: string[];
   jewelryStyleOther: string;
@@ -48,6 +49,7 @@ export const defaultAccessoryStyleProfile: AccessoryStyleProfile = {
   bagUsageOther: "",
   bagStyles: [],
   bagStyleOther: "",
+  jewelryType: "",
   skinTone: "",
   jewelryStyles: [],
   jewelryStyleOther: "",
@@ -163,6 +165,13 @@ const AccessoryStyleProfileForm = ({ value, onChange, category }: AccessoryStyle
     { key: "casual", label: t("accessoryProfile.bagStyle.casual") },
     { key: "vintage", label: t("accessoryProfile.bagStyle.vintage") },
     { key: "other", label: t("profile.other") },
+  ];
+
+  const jewelryTypeOptions = [
+    { key: "necklace", label: t("accessoryProfile.jewelryType.necklace") },
+    { key: "earring", label: t("accessoryProfile.jewelryType.earring") },
+    { key: "ring", label: t("accessoryProfile.jewelryType.ring") },
+    { key: "bracelet", label: t("accessoryProfile.jewelryType.bracelet") },
   ];
 
   const skinToneOptions = [
@@ -334,6 +343,25 @@ const AccessoryStyleProfileForm = ({ value, onChange, category }: AccessoryStyle
 
       {category === "jewelry" && (
         <>
+          {/* Jewelry Type */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              {getCategoryIcon()}
+              <Label className="text-base font-semibold">{t("accessoryProfile.jewelryType.label")}</Label>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {jewelryTypeOptions.map((option) => (
+                <ChipButton
+                  key={option.key}
+                  selected={value.jewelryType === option.key}
+                  onClick={() => onChange({ ...value, jewelryType: option.key })}
+                >
+                  {option.label}
+                </ChipButton>
+              ))}
+            </div>
+          </div>
+          {/* Skin Tone */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               {getCategoryIcon()}
