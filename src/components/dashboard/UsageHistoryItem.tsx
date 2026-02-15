@@ -61,6 +61,14 @@ const UsageHistoryItem = ({ item, userId }: UsageHistoryItemProps) => {
   const getActionLabel = () => {
     if (item.action_type === 'virtual_tryon') return t("dashboard.tryonAction");
     if (item.action_type === 'credit_purchase') return t("dashboard.purchaseAction");
+    if (item.action_type.startsWith('virtual_tryon_accessory_')) {
+      const category = item.action_type.replace('virtual_tryon_accessory_', '');
+      if (category === 'hat') return '모자 피팅';
+      if (category === 'shoes') return '신발 피팅';
+      if (category === 'bag') return '가방 피팅';
+      if (category === 'jewelry') return '쥬얼리 피팅';
+      return `악세서리 피팅`;
+    }
     if (item.action_type.startsWith('virtual_tryon_')) {
       const mode = item.action_type.replace('virtual_tryon_', '');
       if (mode === 'top') return '상의 피팅';
@@ -70,12 +78,21 @@ const UsageHistoryItem = ({ item, userId }: UsageHistoryItemProps) => {
     return item.action_type;
   };
 
+  const getResultUrl = () => {
+    if (!item.task_id) return '';
+    if (item.action_type.startsWith('virtual_tryon_accessory_')) {
+      const category = item.action_type.replace('virtual_tryon_accessory_', '');
+      return `/result/${item.task_id}?mode=accessory&category=${category}`;
+    }
+    return `/result/${item.task_id}`;
+  };
+
   return (
     <div 
       className={`flex flex-col gap-3 p-4 rounded-xl bg-background border border-border transition-colors ${
         item.task_id && !isExpired ? 'hover:border-primary/30 cursor-pointer' : 'opacity-60'
       }`}
-      onClick={() => item.task_id && !isExpired && navigate(`/result/${item.task_id}`)}
+      onClick={() => item.task_id && !isExpired && navigate(getResultUrl())}
     >
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center flex-shrink-0">
