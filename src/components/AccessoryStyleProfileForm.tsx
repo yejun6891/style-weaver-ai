@@ -2,7 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Ruler, User, Shirt, Target, Globe, Users, Gem, ShoppingBag, Footprints } from "lucide-react";
+import { User, Shirt, Target, Globe, Users, Gem, ShoppingBag, Footprints } from "lucide-react";
 
 export interface AccessoryStyleProfile {
   gender: "male" | "female" | "other" | "";
@@ -273,20 +273,6 @@ const AccessoryStyleProfileForm = ({ value, onChange, category }: AccessoryStyle
         </div>
       </div>
 
-      {/* Height */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Ruler className="w-4 h-4 text-primary" />
-          <Label className="text-base font-semibold">{t("profile.height")}</Label>
-        </div>
-        <Input
-          type="text"
-          placeholder={t("profile.heightPlaceholder")}
-          value={value.height}
-          onChange={(e) => onChange({ ...value, height: e.target.value })}
-          className="bg-card"
-        />
-      </div>
 
       {/* Category-specific fields */}
       {category === "hat" && (
