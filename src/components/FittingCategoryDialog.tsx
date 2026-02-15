@@ -263,14 +263,6 @@ const FittingCategoryDialog: React.FC<FittingCategoryDialogProps> = ({
               </button>
             ))}
 
-            {/* Admin Notice */}
-            <div className="mt-2 p-3 rounded-lg bg-warning/10 border border-warning/20">
-              <p className="text-xs text-warning">
-                {language === "ko" 
-                  ? "⚠️ 악세서리 피팅은 현재 관리자 전용 테스트 기능입니다."
-                  : "⚠️ Accessory fitting is currently an admin-only test feature."}
-              </p>
-            </div>
           </div>
         )}
       </DialogContent>
