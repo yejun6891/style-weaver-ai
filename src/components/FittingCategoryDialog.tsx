@@ -102,8 +102,8 @@ const FittingCategoryDialog: React.FC<FittingCategoryDialogProps> = ({
         en: "Sneakers, boots, heels, dress shoes",
       },
       personRequirement: {
-        ko: "발이 보이는 전신 사진 (필수)",
-        en: "Full body photo showing feet (required)",
+        ko: "발이 보이는 전신 서 있는 사진 (앉은 자세 비권장)",
+        en: "Full body standing photo showing feet (sitting not recommended)",
       },
       productRequirement: {
         ko: "신발 측면이 잘 보이는 단독 사진",
@@ -119,8 +119,8 @@ const FittingCategoryDialog: React.FC<FittingCategoryDialogProps> = ({
         en: "Backpacks, shoulder bags, crossbody, clutches",
       },
       personRequirement: {
-        ko: "상반신 또는 전신이 보이는 자연스러운 포즈",
-        en: "Natural pose showing upper or full body",
+        ko: "착용 방향에 맞는 사진 (앞메기→정면, 백팩→뒷모습)",
+        en: "Photo matching carry direction (front-carry→front, backpack→back)",
       },
       productRequirement: {
         ko: "가방 전체 형태가 보이는 단독 사진",
@@ -136,8 +136,8 @@ const FittingCategoryDialog: React.FC<FittingCategoryDialogProps> = ({
         en: "Necklaces, earrings, rings, bracelets",
       },
       personRequirement: {
-        ko: "착용 부위가 잘 보이는 사진 (목, 귀, 손 등)",
-        en: "Photo clearly showing wearing area (neck, ears, hands)",
+        ko: "착용 부위 클로즈업 사진 (전신 사진 비권장)",
+        en: "Close-up of wearing area (full body not recommended)",
       },
       productRequirement: {
         ko: "쥬얼리가 선명하게 보이는 클로즈업 사진",
