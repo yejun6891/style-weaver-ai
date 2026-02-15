@@ -2,17 +2,17 @@
 // Admin-only features are automatically visible to admin users
 
 export const FEATURE_FLAGS = {
-  // Accessory fitting - admin only for now
+  // Accessory fitting - available to all users
   ACCESSORY_FITTING: {
     enabled: true,
-    adminOnly: true,
+    adminOnly: false,
     label: {
       ko: "악세서리 피팅",
       en: "Accessory Fitting",
     },
     description: {
-      ko: "모자, 신발, 가방, 쥬얼리 가상 피팅 (개발 중)",
-      en: "Virtual hat, shoes, bag, jewelry fitting (In Development)",
+      ko: "모자, 신발, 가방, 쥬얼리 가상 피팅",
+      en: "Virtual hat, shoes, bag, jewelry fitting",
     },
   },
 } as const;
