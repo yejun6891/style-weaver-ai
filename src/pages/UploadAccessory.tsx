@@ -181,6 +181,7 @@ const ACCESSORY_GUIDES: Record<string, {
         "반지/팔찌: 손목~손이 잘 보이는 사진",
         "💡 착용 부위만 클로즈업한 사진이 가장 좋은 결과를 냅니다",
         "⚠️ 전신 사진은 제품이 너무 작게 보여 결과가 좋지 않을 수 있습니다",
+        "⚠️ 귀걸이는 AI가 귓볼 위치에 배치합니다. 이어커프 등 귀 중간/위쪽 제품도 귓볼에 나올 수 있습니다",
       ],
       en: [
         "Necklaces: Photo showing neck to chest area",
@@ -188,6 +189,7 @@ const ACCESSORY_GUIDES: Record<string, {
         "Rings/Bracelets: Photo showing wrists and hands",
         "💡 Close-up photos of the wearing area produce the best results",
         "⚠️ Full body photos may make jewelry appear too small for good results",
+        "⚠️ Earrings are placed on the earlobe by AI. Ear cuffs and mid-ear products may also appear on the earlobe",
       ],
     },
     productRequirements: {
