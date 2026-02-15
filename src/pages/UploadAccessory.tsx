@@ -99,11 +99,13 @@ const ACCESSORY_GUIDES: Record<string, {
         "⚠️ 발이 반드시 보여야 함 (필수)",
         "머리부터 발끝까지 전신 사진",
         "서 있는 자세가 가장 좋음",
+        "⚠️ 앉은 자세는 발이 가려져 결과 퀄리티가 크게 떨어질 수 있습니다",
       ],
       en: [
         "⚠️ Feet must be visible (required)",
         "Full body from head to toe",
         "Standing pose works best",
+        "⚠️ Sitting poses may hide feet and significantly reduce quality",
       ],
     },
     productRequirements: {
@@ -125,8 +127,8 @@ const ACCESSORY_GUIDES: Record<string, {
   },
   bag: {
     personGuide: {
-      ko: "상반신 또는 전신이 보이는 자연스러운 사진을 업로드하세요",
-      en: "Upload a natural photo showing your upper or full body",
+      ko: "가방 착용 방향에 맞는 사진을 업로드하세요",
+      en: "Upload a photo matching how you'd carry the bag",
     },
     productGuide: {
       ko: "피팅하고 싶은 가방의 전체 사진을 업로드하세요",
@@ -136,12 +138,14 @@ const ACCESSORY_GUIDES: Record<string, {
       ko: [
         "상반신 또는 전신이 보이는 사진",
         "팔이 자연스럽게 보이는 포즈",
-        "가방 착용 위치가 예상되는 포즈",
+        "📌 앞으로 메는 가방 → 정면 사진",
+        "📌 뒤로 메는 가방 (백팩 등) → 뒷모습 사진",
       ],
       en: [
         "Upper body or full body visible",
         "Natural pose with visible arms",
-        "Pose suggesting bag placement",
+        "📌 Front-carry bags → front-facing photo",
+        "📌 Back-carry bags (backpacks) → back-facing photo",
       ],
     },
     productRequirements: {
@@ -163,8 +167,8 @@ const ACCESSORY_GUIDES: Record<string, {
   },
   jewelry: {
     personGuide: {
-      ko: "착용 부위가 잘 보이는 사진을 업로드하세요",
-      en: "Upload a photo clearly showing the wearing area",
+      ko: "착용 부위의 클로즈업 사진을 업로드하세요",
+      en: "Upload a close-up photo of the wearing area",
     },
     productGuide: {
       ko: "피팅하고 싶은 쥬얼리의 선명한 사진을 업로드하세요",
@@ -172,14 +176,18 @@ const ACCESSORY_GUIDES: Record<string, {
     },
     personRequirements: {
       ko: [
-        "목걸이: 목이 잘 보이는 사진",
-        "귀걸이: 귀가 잘 보이는 사진",
-        "반지/팔찌: 손이 잘 보이는 사진",
+        "목걸이: 목~가슴이 잘 보이는 사진",
+        "귀걸이: 귀가 잘 보이는 사진 (원하는 쪽 귀만 보이게 촬영 권장)",
+        "반지/팔찌: 손목~손이 잘 보이는 사진",
+        "💡 착용 부위만 클로즈업한 사진이 가장 좋은 결과를 냅니다",
+        "⚠️ 전신 사진은 제품이 너무 작게 보여 결과가 좋지 않을 수 있습니다",
       ],
       en: [
-        "Necklaces: Photo showing neck clearly",
-        "Earrings: Photo showing ears clearly",
-        "Rings/Bracelets: Photo showing hands clearly",
+        "Necklaces: Photo showing neck to chest area",
+        "Earrings: Photo showing ears clearly (show only the desired ear for best results)",
+        "Rings/Bracelets: Photo showing wrists and hands",
+        "💡 Close-up photos of the wearing area produce the best results",
+        "⚠️ Full body photos may make jewelry appear too small for good results",
       ],
     },
     productRequirements: {
@@ -195,8 +203,8 @@ const ACCESSORY_GUIDES: Record<string, {
       ],
     },
     warnings: {
-      ko: ["착용 부위가 가려진 사진은 피팅이 어렵습니다"],
-      en: ["Fitting is difficult when wearing area is covered"],
+      ko: ["AI가 자동으로 배치하므로, 원하는 부위만 보이는 사진을 올려주세요"],
+      en: ["AI auto-places jewelry, so upload a photo showing only the desired area"],
     },
   },
 };
