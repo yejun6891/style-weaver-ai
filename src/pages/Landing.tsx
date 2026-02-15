@@ -9,7 +9,7 @@ import BrandSurveyPopup from "@/components/BrandSurveyPopup";
 import FittingCategoryDialog from "@/components/FittingCategoryDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
-import { Sparkles, ArrowRight, Check, Zap, User, FileText } from "lucide-react";
+import { Sparkles, ArrowRight, Check, Zap, User, FileText, AlertTriangle } from "lucide-react";
 import { useVisitorLog } from "@/hooks/useVisitorLog";
 
 // Before/After images
@@ -64,10 +64,10 @@ const Landing = () => {
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-accent-foreground mb-8 animate-fade-up">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-semibold">{t("hero.badge")}</span>
+          {/* Pain Point Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 text-destructive mb-6 animate-fade-up">
+            <AlertTriangle className="w-4 h-4" />
+            <span className="text-sm font-semibold">{t("hero.painPoint")}</span>
           </div>
 
           {/* Main Headline */}
@@ -88,7 +88,6 @@ const Landing = () => {
               variant="gradient" 
               size="xl"
               onClick={() => {
-                // 관리자이고 악세서리 피팅이 활성화되어 있으면 다이얼로그 표시
                 if (isAccessoryFittingEnabled && !featureLoading) {
                   setShowCategoryDialog(true);
                 } else {
@@ -115,14 +114,14 @@ const Landing = () => {
       </section>
 
       {/* Before/After Section */}
-      <section className="relative py-20 px-4 bg-gradient-to-b from-accent/20 to-background overflow-hidden">
+      <section className="relative py-24 px-4 bg-gradient-to-b from-accent/20 to-background overflow-hidden">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-14">
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 tracking-tight">
-              {t("beforeAfter.title") || "AI 가상 피팅 체험"}
+            <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-3 tracking-tight">
+              {t("beforeAfter.title")}
             </h2>
-            <p className="text-muted-foreground text-lg">
-              {t("beforeAfter.subtitle") || "원하는 옷을 입어보세요"}
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+              {t("beforeAfter.subtitle")}
             </p>
           </div>
 
@@ -137,8 +136,8 @@ const Landing = () => {
                       alt="Before - Male" 
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-sm text-xs font-semibold text-foreground">
-                      BEFORE
+                    <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-muted/90 backdrop-blur-sm text-xs font-semibold text-muted-foreground">
+                      {t("beforeAfter.label.before")}
                     </div>
                   </div>
                   <div className="relative aspect-[3/4] overflow-hidden">
@@ -147,13 +146,13 @@ const Landing = () => {
                       alt="After - Male" 
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full gradient-primary text-xs font-semibold text-white">
-                      AFTER
+                    <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full gradient-primary text-xs font-semibold text-primary-foreground">
+                      {t("beforeAfter.label.after")}
                     </div>
                   </div>
                 </div>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full gradient-primary flex items-center justify-center shadow-lg z-10">
-                  <ArrowRight className="w-5 h-5 text-white" />
+                  <ArrowRight className="w-5 h-5 text-primary-foreground" />
                 </div>
               </div>
             </div>
@@ -168,8 +167,8 @@ const Landing = () => {
                       alt="Before - Female" 
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-sm text-xs font-semibold text-foreground">
-                      BEFORE
+                    <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-muted/90 backdrop-blur-sm text-xs font-semibold text-muted-foreground">
+                      {t("beforeAfter.label.before")}
                     </div>
                   </div>
                   <div className="relative aspect-[3/4] overflow-hidden">
@@ -178,13 +177,13 @@ const Landing = () => {
                       alt="After - Female" 
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full gradient-primary text-xs font-semibold text-white">
-                      AFTER
+                    <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full gradient-primary text-xs font-semibold text-primary-foreground">
+                      {t("beforeAfter.label.after")}
                     </div>
                   </div>
                 </div>
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full gradient-primary flex items-center justify-center shadow-lg z-10">
-                  <ArrowRight className="w-5 h-5 text-white" />
+                  <ArrowRight className="w-5 h-5 text-primary-foreground" />
                 </div>
               </div>
             </div>
