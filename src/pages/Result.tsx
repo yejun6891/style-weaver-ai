@@ -78,6 +78,7 @@ const Result = () => {
   const mode = searchParams.get("mode") || sessionStorage.getItem("tryonMode") || "top";
   const isAccessoryMode = mode === "accessory";
   const accessoryCategory = searchParams.get("category") || "";
+  const isFromDashboard = searchParams.get("from") === "dashboard";
   const isFullMode = mode === "full";
   // Two-step full mode is no longer used - always single mode
   const isTwoStepFullMode = false;
@@ -91,7 +92,9 @@ const Result = () => {
   const pollCountRef = useRef(0);
 
   // Determine if user has filled out style profile (derived from state)
+  // When coming from dashboard, always treat as no style profile to skip re-analysis
   const hasStyleProfile = (() => {
+    if (isFromDashboard) return false;
     if (isAccessoryMode) {
       // Check accessory-specific fields based on category
       const p = styleProfile as any;

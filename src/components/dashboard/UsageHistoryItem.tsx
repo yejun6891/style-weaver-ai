@@ -82,9 +82,9 @@ const UsageHistoryItem = ({ item, userId }: UsageHistoryItemProps) => {
     if (!item.task_id) return '';
     if (item.action_type.startsWith('virtual_tryon_accessory_')) {
       const category = item.action_type.replace('virtual_tryon_accessory_', '');
-      return `/result/${item.task_id}?mode=accessory&category=${category}`;
+      return `/result/${item.task_id}?mode=accessory&category=${category}&from=dashboard`;
     }
-    return `/result/${item.task_id}`;
+    return `/result/${item.task_id}?from=dashboard`;
   };
 
   return (
