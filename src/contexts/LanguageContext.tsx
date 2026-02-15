@@ -64,6 +64,16 @@ const translations = {
     "dashboard.shareStatus": "공유 현황",
     "dashboard.shareProgress": "{n}/{total} 클릭",
     "dashboard.shareRewardEarned": "보상 완료 🎉",
+    "dashboard.fitting.hat": "모자 피팅",
+    "dashboard.fitting.shoes": "신발 피팅",
+    "dashboard.fitting.bag": "가방 피팅",
+    "dashboard.fitting.jewelry": "쥬얼리 피팅",
+    "dashboard.fitting.accessory": "악세서리 피팅",
+    "dashboard.fitting.top": "상의 피팅",
+    "dashboard.fitting.bottom": "하의 피팅",
+    "dashboard.fitting.full": "전체 코디",
+    "dashboard.hoursLeft": "{n}h 남음",
+    "dashboard.expired": "만료됨",
     
     // MyPage
     "mypage.title": "마이페이지",
@@ -554,6 +564,16 @@ const translations = {
     "dashboard.shareStatus": "Share Status",
     "dashboard.shareProgress": "{n}/{total} clicks",
     "dashboard.shareRewardEarned": "Reward Earned 🎉",
+    "dashboard.fitting.hat": "Hat Fitting",
+    "dashboard.fitting.shoes": "Shoes Fitting",
+    "dashboard.fitting.bag": "Bag Fitting",
+    "dashboard.fitting.jewelry": "Jewelry Fitting",
+    "dashboard.fitting.accessory": "Accessory Fitting",
+    "dashboard.fitting.top": "Top Fitting",
+    "dashboard.fitting.bottom": "Bottom Fitting",
+    "dashboard.fitting.full": "Full Outfit",
+    "dashboard.hoursLeft": "{n}h left",
+    "dashboard.expired": "Expired",
     
     // MyPage
     "mypage.title": "My Page",

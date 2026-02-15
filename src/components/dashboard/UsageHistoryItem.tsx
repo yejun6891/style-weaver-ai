@@ -63,17 +63,17 @@ const UsageHistoryItem = ({ item, userId }: UsageHistoryItemProps) => {
     if (item.action_type === 'credit_purchase') return t("dashboard.purchaseAction");
     if (item.action_type.startsWith('virtual_tryon_accessory_')) {
       const category = item.action_type.replace('virtual_tryon_accessory_', '');
-      if (category === 'hat') return '모자 피팅';
-      if (category === 'shoes') return '신발 피팅';
-      if (category === 'bag') return '가방 피팅';
-      if (category === 'jewelry') return '쥬얼리 피팅';
-      return `악세서리 피팅`;
+      if (category === 'hat') return t("dashboard.fitting.hat");
+      if (category === 'shoes') return t("dashboard.fitting.shoes");
+      if (category === 'bag') return t("dashboard.fitting.bag");
+      if (category === 'jewelry') return t("dashboard.fitting.jewelry");
+      return t("dashboard.fitting.accessory");
     }
     if (item.action_type.startsWith('virtual_tryon_')) {
       const mode = item.action_type.replace('virtual_tryon_', '');
-      if (mode === 'top') return '상의 피팅';
-      if (mode === 'bottom') return '하의 피팅';
-      if (mode === 'full') return '전체 코디';
+      if (mode === 'top') return t("dashboard.fitting.top");
+      if (mode === 'bottom') return t("dashboard.fitting.bottom");
+      if (mode === 'full') return t("dashboard.fitting.full");
     }
     return item.action_type;
   };
@@ -107,12 +107,12 @@ const UsageHistoryItem = ({ item, userId }: UsageHistoryItemProps) => {
             {item.credits_used < 0 ? ` +${Math.abs(item.credits_used)}` : ` -${item.credits_used}`} {t("dashboard.credit")}
             {item.task_id && !isExpired && (
               <span className="ml-2 text-primary">
-                ({hoursLeft}h 남음)
+                ({t("dashboard.hoursLeft").replace("{n}", String(hoursLeft))})
               </span>
             )}
             {item.task_id && isExpired && (
               <span className="ml-2 text-destructive">
-                (만료됨)
+                ({t("dashboard.expired")})
               </span>
             )}
           </p>
