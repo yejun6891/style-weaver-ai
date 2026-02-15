@@ -616,6 +616,88 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Handle "accessory-style-analysis" action - forward to backend accessory style analysis API
+    if (action === "accessory-style-analysis") {
+      if (req.method !== "POST") {
+        return new Response(
+          JSON.stringify({ error: "Method not allowed" }),
+          { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      let body: { profile?: any; category?: string; language?: string } | null = null;
+      if (contentType.includes("application/json")) {
+        try {
+          body = await req.json();
+        } catch {
+          return new Response(
+            JSON.stringify({ error: "Invalid JSON body" }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      }
+
+      const { profile, category, language } = body || {};
+
+      const validCategories = ["hat", "shoes", "bag", "jewelry"];
+      if (!category || !validCategories.includes(category)) {
+        return new Response(
+          JSON.stringify({ error: `Invalid category. Must be one of: ${validCategories.join(", ")}` }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      console.log(`[tryon-proxy] Accessory style analysis: category=${category}, user=${user.id}, language=${language}`);
+
+      try {
+        const { res: backendRes, json: responseData } = await fetchJsonWithTimeout(
+          `${BACKEND_BASE_URL}/api/style/analyze-accessory`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": userBearer,
+            },
+            body: JSON.stringify({ profile, category, language }),
+          },
+          60000, // 60s timeout for AI analysis
+        );
+
+        if (!backendRes.ok) {
+          console.error("[tryon-proxy] Accessory style analysis backend error:", responseData);
+          return new Response(
+            JSON.stringify({ 
+              success: false, 
+              error: responseData?.error || "악세서리 스타일 분석 중 오류가 발생했습니다" 
+            }),
+            { status: backendRes.status, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+          );
+        }
+
+        // Map response to match expected structure
+        const analysisResult = responseData?.data || responseData?.analysis || responseData;
+        
+        return new Response(JSON.stringify({ 
+          success: true, 
+          analysis: analysisResult,
+          category,
+        }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } catch (e) {
+        const isTimeout = (e as any)?.name === "AbortError";
+        console.error("[tryon-proxy] Accessory style analysis fetch failed:", e);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: isTimeout ? "분석 시간이 초과되었습니다. 다시 시도해주세요." : "악세서리 스타일 분석 서버 연결에 실패했습니다" 
+          }),
+          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+    }
+
     // Handle "accessory-start" action - Product to Model for accessories
     if (action === "accessory-start") {
       if (req.method !== "POST") {
@@ -771,7 +853,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ error: "Invalid action. Use 'start', 'result', 'continue-full', 'style-analysis', or 'accessory-start'" }),
+      JSON.stringify({ error: "Invalid action. Use 'start', 'result', 'continue-full', 'style-analysis', 'accessory-style-analysis', or 'accessory-start'" }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 

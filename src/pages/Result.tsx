@@ -76,6 +76,8 @@ const Result = () => {
   
   // Full mode state
   const mode = searchParams.get("mode") || sessionStorage.getItem("tryonMode") || "top";
+  const isAccessoryMode = mode === "accessory";
+  const accessoryCategory = searchParams.get("category") || "";
   const isFullMode = mode === "full";
   // Two-step full mode is no longer used - always single mode
   const isTwoStepFullMode = false;
@@ -463,11 +465,18 @@ const Result = () => {
     setAnalysisLoading(true);
     setAnalysisError(null);
     
-    console.log("[Result] Starting style analysis request...");
+    // Determine which endpoint to use based on mode
+    const isAccessory = isAccessoryMode && accessoryCategory;
+    const action = isAccessory ? "accessory-style-analysis" : "style-analysis";
+    const bodyPayload = isAccessory 
+      ? { profile: styleProfile, category: accessoryCategory, language }
+      : { styleProfile, language };
+
+    console.log(`[Result] Starting ${action} request...`, isAccessory ? `category=${accessoryCategory}` : "");
     
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=style-analysis`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tryon-proxy?action=${action}`,
         {
           method: "POST",
           headers: {
@@ -475,10 +484,7 @@ const Result = () => {
             "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            styleProfile,
-            language,
-          }),
+          body: JSON.stringify(bodyPayload),
         }
       );
 
@@ -505,7 +511,7 @@ const Result = () => {
     } finally {
       setAnalysisLoading(false);
     }
-  }, [session?.access_token, hasStyleProfile, styleProfile, language, t]);
+  }, [session?.access_token, hasStyleProfile, styleProfile, language, t, isAccessoryMode, accessoryCategory]);
 
   // Start style analysis immediately when session is ready (parallel with fitting)
   useEffect(() => {
@@ -540,7 +546,7 @@ const Result = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/90 border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/upload" className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
+          <Link to={isAccessoryMode ? `/upload-accessory/${accessoryCategory}` : "/upload"} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">{t("result.retry")}</span>
           </Link>
@@ -820,7 +826,7 @@ const Result = () => {
               <Button
                 variant="gradient"
                 size="lg"
-                onClick={() => navigate("/upload")}
+                onClick={() => navigate(isAccessoryMode ? `/upload-accessory/${accessoryCategory}` : "/upload")}
                 className="gap-2"
               >
                 <RefreshCw className="w-5 h-5" />
