@@ -2,7 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Ruler, User, Calendar, Shirt, Target, Globe, Users } from "lucide-react";
+import { User, Calendar, Shirt, Target, Globe, Users } from "lucide-react";
 
 export type RunMode = "performance" | "quality";
 export type GarmentPhotoType = "flat-lay" | "model";
@@ -10,7 +10,7 @@ export type Gender = "male" | "female" | "other";
 
 export interface StyleProfile {
   gender: Gender | "";
-  height: string;
+  
   bodyTypes: string[];
   bodyTypeOther: string;
   occasions: string[];
@@ -143,20 +143,6 @@ const StyleProfileForm = ({ value, onChange }: StyleProfileFormProps) => {
         </div>
       </div>
 
-      {/* Height */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Ruler className="w-4 h-4 text-primary" />
-          <Label className="text-base font-semibold">{t("profile.height")}</Label>
-        </div>
-        <Input
-          type="text"
-          placeholder={t("profile.heightPlaceholder")}
-          value={value.height}
-          onChange={(e) => onChange({ ...value, height: e.target.value })}
-          className="bg-card"
-        />
-      </div>
 
       {/* Body Type */}
       <div className="space-y-3">
