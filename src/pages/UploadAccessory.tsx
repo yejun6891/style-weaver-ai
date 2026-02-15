@@ -6,7 +6,7 @@ import Logo from "@/components/Logo";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import HeaderMenu from "@/components/HeaderMenu";
 import ImageUploadZone from "@/components/ImageUploadZone";
-import StyleProfileForm, { type StyleProfile } from "@/components/StyleProfileForm";
+import AccessoryStyleProfileForm, { type AccessoryStyleProfile, defaultAccessoryStyleProfile } from "@/components/AccessoryStyleProfileForm";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
@@ -216,20 +216,7 @@ const UploadAccessory = () => {
   const [personFile, setPersonFile] = useState<File | null>(null);
   const [productFile, setProductFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [styleProfile, setStyleProfile] = useState<StyleProfile>({
-    gender: "",
-    height: "",
-    bodyTypes: [],
-    bodyTypeOther: "",
-    occasions: [],
-    occasionOther: "",
-    styles: [],
-    styleOther: "",
-    concerns: "",
-    runMode: "performance",
-    garmentPhotoType: "flat-lay",
-    country: "",
-  });
+  const [styleProfile, setStyleProfile] = useState<AccessoryStyleProfile>(defaultAccessoryStyleProfile);
 
   // URL 카테고리 변경 시 동기화
   useEffect(() => {
@@ -505,7 +492,7 @@ const UploadAccessory = () => {
 
           {/* Style Profile Form */}
           <div className="bg-card rounded-2xl border border-border p-5">
-            <StyleProfileForm value={styleProfile} onChange={setStyleProfile} />
+            <AccessoryStyleProfileForm value={styleProfile} onChange={setStyleProfile} category={selectedCategory as "hat" | "shoes" | "bag" | "jewelry"} />
           </div>
 
           {/* Submit Button */}
