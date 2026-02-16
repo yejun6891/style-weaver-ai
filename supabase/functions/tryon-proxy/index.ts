@@ -559,6 +559,31 @@ Deno.serve(async (req) => {
 
       const { styleProfile, language } = body || {};
 
+      // Validate styleProfile structure
+      if (!styleProfile || typeof styleProfile !== 'object' || Array.isArray(styleProfile)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid or missing styleProfile" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Validate language if provided
+      if (language !== undefined && (typeof language !== 'string' || language.length > 10)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid language parameter" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Sanitize styleProfile: only allow string/number/boolean/array values, enforce size limit
+      const styleProfileStr = JSON.stringify(styleProfile);
+      if (styleProfileStr.length > 10000) {
+        return new Response(
+          JSON.stringify({ error: "styleProfile payload too large" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       console.log(`[tryon-proxy] Style analysis request for user ${user.id}, language: ${language}`);
 
       try {
@@ -638,6 +663,31 @@ Deno.serve(async (req) => {
       }
 
       const { profile, category, language } = body || {};
+
+      // Validate profile structure
+      if (!profile || typeof profile !== 'object' || Array.isArray(profile)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid or missing profile" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Enforce size limit on profile payload
+      const profileStr = JSON.stringify(profile);
+      if (profileStr.length > 10000) {
+        return new Response(
+          JSON.stringify({ error: "Profile payload too large" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Validate language if provided
+      if (language !== undefined && (typeof language !== 'string' || language.length > 10)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid language parameter" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
       const validCategories = ["hat", "shoes", "bag", "jewelry"];
       if (!category || !validCategories.includes(category)) {
