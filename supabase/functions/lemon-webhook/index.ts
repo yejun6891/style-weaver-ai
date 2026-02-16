@@ -89,7 +89,22 @@ serve(async (req) => {
     // Extract data from payload
     const userId = payload.meta?.custom_data?.user_id;
     const promoId = payload.meta?.custom_data?.promo_id;
-    const variantId = String(payload.data?.attributes?.first_order_item?.variant_id);
+    const rawVariantId = payload.data?.attributes?.first_order_item?.variant_id;
+    if (rawVariantId === undefined || rawVariantId === null) {
+      console.error('[Lemon Webhook] Missing variant_id in payload');
+      return new Response(JSON.stringify({ error: 'Missing variant_id' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    const variantId = String(rawVariantId);
+    if (!/^\d+$/.test(variantId) || variantId.length > 20) {
+      console.error('[Lemon Webhook] Invalid variant_id format:', variantId);
+      return new Response(JSON.stringify({ error: 'Invalid variant_id format' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     const creditsToAdd = getVariantCredits(variantId);
     const orderId = String(payload.data?.id);
 
