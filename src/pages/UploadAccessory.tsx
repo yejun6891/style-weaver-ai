@@ -81,8 +81,14 @@ const ACCESSORY_GUIDES: Record<string, {
       ],
     },
     warnings: {
-      ko: ["머리가 가려진 사진은 정확도가 낮아질 수 있습니다"],
-      en: ["Photos with covered heads may reduce accuracy"],
+      ko: [
+        "머리가 가려진 사진은 정확도가 낮아질 수 있습니다",
+        "⚠️ 비니, 버킷햇 등은 자연스럽게 피팅되지만, 볼캡(야구모자)은 AI 특성상 퀄리티가 다소 낮을 수 있습니다",
+      ],
+      en: [
+        "Photos with covered heads may reduce accuracy",
+        "⚠️ Beanies and bucket hats fit naturally, but baseball caps may have lower quality due to AI limitations",
+      ],
     },
   },
   shoes: {
