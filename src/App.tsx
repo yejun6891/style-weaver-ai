@@ -25,40 +25,78 @@ import TermsConsentDialog from "./components/TermsConsentDialog";
 
 const queryClient = new QueryClient();
 
-// App component with providers
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/callback" element={<AuthCallback />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/mypage" element={<MyPage />} />
-              <Route path="/upload" element={<Upload />} />
-              <Route path="/upload-accessory/:category" element={<UploadAccessory />} />
-              <Route path="/result/:taskId" element={<Result />} />
-              <Route path="/share/:code" element={<Share />} />
-              <Route path="/feedback" element={<Feedback />} />
-              <Route path="/feedback/:ticketId" element={<Feedback />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              <Route path="/refund-policy" element={<RefundPolicy />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <FloatingFeedbackButton />
-            <TermsConsentDialog />
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </LanguageProvider>
-  </QueryClientProvider>
+const ALLOWED_DOMAINS = [
+  "trukin.app",
+  "www.trukin.app",
+  "localhost",
+];
+
+const isAllowedDomain = (): boolean => {
+  try {
+    const hostname = window.location.hostname;
+    return ALLOWED_DOMAINS.some(
+      (domain) => hostname === domain || hostname.endsWith(`.${domain}`)
+    );
+  } catch {
+    return false;
+  }
+};
+
+const BlockedScreen = () => (
+  <div style={{
+    minHeight: "100vh",
+    backgroundColor: "#000",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#fff",
+    fontFamily: "sans-serif",
+    fontSize: "1.2rem",
+  }}>
+    접근이 제한되었습니다
+  </div>
 );
+
+// App component with providers
+const App = () => {
+  if (!isAllowedDomain()) {
+    return <BlockedScreen />;
+  }
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/callback" element={<AuthCallback />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/mypage" element={<MyPage />} />
+                <Route path="/upload" element={<Upload />} />
+                <Route path="/upload-accessory/:category" element={<UploadAccessory />} />
+                <Route path="/result/:taskId" element={<Result />} />
+                <Route path="/share/:code" element={<Share />} />
+                <Route path="/feedback" element={<Feedback />} />
+                <Route path="/feedback/:ticketId" element={<Feedback />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <FloatingFeedbackButton />
+              <TermsConsentDialog />
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </LanguageProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
