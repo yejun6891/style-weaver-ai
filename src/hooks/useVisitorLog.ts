@@ -1,7 +1,24 @@
- import { useEffect } from "react";
- import { supabase } from "@/integrations/supabase/client";
- 
- const getSessionId = (): string => {
+import { useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+const ALLOWED_DOMAINS = [
+  "localhost",
+  "style-snap-show-40.lovable.app",
+  "id-preview--12cf4c5b-462f-47c5-ac25-c366b2078bf5.lovable.app",
+  "trupickai.com",
+  "www.trupickai.com",
+];
+
+const isAllowedDomain = (): boolean => {
+  try {
+    const hostname = window.location.hostname;
+    return ALLOWED_DOMAINS.some(domain => hostname === domain || hostname.endsWith(`.${domain}`));
+  } catch {
+    return false;
+  }
+};
+
+const getSessionId = (): string => {
    const key = "visitor_session_id";
    let sessionId = sessionStorage.getItem(key);
    if (!sessionId) {
@@ -11,10 +28,14 @@
    return sessionId;
  };
  
- export const useVisitorLog = (pagePath: string = "/") => {
-   useEffect(() => {
-     const logVisit = async () => {
-       const sessionId = getSessionId();
+export const useVisitorLog = (pagePath: string = "/") => {
+  useEffect(() => {
+    const logVisit = async () => {
+      if (!isAllowedDomain()) {
+        return;
+      }
+      
+      const sessionId = getSessionId();
        const sessionKey = `visited_${pagePath}`;
        
        // Prevent duplicate logging for same page in same session
