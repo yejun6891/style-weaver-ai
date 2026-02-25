@@ -16,9 +16,9 @@ import {
 
 // Lemon Squeezy checkout URLs for each credit package (Live mode)
 const lemonSqueezyCheckoutUrls: Record<number, string> = {
-  8: 'https://trupickai.lemonsqueezy.com/checkout/buy/0a310f07-5a74-4538-a2d7-7d794baaa471',
-  18: 'https://trupickai.lemonsqueezy.com/checkout/buy/13e8e780-6cb8-4010-818c-1930571a5d8f',
-  30: 'https://trupickai.lemonsqueezy.com/checkout/buy/17e65cf2-1805-44da-9020-804367e94a50',
+  12: 'https://trupickai.lemonsqueezy.com/checkout/buy/0a310f07-5a74-4538-a2d7-7d794baaa471',
+  30: 'https://trupickai.lemonsqueezy.com/checkout/buy/13e8e780-6cb8-4010-818c-1930571a5d8f',
+  60: 'https://trupickai.lemonsqueezy.com/checkout/buy/17e65cf2-1805-44da-9020-804367e94a50',
 };
 
 interface CreditPackage {
@@ -30,9 +30,9 @@ interface CreditPackage {
 }
 
 const creditPackages: CreditPackage[] = [
-  { credits: 8, price: 7.99, name: 'Starter' },
-  { credits: 18, price: 14.99, popular: true, name: 'Plus' },
-  { credits: 30, price: 24.99, name: 'Pro' },
+  { credits: 12, price: 9.99, name: 'Starter' },
+  { credits: 30, price: 19.99, popular: true, name: 'Plus', discount: 'Save 20%' },
+  { credits: 60, price: 29.99, name: 'Pro', discount: 'Save 40%' },
 ];
 
 interface PurchaseFlowProps {

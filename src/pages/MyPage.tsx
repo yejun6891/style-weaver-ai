@@ -62,9 +62,9 @@ const MyPage = () => {
   }
 
   const creditPackages = [
-    { credits: 8, price: "$7.99", name: "Starter" },
-    { credits: 18, price: "$14.99", popular: true, name: "Plus" },
-    { credits: 30, price: "$24.99", name: "Pro" },
+    { credits: 12, price: "$9.99", name: "Starter" },
+    { credits: 30, price: "$19.99", popular: true, name: "Plus", perCredit: "$0.67", save: "20%" },
+    { credits: 60, price: "$29.99", name: "Pro", perCredit: "$0.50", save: "40%" },
   ];
 
   return (
@@ -171,9 +171,9 @@ const MyPage = () => {
                       {t("mypage.popular")}
                     </div>
                   )}
-                  {pkg.name && (
-                    <div className="absolute top-4 right-4 px-2 py-1 rounded-md bg-muted text-xs font-medium text-muted-foreground">
-                      {pkg.name}
+                  {pkg.save && (
+                    <div className="absolute top-4 right-4 px-2 py-1 rounded-md bg-primary/10 text-xs font-bold text-primary">
+                      {pkg.save} OFF
                     </div>
                   )}
                   <div className="text-center mb-4">

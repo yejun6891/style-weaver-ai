@@ -19,9 +19,9 @@ function getVariantCredits(variantId: string): number | undefined {
     receivedVariant: variantId 
   });
   
-  if (variantId === starterVariant) return 8;
-  if (variantId === plusVariant) return 18;
-  if (variantId === proVariant) return 30;
+  if (variantId === starterVariant) return 12;
+  if (variantId === plusVariant) return 30;
+  if (variantId === proVariant) return 60;
   
   return undefined;
 }

@@ -18,9 +18,9 @@ const translations = {
     
     // Auth
     "auth.badge": "스마트한 패션 시작",
-    "auth.title": "TruPick 로그인",
+    "auth.title": "Trupickai 로그인",
     "auth.subtitle": "Google 계정으로 간편하게 로그인하세요",
-    "auth.signupTitle": "TruPick 회원가입",
+    "auth.signupTitle": "Trupickai 회원가입",
     "auth.signupSubtitle": "Google 계정으로 간편하게 가입하세요",
     "auth.google": "Google로 로그인",
     "auth.googleSignup": "Google로 회원가입",
@@ -140,7 +140,7 @@ const translations = {
     "beforeAfter.label.before": "지금의 나",
     "beforeAfter.label.after": "입어본 나",
     "benefits.title": "이런 고민, 있으시죠?",
-    "benefits.subtitle": "TruPick이 해결해드립니다",
+    "benefits.subtitle": "Trupickai가 해결해드립니다",
     "benefits.1": "\"이 옷 나한테 어울릴까?\" → 사기 전에 입어보기",
     "benefits.2": "\"이 모자/신발 나한테 맞을까?\" → AI가 착용해서 보여줌",
     "benefits.3": "\"뭘 입어야 할지 모르겠어\" → 셀럽 스타일 매칭",
@@ -506,11 +506,11 @@ const translations = {
     "share.instruction1": "인스타그램 스토리에 이미지와 함께 공유하세요",
     "share.instruction2": "링크를 꼭 포함해주세요",
     "share.instruction3": "3명이 클릭하면 크레딧 1개 자동 지급!",
-    "share.shareTemplate": "TruPick으로 가상 피팅해봤어요! 내 모습이 어때 보여?\n\n지금 바로 체험하기\n{url}",
+    "share.shareTemplate": "Trupickai로 가상 피팅해봤어요! 내 모습이 어때 보여?\n\n지금 바로 체험하기\n{url}",
     
     // Share Page
     "share.loading": "로딩 중...",
-    "share.title": "TruPick에 오신 것을 환영해요!",
+    "share.title": "Trupickai에 오신 것을 환영해요!",
     "share.subtitle": "AI 가상 피팅으로 온라인 쇼핑 전 미리 입어보세요",
     "share.alreadyVisited": "이미 방문하셨네요!",
     "share.tryNow": "지금 바로 체험하기",
@@ -528,9 +528,9 @@ const translations = {
     
     // Auth
     "auth.badge": "Smart Fashion Starts Here",
-    "auth.title": "Sign in to TruPick",
+    "auth.title": "Sign in to Trupickai",
     "auth.subtitle": "Sign in easily with your Google account",
-    "auth.signupTitle": "Sign up for TruPick",
+    "auth.signupTitle": "Sign up for Trupickai",
     "auth.signupSubtitle": "Create your account with Google",
     "auth.google": "Sign in with Google",
     "auth.googleSignup": "Sign up with Google",
@@ -650,7 +650,7 @@ const translations = {
     "beforeAfter.label.before": "Before",
     "beforeAfter.label.after": "After",
     "benefits.title": "Sound familiar?",
-    "benefits.subtitle": "TruPick solves it all",
+    "benefits.subtitle": "Trupickai solves it all",
     "benefits.1": "\"Will this outfit suit me?\" → Try it on before you buy",
     "benefits.2": "\"Will this hat/shoes fit me?\" → AI shows you wearing it",
     "benefits.3": "\"What should I wear?\" → Celebrity style matching",
@@ -1016,11 +1016,11 @@ const translations = {
     "share.instruction1": "Share on Instagram Stories with your image",
     "share.instruction2": "Make sure to include the link",
     "share.instruction3": "Get 1 free credit when 3 people click!",
-    "share.shareTemplate": "I tried virtual fitting with TruPick! How do I look?\n\nTry it now\n{url}",
+    "share.shareTemplate": "I tried virtual fitting with Trupickai! How do I look?\n\nTry it now\n{url}",
     
     // Share Page
     "share.loading": "Loading...",
-    "share.title": "Welcome to TruPick!",
+    "share.title": "Welcome to Trupickai!",
     "share.subtitle": "Try on clothes virtually before buying online",
     "share.alreadyVisited": "You've already visited!",
     "share.tryNow": "Try Now",
