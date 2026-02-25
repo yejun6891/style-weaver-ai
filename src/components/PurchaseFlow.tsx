@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { usePromoCodes, UserPromoCode } from '@/hooks/usePromoCodes';
 import { useAuth } from '@/hooks/useAuth';
-import { ArrowLeft, ArrowRight, Search, Gift, Check, Percent, Ticket, CreditCard, X } from 'lucide-react';
+import { CreditCard, Check, Sparkles, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -21,7 +19,7 @@ const lemonSqueezyCheckoutUrls: Record<number, string> = {
   60: 'https://trupickai.lemonsqueezy.com/checkout/buy/17e65cf2-1805-44da-9020-804367e94a50',
 };
 
-interface CreditPackage {
+export interface CreditPackage {
   credits: number;
   price: number;
   popular?: boolean;
@@ -29,7 +27,7 @@ interface CreditPackage {
   name?: string;
 }
 
-const creditPackages: CreditPackage[] = [
+export const creditPackages: CreditPackage[] = [
   { credits: 12, price: 9.99, name: 'Starter' },
   { credits: 30, price: 19.99, popular: true, name: 'Plus', discount: 'Save 20%' },
   { credits: 60, price: 29.99, name: 'Pro', discount: 'Save 40%' },
@@ -38,99 +36,15 @@ const creditPackages: CreditPackage[] = [
 interface PurchaseFlowProps {
   open: boolean;
   onClose: () => void;
-  initialPromo?: UserPromoCode | null;
+  selectedPackage: CreditPackage | null;
 }
 
-const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
+const PurchaseFlow = ({ open, onClose, selectedPackage }: PurchaseFlowProps) => {
   const { t, language } = useLanguage();
-  const { user, refreshProfile } = useAuth();
-  const { userPromoCodes, searchPromoCode, claimPromoCode } = usePromoCodes();
-  const [step, setStep] = useState<'promo' | 'package' | 'payment'>('promo');
-  const [selectedPromo, setSelectedPromo] = useState<UserPromoCode | null>(initialPromo || null);
-  const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null);
-  const [searchCode, setSearchCode] = useState('');
-  const [searching, setSearching] = useState(false);
-  const [foundCode, setFoundCode] = useState<any>(null);
+  const { user } = useAuth();
   const [processing, setProcessing] = useState(false);
 
-  const unusedDiscountPromoCodes = userPromoCodes.filter(
-    upc => !upc.used && (upc.promo_code.discount_type === 'percentage' || upc.promo_code.discount_type === 'fixed')
-  );
-
-  useEffect(() => {
-    if (initialPromo) {
-      setSelectedPromo(initialPromo);
-    }
-  }, [initialPromo]);
-
-  const handleSearch = async () => {
-    if (!searchCode.trim()) return;
-    
-    setSearching(true);
-    const code = await searchPromoCode(searchCode.trim());
-    setFoundCode(code);
-    setSearching(false);
-    
-    if (!code) {
-      toast.error(t('promo.notFound'));
-    }
-  };
-
-  const handleClaim = async (promoCodeId: string) => {
-    const result = await claimPromoCode(promoCodeId);
-    if (result.success) {
-      toast.success(result.message);
-      setFoundCode(null);
-      setSearchCode('');
-    } else {
-      toast.error(result.message);
-    }
-  };
-
-  const calculateFinalPrice = (): number => {
-    if (!selectedPackage) return 0;
-    
-    let price = selectedPackage.price;
-    
-    if (selectedPromo) {
-      if (selectedPromo.promo_code.discount_type === 'percentage') {
-        price = price * (1 - selectedPromo.promo_code.discount_value / 100);
-      } else if (selectedPromo.promo_code.discount_type === 'fixed') {
-        price = Math.max(0, price - selectedPromo.promo_code.discount_value);
-      }
-    }
-    
-    return Math.round(price * 100) / 100;
-  };
-
-  const getPromoIcon = (type: string) => {
-    switch (type) {
-      case 'percentage':
-        return <Percent className="w-4 h-4" />;
-      case 'fixed':
-        return <CreditCard className="w-4 h-4" />;
-      default:
-        return <Gift className="w-4 h-4" />;
-    }
-  };
-
-  const getPromoLabel = (promo: any) => {
-    switch (promo.discount_type) {
-      case 'percentage':
-        return `${promo.discount_value}% ${t('promo.discount')}`;
-      case 'fixed':
-        return `$${promo.discount_value} ${t('promo.discount')}`;
-      default:
-        return promo.code;
-    }
-  };
-
   const handleClose = () => {
-    setStep('promo');
-    setSelectedPromo(null);
-    setSelectedPackage(null);
-    setFoundCode(null);
-    setSearchCode('');
     onClose();
   };
 
@@ -145,333 +59,106 @@ const PurchaseFlow = ({ open, onClose, initialPromo }: PurchaseFlowProps) => {
     
     setProcessing(true);
     
-    // Build checkout URL with custom data for webhook processing
     const params = new URLSearchParams();
-
-    // Force checkout language to English (Lemon Squeezy is for international customers only)
     params.set('locale', 'en');
-
     params.set('checkout[email]', user.email || '');
     params.set('checkout[custom][user_id]', user.id);
-    if (selectedPromo) {
-      params.set('checkout[custom][promo_id]', selectedPromo.id);
-      params.set('checkout[custom][promo_code]', selectedPromo.promo_code.code);
-    }
     
     const checkoutUrl = `${baseUrl}?${params.toString()}`;
-    
-    // Open Lemon Squeezy checkout in new tab
     window.open(checkoutUrl, '_blank');
     
     toast.info(t('purchase.redirecting') || '결제 페이지로 이동합니다. 결제 완료 후 크레딧이 충전됩니다.');
     setProcessing(false);
     
-    // Close dialog after redirecting
     setTimeout(() => {
       handleClose();
     }, 1000);
   };
 
+  if (!selectedPackage) return null;
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            {step === 'promo' && (
-              <>
-                <Gift className="w-5 h-5 text-primary" />
-                {t('purchase.promoStep')}
-              </>
-            )}
-            {step === 'package' && (
-              <>
-                <Ticket className="w-5 h-5 text-primary" />
-                {t('purchase.packageStep')}
-              </>
-            )}
-            {step === 'payment' && (
-              <>
-                <CreditCard className="w-5 h-5 text-primary" />
-                {t('purchase.paymentStep')}
-              </>
-            )}
+            <CreditCard className="w-5 h-5 text-primary" />
+            {t('purchase.confirmTitle') || '주문 확인'}
           </DialogTitle>
           <DialogDescription className="sr-only">
-            {t('purchase.dialogDescription') || '프로모션 코드 및 크레딧 구매'}
+            {t('purchase.dialogDescription') || '크레딧 구매 확인'}
           </DialogDescription>
         </DialogHeader>
 
-        {/* Step: Promo Code */}
-        {step === 'promo' && (
-          <div className="space-y-6">
-            {/* Search */}
-            <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">
-                {t('promo.searchLabel')}
-              </label>
-              <div className="flex gap-2">
-                <Input
-                  value={searchCode}
-                  onChange={(e) => setSearchCode(e.target.value)}
-                  placeholder={t('promo.searchPlaceholder')}
-                  className="flex-1"
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                />
-                <Button 
-                  variant="outline" 
-                  onClick={handleSearch}
-                  disabled={searching || !searchCode.trim()}
-                >
-                  <Search className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Found Code */}
-            {foundCode && (
-              <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg gradient-primary flex items-center justify-center text-white">
-                      {getPromoIcon(foundCode.discount_type)}
-                    </div>
-                    <div>
-                      <p className="font-bold text-foreground">{foundCode.code}</p>
-                      <p className="text-sm text-muted-foreground">{getPromoLabel(foundCode)}</p>
-                    </div>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    variant="gradient"
-                    onClick={() => handleClaim(foundCode.id)}
-                  >
-                    {t('promo.claim')}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* My Discount Codes */}
-            {unusedDiscountPromoCodes.length > 0 && (
-              <div>
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  {t('promo.selectDiscount')}
-                </label>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {unusedDiscountPromoCodes.map((upc) => (
-                    <div 
-                      key={upc.id}
-                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-colors ${
-                        selectedPromo?.id === upc.id 
-                          ? 'bg-primary/10 border-primary' 
-                          : 'bg-background border-border hover:border-primary/30'
-                      }`}
-                      onClick={() => setSelectedPromo(selectedPromo?.id === upc.id ? null : upc)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                          {getPromoIcon(upc.promo_code.discount_type)}
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground text-sm">{upc.promo_code.code}</p>
-                          <p className="text-xs text-muted-foreground">{getPromoLabel(upc.promo_code)}</p>
-                        </div>
-                      </div>
-                      {selectedPromo?.id === upc.id && (
-                        <Check className="w-5 h-5 text-primary" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Selected Promo Display */}
-            {selectedPromo && (
-              <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-green-600" />
-                  <span className="text-sm font-medium text-green-600">
-                    {selectedPromo.promo_code.code} {t('promo.applied')}
-                  </span>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setSelectedPromo(null)}
-                  className="h-6 w-6 p-0"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            )}
-
-            <div className="flex gap-3 pt-4">
-              <Button variant="outline" className="flex-1" onClick={() => setStep('package')}>
-                {t('purchase.skip')}
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-              {selectedPromo && (
-                <Button variant="gradient" className="flex-1" onClick={() => setStep('package')}>
-                  {t('purchase.next')}
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* Step: Select Package */}
-        {step === 'package' && (
-          <div className="space-y-4">
-            {selectedPromo && (
-              <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20 flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-medium text-green-600">
-                  {selectedPromo.promo_code.code}: {getPromoLabel(selectedPromo.promo_code)}
+        <div className="space-y-5">
+          {/* Selected Package Confirmation */}
+          <div className="p-5 rounded-xl bg-primary/5 border-2 border-primary/20">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-primary" />
+                <span className="font-display font-bold text-foreground text-lg">
+                  {selectedPackage.name}
                 </span>
               </div>
-            )}
-
-            <div className="grid grid-cols-2 gap-3">
-              {creditPackages.map((pkg, index) => {
-                let displayPrice = pkg.price;
-                if (selectedPromo) {
-                  if (selectedPromo.promo_code.discount_type === 'percentage') {
-                    displayPrice = pkg.price * (1 - selectedPromo.promo_code.discount_value / 100);
-                  } else if (selectedPromo.promo_code.discount_type === 'fixed') {
-                    displayPrice = Math.max(0, pkg.price - selectedPromo.promo_code.discount_value);
-                  }
-                }
-                displayPrice = Math.round(displayPrice * 100) / 100;
-
-                return (
-                  <div 
-                    key={index}
-                    className={`relative rounded-xl p-4 border-2 cursor-pointer transition-all ${
-                      selectedPackage?.credits === pkg.credits 
-                        ? 'border-primary bg-primary/10' 
-                        : pkg.popular 
-                          ? 'border-primary/50 bg-primary/5'
-                          : 'border-border hover:border-primary/30'
-                    }`}
-                    onClick={() => setSelectedPackage(pkg)}
-                  >
-                    {pkg.popular && (
-                      <div className="absolute -top-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full gradient-primary text-[10px] font-bold text-white">
-                        {t('mypage.popular')}
-                      </div>
-                    )}
-                    {pkg.discount && (
-                      <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-accent text-[10px] font-bold text-accent-foreground">
-                        {pkg.discount}
-                      </div>
-                    )}
-                    <div className="text-center">
-                      <p className="font-display text-2xl font-bold text-foreground">{pkg.credits}</p>
-                      <p className="text-xs text-muted-foreground mb-2">{t('mypage.credits')}</p>
-                      {selectedPromo ? (
-                        <div>
-                          <p className="text-sm text-muted-foreground line-through">${pkg.price}</p>
-                          <p className="font-display text-lg font-bold text-primary">${displayPrice.toFixed(2)}</p>
-                        </div>
-                      ) : (
-                        <p className="font-display text-lg font-bold text-foreground">${pkg.price}</p>
-                      )}
-                    </div>
-                    {selectedPackage?.credits === pkg.credits && (
-                      <div className="absolute top-2 left-2">
-                        <Check className="w-4 h-4 text-primary" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              <Check className="w-5 h-5 text-primary" />
             </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button variant="outline" onClick={() => setStep('promo')}>
-                <ArrowLeft className="w-4 h-4 mr-1" />
-                {t('purchase.back')}
-              </Button>
-              <Button 
-                variant="gradient" 
-                className="flex-1"
-                disabled={!selectedPackage}
-                onClick={() => setStep('payment')}
-              >
-                {t('purchase.next')}
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step: Payment */}
-        {step === 'payment' && selectedPackage && (
-          <div className="space-y-4">
-            {/* Order Summary */}
-            <div className="p-4 rounded-xl bg-background border border-border">
-              <h3 className="font-medium text-foreground mb-3">{t('purchase.summary')}</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">{selectedPackage.credits} {t('mypage.credits')}</span>
-                  <span className="text-foreground">${selectedPackage.price}</span>
-                </div>
-                {selectedPromo && (
-                  <div className="flex justify-between text-green-600">
-                    <span>{selectedPromo.promo_code.code}</span>
-                    <span>
-                      -{selectedPromo.promo_code.discount_type === 'percentage' 
-                        ? `${selectedPromo.promo_code.discount_value}%`
-                        : `$${selectedPromo.promo_code.discount_value}`
-                      }
-                    </span>
-                  </div>
-                )}
-                <div className="border-t border-border pt-2 flex justify-between font-bold">
-                  <span className="text-foreground">{t('purchase.total')}</span>
-                  <span className="text-primary">${calculateFinalPrice().toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Methods Info - English only */}
-            {language === 'en' && (
-              <div className="p-3 rounded-lg bg-muted/50 border border-border">
-                <p className="text-xs text-center text-muted-foreground">
-                  💳 Apple Pay, Cash App Pay, and all major cards accepted
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="font-display text-3xl font-bold text-foreground">
+                  {selectedPackage.credits}
                 </p>
+                <p className="text-sm text-muted-foreground">{t('mypage.credits')}</p>
               </div>
-            )}
-
-            {/* Lemon Squeezy Checkout Button */}
-            <Button 
-              variant="gradient" 
-              className="w-full"
-              onClick={handleLemonSqueezyCheckout}
-              disabled={processing}
-            >
-              <CreditCard className="w-4 h-4 mr-2" />
-              {t('purchase.pay') || '결제하기'}
-            </Button>
-
-            <p className="text-xs text-center text-muted-foreground">
-              {t('purchase.lemonSqueezyNote') || '결제 완료 후 크레딧이 자동으로 충전됩니다.'}
-            </p>
-
-            {processing && (
-              <div className="text-center py-4 text-muted-foreground">
-                {t('purchase.processing')}...
+              <div className="text-right">
+                <p className="font-display text-2xl font-bold text-primary">
+                  ${selectedPackage.price}
+                </p>
+                {selectedPackage.discount && (
+                  <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                    {selectedPackage.discount}
+                  </span>
+                )}
               </div>
-            )}
-
-            <Button variant="outline" className="w-full" onClick={() => setStep('package')}>
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              {t('purchase.back')}
-            </Button>
+            </div>
           </div>
-        )}
+
+          {/* Promo code guidance */}
+          <div className="p-3 rounded-lg bg-muted/50 border border-border">
+            <p className="text-sm text-muted-foreground text-center">
+              🎟️ {t('purchase.promoInCheckout') || '프로모션 코드가 있으시면 결제창에서 입력해 주세요.'}
+            </p>
+          </div>
+
+          {/* Payment Methods Info - English only */}
+          {language === 'en' && (
+            <div className="p-3 rounded-lg bg-muted/50 border border-border">
+              <p className="text-xs text-center text-muted-foreground">
+                💳 Apple Pay, Cash App Pay, and all major cards accepted
+              </p>
+            </div>
+          )}
+
+          {/* Checkout Button */}
+          <Button 
+            variant="gradient" 
+            className="w-full"
+            onClick={handleLemonSqueezyCheckout}
+            disabled={processing}
+          >
+            <ExternalLink className="w-4 h-4 mr-2" />
+            {t('purchase.pay') || '결제하기'}
+          </Button>
+
+          <p className="text-xs text-center text-muted-foreground">
+            {t('purchase.lemonSqueezyNote') || '결제 완료 후 크레딧이 자동으로 충전됩니다.'}
+          </p>
+
+          {processing && (
+            <div className="text-center py-4 text-muted-foreground">
+              {t('purchase.processing')}...
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );

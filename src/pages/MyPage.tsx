@@ -8,7 +8,7 @@ import HeaderMenu from "@/components/HeaderMenu";
 import Logo from "@/components/Logo";
 import PurchaseFlow from "@/components/PurchaseFlow";
 import { CreditCard, User, Mail, Calendar, Sparkles } from "lucide-react";
-import { UserPromoCode } from "@/hooks/usePromoCodes";
+import { CreditPackage, creditPackages } from "@/components/PurchaseFlow";
 
 const MyPage = () => {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ const MyPage = () => {
   const { t } = useLanguage();
   const { user, profile, loading } = useAuth();
   const [purchaseOpen, setPurchaseOpen] = useState(false);
-  const [initialPromo, setInitialPromo] = useState<UserPromoCode | null>(null);
+  const [selectedPkg, setSelectedPkg] = useState<CreditPackage | null>(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -24,12 +24,14 @@ const MyPage = () => {
     }
   }, [user, loading, navigate]);
 
-  // Check if navigated with a selected promo
+  // Check if navigated with a selected package
   useEffect(() => {
-    if (location.state?.selectedPromo) {
-      setInitialPromo(location.state.selectedPromo);
-      setPurchaseOpen(true);
-      // Clear the state
+    if (location.state?.selectedPackage) {
+      const pkg = creditPackages.find(p => p.credits === location.state.selectedPackage);
+      if (pkg) {
+        setSelectedPkg(pkg);
+        setPurchaseOpen(true);
+      }
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -61,11 +63,11 @@ const MyPage = () => {
     );
   }
 
-  const creditPackages = [
-    { credits: 12, price: "$9.99", name: "Starter" },
-    { credits: 30, price: "$19.99", popular: true, name: "Plus", perCredit: "$0.67", save: "20%" },
-    { credits: 60, price: "$29.99", name: "Pro", perCredit: "$0.50", save: "40%" },
-  ];
+  const displayPackages = creditPackages.map(pkg => ({
+    ...pkg,
+    priceLabel: `$${pkg.price}`,
+    perCredit: pkg.credits > 12 ? `$${(pkg.price / pkg.credits).toFixed(2)}` : undefined,
+  }));
 
   return (
     <main className="min-h-screen bg-background">
@@ -156,7 +158,7 @@ const MyPage = () => {
             </p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {creditPackages.map((pkg, index) => (
+              {displayPackages.map((pkg, index) => (
                 <div 
                   key={index}
                   className={`relative rounded-2xl p-6 border-2 transition-all hover:shadow-lg cursor-pointer ${
@@ -164,16 +166,19 @@ const MyPage = () => {
                       ? "border-primary bg-gradient-to-b from-primary/10 to-transparent" 
                       : "border-border bg-background hover:border-primary/30"
                   }`}
-                  onClick={() => setPurchaseOpen(true)}
+                  onClick={() => {
+                    setSelectedPkg(pkg);
+                    setPurchaseOpen(true);
+                  }}
                 >
                   {pkg.popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full gradient-primary text-xs font-bold text-white">
                       {t("mypage.popular")}
                     </div>
                   )}
-                  {pkg.save && (
+                  {pkg.discount && (
                     <div className="absolute top-4 right-4 px-2 py-1 rounded-md bg-primary/10 text-xs font-bold text-primary">
-                      {pkg.save} OFF
+                      {pkg.discount}
                     </div>
                   )}
                   <div className="text-center mb-4">
@@ -183,13 +188,14 @@ const MyPage = () => {
                     <p className="text-muted-foreground text-sm">{t("mypage.credits")}</p>
                   </div>
                   <p className="text-center font-display text-xl font-bold text-foreground mb-4">
-                    {pkg.price}
+                    {pkg.priceLabel}
                   </p>
                   <Button 
                     variant={pkg.popular ? "gradient" : "outline"}
                     className="w-full"
                     onClick={(e) => {
                       e.stopPropagation();
+                      setSelectedPkg(pkg);
                       setPurchaseOpen(true);
                     }}
                   >
@@ -211,9 +217,9 @@ const MyPage = () => {
         open={purchaseOpen} 
         onClose={() => {
           setPurchaseOpen(false);
-          setInitialPromo(null);
+          setSelectedPkg(null);
         }}
-        initialPromo={initialPromo}
+        selectedPackage={selectedPkg}
       />
     </main>
   );
