@@ -28,7 +28,10 @@ const queryClient = new QueryClient();
 const ALLOWED_DOMAINS = [
   "trukin.app",
   "www.trukin.app",
+  "trupickai.com",
+  "www.trupickai.com",
   "localhost",
+  "lovable.app",
 ];
 
 const isAllowedDomain = (): boolean => {
