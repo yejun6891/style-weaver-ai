@@ -444,7 +444,7 @@ const Result = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `trupick-${taskId}.jpg`;
+      a.download = `trupickai-${taskId}.jpg`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -461,7 +461,7 @@ const Result = () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "TruPick - AI Virtual Try-On",
+          title: "Trupickai - AI Virtual Try-On",
           text: "Check out my virtual try-on result!",
           url: window.location.href,
         });

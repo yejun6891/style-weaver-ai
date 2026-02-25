@@ -24,7 +24,7 @@ const Logo = ({ size = "md", showText = true, className = "" }: LogoProps) => {
       <LogoIcon className={sizeClasses[size].icon} />
       {showText && (
         <span className={`font-display font-bold gradient-text ${sizeClasses[size].text}`}>
-          TruPick
+          Trupickai
         </span>
       )}
     </Link>
