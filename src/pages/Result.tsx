@@ -260,20 +260,32 @@ const Result = () => {
     return Math.min(baseInterval * Math.pow(factor, pollCountRef.current), maxInterval);
   }, []);
 
-  // Progress animation - runs during upload AND polling phases
+  // Progress animation - adapts speed based on expected completion time
   useEffect(() => {
     if (!isLoadingState) return;
     
+    // Expected time in seconds based on mode
+    const expectedSeconds = isAccessoryMode ? 15 : isTwoStepFullMode ? 90 : 30;
+    // We want to reach ~90% in expectedSeconds
+    // Update every 500ms, so total ticks = expectedSeconds * 2
+    const totalTicks = expectedSeconds * 2;
+    const targetProgress = 90;
+    
+    let tickCount = 0;
     const progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev;
-        // Slower increments to feel more natural over longer waits
-        return prev + Math.random() * 3 + 0.5;
+      tickCount++;
+      setProgress(() => {
+        // Eased progress: fast start, slows down near 90%
+        const ratio = Math.min(tickCount / totalTicks, 1);
+        // Ease-out curve for natural feel
+        const eased = 1 - Math.pow(1 - ratio, 2);
+        const newProgress = eased * targetProgress;
+        return Math.min(newProgress, targetProgress);
       });
-    }, 800);
+    }, 500);
 
     return () => clearInterval(progressInterval);
-  }, [isLoadingState]);
+  }, [isLoadingState, isAccessoryMode, isTwoStepFullMode]);
 
   // Main polling and flow logic
   useEffect(() => {
