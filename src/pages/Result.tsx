@@ -260,6 +260,21 @@ const Result = () => {
     return Math.min(baseInterval * Math.pow(factor, pollCountRef.current), maxInterval);
   }, []);
 
+  // Progress animation - runs during upload AND polling phases
+  useEffect(() => {
+    if (!isLoadingState) return;
+    
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) return prev;
+        // Slower increments to feel more natural over longer waits
+        return prev + Math.random() * 3 + 0.5;
+      });
+    }, 800);
+
+    return () => clearInterval(progressInterval);
+  }, [isLoadingState]);
+
   // Main polling and flow logic
   useEffect(() => {
     // Wait for upload to complete and get real taskId
@@ -278,14 +293,6 @@ const Result = () => {
     }
 
     let isCancelled = false;
-    let progressInterval: ReturnType<typeof setInterval>;
-
-    progressInterval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 90) return prev;
-        return prev + Math.random() * 5;
-      });
-    }, 500);
 
     // Poll for result with exponential backoff
     const pollResult = async (pollTaskId: string, onComplete: (imageUrl: string) => void) => {
@@ -329,14 +336,12 @@ const Result = () => {
             console.error("Unexpected status:", data);
             setStatus("error");
             setStatusText(t("result.error"));
-            clearInterval(progressInterval);
           }
         } catch (err) {
           console.error(err);
           if (!isCancelled) {
             setStatus("error");
             setStatusText(t("result.error"));
-            clearInterval(progressInterval);
           }
         }
       };
@@ -389,7 +394,6 @@ const Result = () => {
             setProgress(100);
             setImageUrl(finalImageUrl);
             setStatus("success");
-            clearInterval(progressInterval);
           });
         } else {
           throw new Error("No taskId returned from continue-full");
@@ -399,14 +403,12 @@ const Result = () => {
         if (!isCancelled) {
           setStatus("error");
           setStatusText(t("result.error"));
-          clearInterval(progressInterval);
         }
       }
     };
 
     // Start the flow
     if (isTwoStepFullMode && needsContinue) {
-      // Full mode separate: start polling step 1, then continue to step 2
       console.log("[Result] Full mode separate with needsContinue, polling step 1...");
       setStatus("step1-polling");
       setCurrentStep(1);
@@ -416,7 +418,6 @@ const Result = () => {
         continueToStep2(step1ImageUrl);
       });
     } else {
-      // Single mode, top/bottom mode, or full-single: just poll for final result
       console.log("[Result] Single step mode, polling...");
       setStatus("loading");
       
@@ -425,13 +426,11 @@ const Result = () => {
         setFittingComplete(true);
         setFittingImageUrl(finalImageUrl);
         setProgress(100);
-        clearInterval(progressInterval);
       });
     }
 
     return () => {
       isCancelled = true;
-      clearInterval(progressInterval);
     };
   }, [taskId, navigate, t, session, isTwoStepFullMode, needsContinue, step1TaskIdParam, fittingComplete, isUploading]);
 
