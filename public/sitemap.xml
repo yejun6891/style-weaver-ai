@@ -25,12 +25,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.trupickai.com/mypage</loc>
-    <lastmod>2026-01-24</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://www.trupickai.com/feedback</loc>
     <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
