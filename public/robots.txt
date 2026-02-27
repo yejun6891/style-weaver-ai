@@ -1,8 +1,16 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /mypage
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /result/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /mypage
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /result/
 
 User-agent: Twitterbot
 Allow: /
@@ -12,5 +20,9 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /mypage
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /result/
 
 Sitemap: https://www.trupickai.com/sitemap.xml
