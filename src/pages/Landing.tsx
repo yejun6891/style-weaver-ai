@@ -9,7 +9,7 @@ import BrandSurveyPopup from "@/components/BrandSurveyPopup";
 import FittingCategoryDialog from "@/components/FittingCategoryDialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
-import { Sparkles, ArrowRight, Check, Zap, User, FileText, AlertTriangle } from "lucide-react";
+import { Sparkles, ArrowRight, Check, Zap, User, FileText, AlertTriangle, Star, Shield, CreditCard, Clock } from "lucide-react";
 import { useVisitorLog } from "@/hooks/useVisitorLog";
 
 // Before/After images
@@ -25,8 +25,15 @@ const Landing = () => {
   const { user } = useAuth();
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   
-  // Log visitor on landing page
   useVisitorLog("/");
+
+  const handleCTA = () => {
+    if (isAccessoryFittingEnabled && !featureLoading) {
+      setShowCategoryDialog(true);
+    } else {
+      navigate("/upload");
+    }
+  };
 
   const features = [
     { icon: Zap, text: t("feature.speed") },
@@ -41,10 +48,16 @@ const Landing = () => {
     t("benefits.4"),
   ];
 
+  const testimonials = [
+    { text: t("testimonial.1.text"), author: t("testimonial.1.author"), role: t("testimonial.1.role") },
+    { text: t("testimonial.2.text"), author: t("testimonial.2.author"), role: t("testimonial.2.role") },
+    { text: t("testimonial.3.text"), author: t("testimonial.3.author"), role: t("testimonial.3.role") },
+  ];
+
   return (
     <main className="min-h-screen bg-background overflow-hidden">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4 bg-background/80 backdrop-blur-md">
+      <header className="fixed top-0 left-0 right-0 z-50 px-4 py-4 bg-background/80 backdrop-blur-md border-b border-border/50">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <Logo size="md" />
           <div className="flex items-center gap-3">
@@ -55,7 +68,7 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center px-4 pt-20 pb-16">
+      <section className="relative min-h-[90vh] flex items-center justify-center px-4 pt-24 pb-16">
         {/* Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-32 right-[10%] w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-float" />
@@ -64,14 +77,25 @@ const Landing = () => {
         </div>
 
         <div className="relative z-10 max-w-4xl mx-auto text-center">
-          {/* Pain Point Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 text-destructive mb-6 animate-fade-up">
-            <AlertTriangle className="w-4 h-4" />
-            <span className="text-sm font-semibold">{t("hero.painPoint")}</span>
+          {/* Social Proof Badge */}
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-accent border border-primary/20 mb-8 animate-fade-up">
+            <div className="flex -space-x-2">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="w-6 h-6 rounded-full bg-primary/20 border-2 border-background flex items-center justify-center">
+                  <User className="w-3 h-3 text-primary" />
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-1 ml-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-3.5 h-3.5 fill-warning text-warning" />
+              ))}
+            </div>
+            <span className="text-sm font-semibold text-foreground">{t("hero.badge")}</span>
           </div>
 
           {/* Main Headline */}
-          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4 animate-fade-up tracking-tight leading-tight" style={{ animationDelay: "0.1s" }}>
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold text-foreground mb-6 animate-fade-up tracking-tight leading-[1.05]" style={{ animationDelay: "0.1s" }}>
             {t("hero.title1")}
             <br />
             <span className="gradient-text">{t("hero.title2")}</span>
@@ -82,29 +106,39 @@ const Landing = () => {
             {t("hero.subtitle")}
           </p>
 
-          {/* CTA Button */}
-          <div className="animate-fade-up" style={{ animationDelay: "0.3s" }}>
+          {/* CTA Button + Trust Signals */}
+          <div className="animate-fade-up space-y-5" style={{ animationDelay: "0.3s" }}>
             <Button 
               variant="gradient" 
               size="xl"
-              onClick={() => {
-                if (isAccessoryFittingEnabled && !featureLoading) {
-                  setShowCategoryDialog(true);
-                } else {
-                  navigate("/upload");
-                }
-              }}
-              className="group"
+              onClick={handleCTA}
+              className="group text-lg px-10 py-7 h-auto"
             >
               {t("hero.cta")}
               <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Button>
+
+            {/* Trust signals row */}
+            <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <CreditCard className="w-4 h-4" />
+                <span>{t("trust.noCard")}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4" />
+                <span>{t("trust.freeCredits")}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-4 h-4" />
+                <span>{t("trust.instant")}</span>
+              </div>
+            </div>
           </div>
 
           {/* Features */}
-          <div className="flex flex-wrap justify-center gap-6 mt-14 animate-fade-up" style={{ animationDelay: "0.4s" }}>
+          <div className="flex flex-wrap justify-center gap-4 mt-16 animate-fade-up" style={{ animationDelay: "0.4s" }}>
             {features.map((feature, index) => (
-              <div key={index} className="flex items-center gap-2.5 px-4 py-2 rounded-full bg-card border border-border">
+              <div key={index} className="flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-card border border-border shadow-sm">
                 <feature.icon className="w-4 h-4 text-primary" />
                 <span className="text-sm font-medium text-foreground">{feature.text}</span>
               </div>
@@ -131,21 +165,13 @@ const Landing = () => {
               <div className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-500">
                 <div className="grid grid-cols-2">
                   <div className="relative aspect-[3/4] overflow-hidden">
-                    <img 
-                      src={beforeMale} 
-                      alt="Before - Male" 
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={beforeMale} alt="Before - Male" className="w-full h-full object-cover" />
                     <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-muted/90 backdrop-blur-sm text-xs font-semibold text-muted-foreground">
                       {t("beforeAfter.label.before")}
                     </div>
                   </div>
                   <div className="relative aspect-[3/4] overflow-hidden">
-                    <img 
-                      src={afterMale} 
-                      alt="After - Male" 
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={afterMale} alt="After - Male" className="w-full h-full object-cover" />
                     <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full gradient-primary text-xs font-semibold text-primary-foreground">
                       {t("beforeAfter.label.after")}
                     </div>
@@ -162,21 +188,13 @@ const Landing = () => {
               <div className="relative rounded-3xl overflow-hidden bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-500">
                 <div className="grid grid-cols-2">
                   <div className="relative aspect-[3/4] overflow-hidden">
-                    <img 
-                      src={beforeFemale} 
-                      alt="Before - Female" 
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={beforeFemale} alt="Before - Female" className="w-full h-full object-cover" />
                     <div className="absolute bottom-3 left-3 px-3 py-1.5 rounded-full bg-muted/90 backdrop-blur-sm text-xs font-semibold text-muted-foreground">
                       {t("beforeAfter.label.before")}
                     </div>
                   </div>
                   <div className="relative aspect-[3/4] overflow-hidden">
-                    <img 
-                      src={afterFemale} 
-                      alt="After - Female" 
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={afterFemale} alt="After - Female" className="w-full h-full object-cover" />
                     <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full gradient-primary text-xs font-semibold text-primary-foreground">
                       {t("beforeAfter.label.after")}
                     </div>
@@ -250,6 +268,37 @@ const Landing = () => {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="py-24 px-4 bg-gradient-to-b from-accent/20 to-background">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3 tracking-tight">
+              {t("testimonials.title")}
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              {t("testimonials.subtitle")}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {testimonials.map((testimonial, index) => (
+              <div key={index} className="bg-card border border-border rounded-2xl p-6 hover:shadow-md transition-all duration-300">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-warning text-warning" />
+                  ))}
+                </div>
+                <p className="text-foreground mb-4 leading-relaxed">"{testimonial.text}"</p>
+                <div>
+                  <p className="font-semibold text-foreground text-sm">{testimonial.author}</p>
+                  <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="py-24 px-4 bg-gradient-to-t from-accent/50 to-background">
         <div className="max-w-3xl mx-auto text-center">
@@ -264,14 +313,9 @@ const Landing = () => {
             size="xl"
             onClick={() => {
               window.scrollTo({ top: 0, behavior: 'smooth' });
-              // 관리자이고 악세서리 피팅이 활성화되어 있으면 다이얼로그 표시
-              if (isAccessoryFittingEnabled && !featureLoading) {
-                setShowCategoryDialog(true);
-              } else {
-                navigate("/upload");
-              }
+              handleCTA();
             }}
-            className="group"
+            className="group text-lg px-10 py-7 h-auto"
           >
             {t("cta.button")}
             <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
@@ -282,7 +326,6 @@ const Landing = () => {
       {/* Footer */}
       <footer className="py-8 px-4 border-t border-border bg-muted/30">
         <div className="max-w-5xl mx-auto">
-          {/* Policy Links */}
           <div className="flex flex-wrap justify-center gap-4 mb-4 text-sm">
             <Link to="/privacy-policy" className="text-muted-foreground hover:text-foreground transition-colors underline-offset-4 hover:underline">
               {t("footer.privacy")}
@@ -300,21 +343,14 @@ const Landing = () => {
               {t("footer.feedback")}
             </Link>
           </div>
-          
-          {/* Copyright */}
           <p className="text-center text-sm text-muted-foreground mb-3">© 2025 Trukin. All rights reserved.</p>
-          
-          {/* Company Info */}
           <p className="text-center text-xs text-muted-foreground/70">
             {t("footer.companyInfo")}
           </p>
         </div>
       </footer>
 
-      {/* Brand Survey Popup - only for logged-in users */}
       {user && <BrandSurveyPopup />}
-
-      {/* Fitting Category Dialog (Admin Only) */}
       <FittingCategoryDialog 
         open={showCategoryDialog} 
         onOpenChange={setShowCategoryDialog} 
