@@ -7,9 +7,22 @@ import LanguageSwitch from "@/components/LanguageSwitch";
 import Logo from "@/components/Logo";
 import { Sparkles, ExternalLink } from "lucide-react";
 
+const isInIframe = (): boolean => {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+};
+
 const isInAppBrowser = (): boolean => {
-  const ua = navigator.userAgent || "";
-  return /Instagram|FBAN|FBAV|Threads|Line\/|KAKAOTALK|NAVER/i.test(ua);
+  const ua = (navigator.userAgent || "").toLowerCase();
+
+  const knownInApp = /(instagram|threads|fban|fbav|line|kakaotalk|naver)/i.test(ua);
+  const androidWebView = /; wv\)|\bwv\b/.test(ua);
+  const iosWebView = /iphone|ipad|ipod/.test(ua) && /applewebkit/.test(ua) && !/safari/.test(ua);
+
+  return knownInApp || androidWebView || iosWebView || isInIframe();
 };
 
 const Auth = () => {
