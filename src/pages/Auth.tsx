@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import Logo from "@/components/Logo";
 import { Sparkles, ExternalLink } from "lucide-react";
@@ -17,18 +18,21 @@ const isInIframe = (): boolean => {
 
 const isInAppBrowser = (): boolean => {
   const ua = (navigator.userAgent || "").toLowerCase();
+  const referrer = (document.referrer || "").toLowerCase();
 
-  const knownInApp = /(instagram|threads|fban|fbav|line|kakaotalk|naver)/i.test(ua);
-  const androidWebView = /; wv\)|\bwv\b/.test(ua);
-  const iosWebView = /iphone|ipad|ipod/.test(ua) && /applewebkit/.test(ua) && !/safari/.test(ua);
+  const knownInApp = /(instagram|threads|fban|fbav|fbios|fb_iab|line|kakaotalk|naver|snapchat|messenger)/i.test(ua);
+  const knownInAppReferrer = /(threads\.net|instagram\.com|l\.instagram\.com|facebook\.com|m\.facebook\.com)/i.test(referrer);
+  const androidWebView = /; wv\)|\bwv\b|version\/[\d.]+\s+chrome\/[\d.]+\s+mobile\s+safari\/[\d.]+/.test(ua);
+  const iosWebView = /iphone|ipad|ipod/.test(ua) && /applewebkit/.test(ua) && (!/safari/.test(ua) || knownInApp);
 
-  return knownInApp || androidWebView || iosWebView || isInIframe();
+  return knownInApp || knownInAppReferrer || androidWebView || iosWebView || isInIframe();
 };
 
 const Auth = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { user, loading, signInWithGoogle } = useAuth();
+  const { toast } = useToast();
   const inApp = useMemo(() => isInAppBrowser(), []);
 
   useEffect(() => {
@@ -38,9 +42,24 @@ const Auth = () => {
   }, [user, loading, navigate]);
 
   const handleGoogleLogin = async () => {
+    if (isInAppBrowser()) {
+      toast({
+        title: t("auth.inAppTitle") || "인앱 브라우저에서는 로그인할 수 없어요",
+        description: t("auth.inAppDesc") || "아래 '브라우저에서 열기' 버튼으로 Safari/Chrome에서 다시 로그인해 주세요.",
+      });
+      return;
+    }
+
     const { error } = await signInWithGoogle();
     if (error) {
       console.error("Login error:", error.message);
+      if (/disallowed_useragent|secure browsers/i.test(error.message)) {
+        toast({
+          title: "Google 로그인 차단",
+          description: "Threads/인앱 브라우저에서는 차단됩니다. Safari 또는 Chrome에서 접속해 주세요.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -109,16 +128,8 @@ const Auth = () => {
                   <ExternalLink className="w-5 h-5" />
                   {t("auth.openBrowser") || "브라우저에서 열기"}
                 </Button>
-                <Button
-                  onClick={handleGoogleLogin}
-                  variant="outline"
-                  size="lg"
-                  className="w-full h-14 text-base"
-                >
-                  {t("auth.tryLoginAnyway") || "그래도 Google 로그인 시도"}
-                </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  {t("auth.inAppHint") || "위 버튼으로도 안 되면 주소창의 URL을 복사해 Safari/Chrome에서 직접 열어주세요."}
+                  {t("auth.inAppHint") || "열기가 안 되면 주소를 복사해 Safari/Chrome에 직접 붙여넣어 주세요."}
                 </p>
               </div>
             ) : (
@@ -153,3 +164,4 @@ const Auth = () => {
 };
 
 export default Auth;
+
