@@ -102,17 +102,23 @@ const Auth = () => {
                   size="lg"
                   className="w-full h-14 text-base gap-2"
                   onClick={() => {
-                    // 대부분의 인앱 브라우저에서 외부 브라우저로 여는 방법
                     const url = window.location.href;
-                    window.open(url, "_system");
-                    // fallback: 클립보드 복사 안내
+                    window.open(url, "_blank", "noopener,noreferrer");
                   }}
                 >
                   <ExternalLink className="w-5 h-5" />
                   {t("auth.openBrowser") || "브라우저에서 열기"}
                 </Button>
+                <Button
+                  onClick={handleGoogleLogin}
+                  variant="outline"
+                  size="lg"
+                  className="w-full h-14 text-base"
+                >
+                  {t("auth.tryLoginAnyway") || "그래도 Google 로그인 시도"}
+                </Button>
                 <p className="text-xs text-muted-foreground text-center">
-                  {t("auth.inAppHint") || "또는 주소창의 URL을 복사하여 Safari/Chrome에서 직접 열어주세요."}
+                  {t("auth.inAppHint") || "위 버튼으로도 안 되면 주소창의 URL을 복사해 Safari/Chrome에서 직접 열어주세요."}
                 </p>
               </div>
             ) : (
