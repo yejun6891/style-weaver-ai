@@ -32,6 +32,7 @@ const ALLOWED_DOMAINS = [
   "www.trupickai.com",
   "localhost",
   "lovable.app",
+  "lovableproject.com",
 ];
 
 const isAllowedDomain = (): boolean => {
