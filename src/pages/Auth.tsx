@@ -34,7 +34,9 @@ const Auth = () => {
   const { t } = useLanguage();
   const { user, loading, signInWithGoogle } = useAuth();
   const { toast } = useToast();
+
   const inApp = useMemo(() => isInAppBrowser(), []);
+  const embedded = useMemo(() => isInIframe(), []);
 
   useEffect(() => {
     if (!loading && user) {
@@ -42,12 +44,56 @@ const Auth = () => {
     }
   }, [user, loading, navigate]);
 
-  const handleGoogleLogin = async () => {
-    if (isInAppBrowser()) {
+  const openInNewTabOrCopy = async (url: string): Promise<boolean> => {
+    const w = window.open(url, "_blank", "noopener,noreferrer");
+    if (w) return true;
+
+    // Popup blocked → copy link as fallback
+    try {
+      await navigator.clipboard.writeText(url);
       toast({
-        title: t("auth.inAppTitle") || "인앱 브라우저에서는 로그인할 수 없어요",
-        description: t("auth.inAppDesc") || "아래 '브라우저에서 열기' 버튼으로 Safari/Chrome에서 다시 로그인해 주세요.",
+        title: t("auth.linkCopiedTitle") || "링크를 복사했어요",
+        description: t("auth.linkCopiedDesc") || "Safari/Chrome에 붙여넣어 열어주세요.",
       });
+    } catch {
+      toast({
+        title: t("auth.openBrowser") || "브라우저에서 열기",
+        description:
+          t("auth.openBrowserFallback") ||
+          "팝업이 차단되었어요. 주소창의 링크를 복사해 Safari/Chrome에서 열어주세요.",
+      });
+    }
+
+    return false;
+  };
+
+  const handleGoogleLogin = async () => {
+    const url = window.location.href;
+
+    // Lovable 미리보기/에디터(iframe)에서는 OAuth 리다이렉트가 제한될 수 있어 새 탭에서 진행
+    if (embedded) {
+      const opened = await openInNewTabOrCopy(url);
+      if (opened) {
+        toast({
+          title: t("auth.openNewTabTitle") || "새 탭에서 로그인해 주세요",
+          description:
+            t("auth.openNewTabDesc") ||
+            "새 탭에서 로그인 완료 후, 이 화면으로 돌아오면 자동으로 반영돼요.",
+        });
+      }
+      return;
+    }
+
+    // Google은 인앱 브라우저(WebView)에서 로그인이 차단되는 경우가 있어 외부 브라우저로 유도
+    if (inApp) {
+      const opened = await openInNewTabOrCopy(url);
+      if (opened) {
+        toast({
+          title: t("auth.openBrowserTitle") || "Safari/Chrome에서 로그인해 주세요",
+          description:
+            t("auth.openBrowserDesc") || "인앱 브라우저에서는 Google 로그인이 막힐 수 있어요.",
+        });
+      }
       return;
     }
 
@@ -57,7 +103,7 @@ const Auth = () => {
       if (/disallowed_useragent|secure browsers/i.test(error.message)) {
         toast({
           title: "Google 로그인 차단",
-          description: "Threads/인앱 브라우저에서는 차단됩니다. Safari 또는 Chrome에서 접속해 주세요.",
+          description: "인앱 브라우저에서는 차단됩니다. Safari 또는 Chrome에서 접속해 주세요.",
           variant: "destructive",
         });
       }
