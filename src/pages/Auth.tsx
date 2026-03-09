@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import Logo from "@/components/Logo";
-import { Sparkles, ExternalLink } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 const isInIframe = (): boolean => {
   try {
@@ -25,7 +25,8 @@ const isInAppBrowser = (): boolean => {
   const androidWebView = /; wv\)|\bwv\b|version\/[\d.]+\s+chrome\/[\d.]+\s+mobile\s+safari\/[\d.]+/.test(ua);
   const iosWebView = /iphone|ipad|ipod/.test(ua) && /applewebkit/.test(ua) && (!/safari/.test(ua) || knownInApp);
 
-  return knownInApp || knownInAppReferrer || androidWebView || iosWebView || isInIframe();
+  // NOTE: iframe 여부는 인앱 브라우저 판별과 분리합니다.
+  return knownInApp || knownInAppReferrer || androidWebView || iosWebView;
 };
 
 const Auth = () => {
