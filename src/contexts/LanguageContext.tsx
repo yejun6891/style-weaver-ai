@@ -1085,7 +1085,9 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const t = (key: string): string => {
-    return translations[language][key as keyof typeof translations.ko] || key;
+    const value = (translations[language] as Record<string, string>)[key];
+    // If a translation key is missing, return an empty string so callers can safely use fallbacks via `||`.
+    return typeof value === "string" ? value : "";
   };
 
   return (
